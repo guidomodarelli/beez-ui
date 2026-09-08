@@ -1,6 +1,6 @@
 # beez-ui
 
-Biblioteca de componentes React reutilizables, agnóstica de framework y con tema controlado por la aplicación. Reúne los componentes de LaTribu y las funcionalidades reutilizables de agenda-mensual.
+Biblioteca de componentes React reutilizables, con adaptadores opcionales por framework y tema compartido. Reúne los componentes de LaTribu y las funcionalidades reutilizables de agenda-mensual.
 
 ## Consumo
 
@@ -17,30 +17,42 @@ Agrupar los imports de componentes desde la raíz. El paquete publica JavaScript
 
 La hoja compartida registra las clases mediante `@source` e incluye el **tema default de LaTribu**, sus variantes clara/oscura, radios y fuentes locales Geist, Poppins e IBM Plex Mono. Poppins se reserva para títulos grandes mediante `--font-display`. Los consumidores pueden sobrescribir tokens. Las fuentes conservan sus licencias en `assets/fonts`.
 
-## Integración opcional con Next.js
+## Providers de UI
 
-El núcleo usa elementos nativos sin configuración. `BeezUIProvider` permite instalar adaptadores propios mediante `components.Image` y `components.Link`. El tema sigue controlado por la aplicación.
+Elegir un único `BeezUIProvider` según el framework. Los componentes y `useTheme` siempre se importan desde `beez-ui`.
 
-En una app Next.js, activar su integración desde un componente cliente:
+| Import del provider | Navegación | Imágenes de avatar |
+| --- | --- | --- |
+| `beez-ui` | Anclas nativas | `@unpic/react` |
+| `beez-ui/next` | `next/link` | `next/image` |
+| `beez-ui/tanstack` | TanStack Router | `@unpic/react` |
 
 ```tsx
 "use client";
 
 import type { ReactNode } from "react";
-import { NextBeezUIProvider } from "beez-ui/next";
+import { BeezUIProvider } from "beez-ui/next";
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <NextBeezUIProvider>{children}</NextBeezUIProvider>;
+  return (
+    <BeezUIProvider themeOptions={{ storageKey: "tutribu-theme", defaultTheme: "system" }}>
+      {children}
+    </BeezUIProvider>
+  );
 }
 ```
 
-`NextBeezUIProvider` utiliza `next/image` y `next/link` para avatares y paginación. El prefetch está desactivado por defecto; se puede activar con `prefetch`. La optimización de imágenes se activa con `optimizeImages`, después de configurar los hosts permitidos en la aplicación. El default conserva la carga directa de imágenes que ya usa LaTribu.
+Todos los providers usan `next-themes` con clases CSS. El consumidor configura `themeOptions` y conecta sus controles a `useTheme` desde `beez-ui`. Al migrar una aplicación, conservar su clave de almacenamiento y retirar los scripts y estados anteriores que modifiquen el tema. En Next, mantener `suppressHydrationWarning` en el elemento `html` porque el provider restaura la preferencia antes de hidratar.
 
-La integración está aislada en `beez-ui/next` y Next.js es un peer opcional. Los repos que no lo usan importan solamente `beez-ui`: no se intenta detectar ni cargar el framework durante la hidratación. El mismo proveedor se utiliza en servidor y cliente para mantener un primer render consistente. No hay dependencia de `next-themes` ni se exporta un componente global `Link`.
+El provider de Next desactiva prefetch y optimización de imágenes por defecto, como LaTribu. Se activan con `prefetch` y `optimizeImages`; para optimizar imágenes remotas hay que configurar sus hosts en la app. `Link` y los enlaces de paginación usan el adaptador del provider. El contrato común de `Link` acepta href como string y atributos de ancla, no todas las opciones exclusivas de Next.
+
+El provider de TanStack se monta dentro del router de la aplicación. Preserva query y hash; `prefetch` activa precarga por intención. TanStack no aporta un componente Image propio: Unpic genera variantes responsivas para CDNs compatibles y conserva las URLs que no reconoce; no instala un servidor de optimización.
+
+Next y TanStack Router son peers opcionales aislados en sus entrypoints. El provider nativo admite overrides mediante `components`. Sin provider, los componentes conservan anclas e imágenes HTML como fallback.
 
 ## Responsabilidades del consumidor
 
-- Tema: la app aplica la clase `dark`, decide la preferencia del sistema y conserva la selección. `AnimatedThemeToggler` recibe `theme`, `resolvedTheme` y `onThemeChange`; `ThemedToaster` recibe `theme`. No requieren contexto global.
+- Tema: `AnimatedThemeToggler` y `ThemedToaster` consumen el contexto compartido. Sus props explícitas de tema siguen disponibles para usos controlados.
 - Navegación: `PaginationNext`, `PaginationPrevious` y `PaginationLink` usan anclas nativas. El prop opcional `component` admite el adaptador del router que elija la app. Sin proveedor usa el elemento nativo; con el proveedor de Next usa su navegación cliente.
 - Sidebar: `defaultOpen` y el modo controlado conservan la semántica de LaTribu. `storageKey` activa opcionalmente persistencia local segura tras hidratar, sin cambiar la cookie pública `sidebar_state` ni sus siete días de duración.
 - Formularios y tablas: el consumidor provee sus datos, validaciones y callbacks. No se importan servicios, modelos de negocio ni endpoints de agenda-mensual.
@@ -89,7 +101,7 @@ pnpm release:publish releases/<version>-<sha256>/beez-ui-<version>.tgz
 
 El comando valida nuevamente nombre, versión, contenido y checksum antes de invocar `pnpm publish --access public`. Carga `.env` sólo si el token no existe en el entorno y no imprime su contenido. La autenticación se configura mediante `.npmrc` con la referencia `${NPM_TOKEN}`. Los controles de Git de pnpm permanecen activos.
 
-`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y ambos modos de navegador en Linux y Windows; no publica automáticamente.
+`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows; no publica automáticamente.
 
 Tras publicar, los consumidores pueden instalar `pnpm add beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. LaTribu mantiene un artefacto versionado en `vendor` y su lockfile para instalaciones reproducibles.
 
