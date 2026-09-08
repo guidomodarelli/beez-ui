@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.2.0 - 2026-09-08
+
+- Unifica el nombre `BeezUIProvider` en los entrypoints nativo, Next y TanStack; reemplaza `NextBeezUIProvider`.
+- Comparte el tema mediante `next-themes`, `themeOptions` y `useTheme` en todos los providers.
+- Restaura `Link` desde la raíz con navegación por adaptadores y prefetch desactivado por defecto.
+- Integra Unpic para imágenes nativas y de TanStack, y conserva Next Image en el provider de Next.
+- Separa los tipos de tests y valida navegación, imágenes y tema en Chromium y WebKit.
+
 ## 0.1.1 - 2026-09-08
 
 - Publica JavaScript ESM y declaraciones TypeScript en `dist`.
