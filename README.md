@@ -122,11 +122,12 @@ El comando ejecuta el flujo completo:
 1. Actualiza `package.json` y agrega la entrada del changelog con fecha UTC, conservando el historial.
 2. Prepara la release: instalación congelada, tests sin React Compiler, build optimizado de JavaScript, tipos y CSS, lint, typechecks, tests unitarios y pruebas de navegador.
 3. Genera el tarball en `releases/<version>-<sha256>/beez-ui-<version>.tgz` y valida su contenido, exports e integridad.
-4. Publica ese mismo artefacto en npm con acceso público y etiqueta `latest`.
+4. Crea un commit con el contenido validado de `package.json` y `CHANGELOG.md`, conservando otros archivos staged, y pushea ese commit a la rama upstream configurada.
+5. Publica ese mismo artefacto en npm con acceso público y etiqueta `latest`.
 
 La publicación usa el cliente oficial de npm para admitir su flujo interactivo de verificación en el navegador/2FA. Instalación, build y checks siguen usando pnpm 12. Ejecutar desde una terminal interactiva cuando la cuenta requiera autenticación adicional. El token se carga sólo al publicar, no se imprime y se referencia mediante `${NPM_TOKEN}` en `.npmrc`.
 
-El comando no crea commits ni tags ni modifica ramas Git. Si falla una validación, no publica. Los metadatos de la nueva versión quedan disponibles: corregir el error, ejecutar `pnpm release:prepare` y publicar el artefacto resultante. Si falla la publicación, comprobar primero si npm recibió la versión y reintentar sólo la publicación del mismo tarball. No ejecutar nuevamente `create-version` para reintentar la misma release.
+El comando requiere una rama Git con upstream configurado. El commit se limita a los dos archivos de metadatos, incluidos sus cambios previos; revisar el código antes de ejecutar la release. No crea tags ni hace force push. Si cambian el checkout, el upstream o los metadatos durante las validaciones, se detiene. También comprueba que los hooks de Git no hayan agregado archivos ni alterado los metadatos validados antes de pushear. Si falla una validación, el commit o el push, no publica. Los metadatos de la nueva versión quedan disponibles: corregir el error, ejecutar `pnpm release:prepare`, commitear y pushear los metadatos y publicar el artefacto resultante. Si falla el push después del commit, resolver el problema y pushear ese commit antes de publicar el tarball preparado. Si falla la publicación, comprobar primero si npm recibió la versión y reintentar sólo la publicación del mismo tarball. No ejecutar nuevamente `create-version` para reintentar la misma release.
 
 Los pasos individuales siguen disponibles:
 
