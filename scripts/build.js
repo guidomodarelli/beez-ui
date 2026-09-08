@@ -1,4 +1,4 @@
-/** @file Emits clean ESM JavaScript and declarations with the TypeScript 7 compiler. */
+/** @file Emits clean ESM JavaScript, declarations and browser-ready shared CSS. */
 import { execFileSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -15,3 +15,8 @@ const compilerRoot = dirname(require.resolve("@typescript/native/package.json"))
 const output = ownedPath(root, join(root, "dist"));
 rmSync(output, { recursive: true, force: true });
 execFileSync(process.execPath, [join(compilerRoot, compiler.bin.tsc), "--project", "tsconfig.build.json"], { cwd: root, stdio: "inherit" });
+
+/** Compiles only the library's emitted classes, independently of consumer source detection. */
+const cssCompilerRoot = dirname(require.resolve("@tailwindcss/cli/package.json"));
+const cssCompiler = require("@tailwindcss/cli/package.json");
+execFileSync(process.execPath, [join(cssCompilerRoot, cssCompiler.bin.tailwindcss), "--input", "styles.source.css", "--output", join(output, "styles.css"), "--minify"], { cwd: root, stdio: "inherit" });

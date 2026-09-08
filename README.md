@@ -11,11 +11,12 @@ import { Button, Avatar, AvatarImage, DataTable, Calendar } from "beez-ui";
 Agrupar los imports de componentes desde la raíz. El paquete publica JavaScript ESM y declaraciones TypeScript en `dist`; el consumidor no necesita transpilar el código fuente de la librería. La gramática de filtros y los helpers de mes-año son independientes de React.
 
 ```css
-@import "tailwindcss";
 @import "beez-ui/styles.css";
 ```
 
-La hoja compartida registra las clases mediante `@source` e incluye el **tema default de LaTribu**, sus variantes clara/oscura, radios y fuentes locales Geist, Poppins e IBM Plex Mono. Poppins se reserva para títulos grandes mediante `--font-display`. Los consumidores pueden sobrescribir tokens. Las fuentes conservan sus licencias en `assets/fonts`.
+`beez-ui/styles.css` es CSS listo para el navegador: incluye reset, utilidades, tema claro/oscuro, radios y fuentes locales Geist, Poppins e IBM Plex Mono. No requiere Tailwind, plugins PostCSS ni declaraciones `@source` en el consumidor. Las clases se compilan en el build de la biblioteca y se publican en `dist/styles.css`; `styles.source.css` es la entrada de desarrollo y no se distribuye.
+
+Los consumidores pueden sobrescribir tokens mediante CSS normal. Poppins se reserva para títulos grandes mediante `--font-display`; las licencias se incluyen en `assets/fonts`. Si la aplicación usa Tailwind para sus propios estilos puede mantenerlo, pero ya no necesita escanear beez-ui.
 
 ## Providers de UI
 
@@ -78,7 +79,7 @@ pnpm build
 pnpm release:prepare
 ```
 
-`pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
+`pnpm build` compila JavaScript, declaraciones y CSS con el CLI de Tailwind. `pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Los consumidores de navegador no instalan plugins de Tailwind, y una prueba adicional sirve el tarball por HTTP sin procesadores CSS para verificar estilos computados y carga de fuentes. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
 
 Los tests resuelven `beez-ui`, `beez-ui/next` y `beez-ui/tanstack` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
 

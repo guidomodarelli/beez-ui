@@ -1,2 +1,2 @@
-/** Compiles the same published Tailwind stylesheet used by consumers. */
-export default { plugins: { "@tailwindcss/postcss": {} } };
+/** Consumes browser-ready package CSS without a Tailwind compiler. */
+export default { plugins: {} };

@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.3.1 - 2026-09-08
+
+- Publica CSS precompilado para que los estilos funcionen sin Tailwind ni detección de clases en el consumidor.
+- Conserva el tema, las fuentes y las utilidades compartidas mediante `beez-ui/styles.css`.
+- Verifica estilos computados del tarball servido por HTTP sin procesadores CSS en Chromium y WebKit.
+
 ## 0.2.0 - 2026-09-08
 
 - Unifica el nombre `BeezUIProvider` en los entrypoints nativo, Next y TanStack; reemplaza `NextBeezUIProvider`.
