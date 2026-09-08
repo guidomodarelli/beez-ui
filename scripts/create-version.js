@@ -1,11 +1,12 @@
-/** @file Creates a version and prepares its validated tarball without Git changes or publication. */
+/** @file Creates, validates and publishes a version without creating Git commits or tags. */
 import { execFileSync } from "node:child_process";
 import console from "node:console";
 import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { createReleaseVersion } from "./release-version.js";
+import { createAndPublishRelease } from "./release-workflow.js";
+import { prepareRelease } from "./prepare-release.js";
 
 /** Anchors version changes to this repository rather than the caller's working directory. */
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -20,11 +21,10 @@ if (values.help) {
   console.log(USAGE);
 } else {
   if (positionals.length !== 1) throw new Error(`create-version: ${USAGE}`);
-  const version = createReleaseVersion(root, positionals[0], values.notes ?? []);
-  console.log(`Versión ${version} creada. Preparando el artefacto validado…`);
-  try {
-    execFileSync(process.execPath, [join(root, "scripts", "prepare-release.js")], { cwd: root, stdio: "inherit" });
-  } catch (error) {
-    throw new Error(`create-version: ${version} metadata is ready, but preparation failed; fix the reported issue and run pnpm release:prepare`, { cause: error });
-  }
+  const release = createAndPublishRelease(root, positionals[0], values.notes ?? [], {
+    prepare: prepareRelease,
+    /** Publishes the exact checked artifact, preserving interactive npm authentication. */
+    publish: (archive) => execFileSync(process.execPath, [join(root, "scripts", "publish-release.js"), archive], { cwd: root, stdio: "inherit" }),
+  });
+  console.log(`Versión ${release.version} publicada en npm.`);
 }

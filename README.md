@@ -85,35 +85,40 @@ Los tests resuelven `beez-ui`, `beez-ui/next` y `beez-ui/tanstack` mediante ruta
 
 El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [API de compatibilidad oficial de TypeScript 6](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0) mediante un alias; no reemplaza el compilador de los typechecks.
 
-## Preparar y publicar una versión
+## Crear y publicar una versión
 
-El flujo sigue el utilizado en `eslint-plugin-no-magic`: build reproducible, checks, validación del contenido del tarball y publicación explícita.
-
-Desde el repositorio de beez-ui, crear una release con:
+Desde el repositorio de beez-ui, configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado. Después ejecutar:
 
 ```sh
 pnpm run create-version patch
-pnpm run create-version patch --notes "Corrige los estilos de los componentes"
 pnpm run create-version minor --notes "Agrega un componente" --notes "Amplía sus opciones"
 pnpm run create-version 0.5.0 --notes "Describe los cambios de esta versión"
 ```
 
-Acepta `patch`, `minor`, `major` o una versión estable explícita mayor que la actual. Las notas son opcionales y pueden repetirse. Sin `--notes`, se agrega una entrada básica que indica la nueva versión; las notas explícitas no pueden estar vacías. El comando actualiza `package.json`, agrega la entrada de changelog con fecha UTC, conserva el historial y ejecuta `release:prepare`. No crea commits, tags ni publicaciones. `pnpm run create-version --help` muestra la sintaxis.
+Acepta `patch`, `minor`, `major` o una versión estable explícita mayor que la actual. Las notas son opcionales y pueden repetirse. Sin `--notes`, se agrega una entrada básica que indica la nueva versión; las notas explícitas no pueden estar vacías. `pnpm run create-version --help` muestra la sintaxis.
 
-Si la preparación falla, los metadatos de la nueva versión quedan disponibles para corregir el problema y reintentar con `pnpm release:prepare`, sin incrementar nuevamente la versión. Entradas inválidas se rechazan antes de modificar los archivos.
+El comando ejecuta el flujo completo:
 
-1. Ejecutar `pnpm run create-version` con el incremento y las notas deseadas. Alternativamente, actualizar `package.json` y la primera entrada de `CHANGELOG.md` manualmente.
-2. El comando ejecuta `pnpm release:prepare` automáticamente. Para una versión editada manualmente o para reintentar, ejecutar ese paso directamente: instala desde el lockfile congelado, compila JavaScript, tipos y CSS, ejecuta lint, typechecks, tests unitarios, prueba del tarball y tests de navegador.
-3. El comando deja un archivo en `releases/<version>-<sha256>/beez-ui-<version>.tgz`, verifica sus exports y excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`. Las fuentes, estilos y licencias públicas sí forman parte del paquete. Conserva releases anteriores.
-4. Revisar y commitear la versión y sus notas. La preparación no crea commits ni tags y no publica.
-5. Configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado.
-6. Publicar el artefacto exacto que imprimió la preparación:
+1. Actualiza `package.json` y agrega la entrada del changelog con fecha UTC, conservando el historial.
+2. Prepara la release: instalación congelada, build de JavaScript, tipos y CSS, lint, typechecks, tests unitarios y pruebas de navegador.
+3. Genera el tarball en `releases/<version>-<sha256>/beez-ui-<version>.tgz` y valida su contenido, exports e integridad.
+4. Publica ese mismo artefacto en npm con acceso público y etiqueta `latest`.
+
+La publicación usa el cliente oficial de npm para admitir su flujo interactivo de verificación en el navegador/2FA. Instalación, build y checks siguen usando pnpm 12. Ejecutar desde una terminal interactiva cuando la cuenta requiera autenticación adicional. El token se carga sólo al publicar, no se imprime y se referencia mediante `${NPM_TOKEN}` en `.npmrc`.
+
+El comando no crea commits ni tags ni modifica ramas Git. Si falla una validación, no publica. Los metadatos de la nueva versión quedan disponibles: corregir el error, ejecutar `pnpm release:prepare` y publicar el artefacto resultante. Si falla la publicación, comprobar primero si npm recibió la versión y reintentar sólo la publicación del mismo tarball. No ejecutar nuevamente `create-version` para reintentar la misma release.
+
+Los pasos individuales siguen disponibles:
 
 ```sh
+# Sólo validar y empaquetar la versión actual, sin publicarla.
+pnpm release:prepare
+
+# Publicar un artefacto ya preparado.
 pnpm release:publish releases/<version>-<sha256>/beez-ui-<version>.tgz
 ```
 
-El comando valida nuevamente nombre, versión, contenido y checksum antes de invocar `pnpm publish --access public`. Carga `.env` sólo si el token no existe en el entorno y no imprime su contenido. La autenticación se configura mediante `.npmrc` con la referencia `${NPM_TOKEN}`. Los controles de Git de pnpm permanecen activos.
+`release:publish` vuelve a verificar nombre, versión, contenido y checksum antes de invocar `npm publish`. El paquete excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`; incluye JavaScript, declaraciones, CSS, fuentes tipográficas y licencias. Conserva releases anteriores.
 
 `prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows; no publica automáticamente.
 

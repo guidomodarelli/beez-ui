@@ -26,4 +26,5 @@ const packed = JSON.parse(execFileSync("tar", ["-xOf", archivePath, "package/pac
 if (packed.name !== metadata.name || packed.version !== metadata.version) throw new Error("release: packed metadata does not match the current release");
 if (!process.env.NPM_TOKEN && existsSync(join(root, ".env"))) process.loadEnvFile(join(root, ".env"));
 if (!process.env.NPM_TOKEN) throw new Error("release: provide NPM_TOKEN through the environment or the ignored .env file");
-execSync(`pnpm publish ${relativeArchive} --access public`, { cwd: root, env: process.env, stdio: "inherit" });
+// npm's official client supports the interactive web/2FA flow required by this account.
+execSync(`npm publish ${relativeArchive} --access public --tag latest`, { cwd: root, env: process.env, stdio: "inherit" });
