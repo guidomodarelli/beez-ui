@@ -46,8 +46,39 @@ test("activates Next adapters only through their optional entrypoint", async ({ 
   await expect(image).toHaveAttribute("data-nimg", "1");
   await expect(page.getByText("GH", { exact: true })).toHaveCount(0);
   await page.evaluate(() => { document.documentElement.dataset.navigationProbe = "preserved"; });
-  await page.getByRole("link").click();
+  await page.getByRole("link", { name: "Abrir destino" }).click();
   await expect(page.getByRole("heading", { name: "Destino del enlace" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-navigation-probe", "preserved");
+  expect(errors).toEqual([]);
+});
+
+test("restores the provider theme without hydration mismatches", async ({ page }) => {
+  const hydrationErrors: string[] = [];
+  page.on("console", message => {
+    if (/hydrated|hydration/i.test(message.text())) hydrationErrors.push(message.text());
+  });
+  await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+  await page.goto("http://127.0.0.1:3109/");
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.getByRole("button", { name: "Notificar" }).click();
+  await expect(page.getByText("Tema aplicado")).toBeVisible();
+  await expect(page.locator("[data-sonner-toaster]")).toHaveAttribute("data-sonner-theme", "dark");
+  expect(hydrationErrors).toEqual([]);
+});
+
+test("uses TanStack navigation, Unpic images and the shared theme", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/tanstack.html");
+  await expect(page.getByRole("img", { name: "Avatar TanStack" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Avatar TanStack" })).not.toHaveAttribute("data-nimg");
+  await page.getByRole("button", { name: "Alternar tema" }).click();
+  await page.getByRole("menuitemradio", { name: "Oscuro" }).click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.evaluate(() => { document.documentElement.dataset.navigationProbe = "preserved"; });
+  await page.getByRole("link", { name: "Abrir destino TanStack" }).click();
+  await expect(page.getByRole("heading", { name: "Destino TanStack" })).toBeVisible();
+  await expect(page).toHaveURL(/\/tanstack-destination\?tab=summary#details$/);
   await expect(page.locator("html")).toHaveAttribute("data-navigation-probe", "preserved");
   expect(errors).toEqual([]);
 });

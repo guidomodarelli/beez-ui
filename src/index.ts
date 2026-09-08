@@ -1,5 +1,8 @@
 /** Exposes shared UI without promoting server-safe exports into a client boundary. */
-export { BeezUIProvider, type BeezUIProviderProps, type BeezUIComponents, type BeezImageProps, type BeezLinkProps } from "./providers/beez-ui-provider.js";
+export { useTheme } from "next-themes";
+export { Link, type LinkProps } from "./components/link.js";
+export { BeezUIProvider, type BeezUIProviderProps } from "./providers/native-provider.js";
+export type { BeezUIComponents, BeezImageProps, BeezLinkProps } from "./providers/beez-ui-provider.js";
 export * from "./components/alert-dialog.js";
 export * from "./components/avatar.js";
 export * from "./components/badge.js";

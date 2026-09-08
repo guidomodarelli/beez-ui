@@ -4,6 +4,12 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "allowJs": true,
+    "paths": {
+      "@/*": ["../src/*"],
+      "beez-ui": ["../dist/index"],
+      "beez-ui/next": ["../dist/next"],
+      "beez-ui/tanstack": ["../dist/tanstack"]
+    },
     "types": ["node", "@testing-library/jest-dom/vitest", "vite/client"]
   },
   "include": [

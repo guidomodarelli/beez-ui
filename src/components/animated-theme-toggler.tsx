@@ -4,6 +4,7 @@ import { useCallback, useRef, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun, SunMoon } from "lucide-react";
 import type { ThemeMode, ResolvedTheme } from "../theme.js";
 import { flushSync } from "react-dom";
+import { useTheme } from "next-themes";
 
 import {
   DropdownMenu,
@@ -41,20 +42,24 @@ type ThemeOption = (typeof THEME_OPTIONS)[number]["value"];
 
 export interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
   duration?: number;
-  theme: ThemeMode;
-  resolvedTheme: ResolvedTheme;
-  onThemeChange: (theme: ThemeMode) => void;
+  theme?: ThemeMode;
+  resolvedTheme?: ResolvedTheme;
+  onThemeChange?: (theme: ThemeMode) => void;
 }
 
 export const AnimatedThemeToggler = ({
   className,
   duration = 400,
   disabled,
-  theme,
-  resolvedTheme,
-  onThemeChange,
+  theme: controlledTheme,
+  resolvedTheme: controlledResolvedTheme,
+  onThemeChange: controlledOnThemeChange,
   ...props
 }: AnimatedThemeTogglerProps) => {
+  const providerTheme = useTheme();
+  const theme = controlledTheme ?? providerTheme.theme;
+  const resolvedTheme = controlledResolvedTheme ?? providerTheme.resolvedTheme;
+  const onThemeChange = controlledOnThemeChange ?? providerTheme.setTheme;
   const buttonRef = useRef<HTMLButtonElement>(null);
   const isHydrated = useSyncExternalStore(
     () => () => undefined,

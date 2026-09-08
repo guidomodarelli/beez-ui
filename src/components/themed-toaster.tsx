@@ -1,14 +1,17 @@
 "use client"
 
 import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { useTheme } from "next-themes"
 import { CircleCheck, Info, TriangleAlert, OctagonAlert, Loader } from "lucide-react"
 
 /** Renders shared notification styling using the consumer's resolved theme. */
-const ThemedToaster = ({ theme = "light", ...props }: ToasterProps) => {
+const ThemedToaster = ({ theme, ...props }: ToasterProps) => {
+  const { resolvedTheme } = useTheme()
+  const activeTheme = theme ?? (resolvedTheme === "dark" ? "dark" : "light")
 
   return (
     <Sonner
-      theme={theme}
+      theme={activeTheme}
       className="toaster group"
       icons={{
         success: (

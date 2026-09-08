@@ -4,36 +4,29 @@
 import { useMemo, type ReactNode } from "react";
 import NextImageModule from "next/image.js";
 import NextLinkModule from "next/link.js";
-import { BeezUIProvider, type BeezImageProps, type BeezLinkProps } from "./providers/beez-ui-provider.js";
-
-/** Supplies an intrinsic size when a consumer relies on avatar CSS dimensions. */
-const DEFAULT_IMAGE_DIMENSION_PX = 40;
+import { BeezUIProvider as BaseBeezUIProvider, type BeezUIProviderProps as BaseBeezUIProviderProps, type BeezImageProps, type BeezLinkProps } from "./providers/beez-ui-provider.js";
+import { imageDimension } from "./lib/image-dimensions.js";
 
 /** Supports both native ESM loading of Next's CommonJS modules and bundler interop. */
 const NextImage = NextImageModule.default ?? NextImageModule;
 const NextLink = NextLinkModule.default ?? NextLinkModule;
 
 /** Configures Next adapters without forcing image host configuration on existing apps. */
-export interface NextBeezUIProviderProps {
+export interface BeezUIProviderProps {
   children: ReactNode;
   /** Enables the image optimizer; configure allowed image hosts in the application. */
   optimizeImages?: boolean;
   /** Keeps speculative navigation opt-in, matching LaTribu's existing behavior. */
   prefetch?: boolean;
-}
-
-/** Converts native image dimensions into the positive numeric values Next accepts. */
-function imageDimension(value: string | number | undefined): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_IMAGE_DIMENSION_PX;
+  themeOptions?: BaseBeezUIProviderProps["themeOptions"];
 }
 
 /** Activates Next.js navigation and images for every descendant using shared primitives. */
-export function NextBeezUIProvider({ children, optimizeImages = false, prefetch = false }: NextBeezUIProviderProps) {
+export function BeezUIProvider({ children, optimizeImages = false, prefetch = false, themeOptions }: BeezUIProviderProps) {
   const components = useMemo(() => ({
     /** Delegates routing while retaining the consumer's native link props. */
-    Link: function NextRoutingAdapter(props: BeezLinkProps) {
-      return <NextLink {...props} prefetch={prefetch} />;
+    Link: function NextRoutingAdapter({ prefetch: linkPrefetch, ...props }: BeezLinkProps) {
+      return <NextLink {...props} prefetch={linkPrefetch ?? prefetch} />;
     },
     /** Delegates loading to Next while the avatar primitive owns error/fallback state. */
     Image: function NextImageAdapter(props: BeezImageProps) {
@@ -41,5 +34,5 @@ export function NextBeezUIProvider({ children, optimizeImages = false, prefetch 
       return <NextImage {...props} alt={props.alt ?? ""} src={props.src} width={imageDimension(props.width)} height={imageDimension(props.height)} unoptimized={!optimizeImages} />;
     },
   }), [optimizeImages, prefetch]);
-  return <BeezUIProvider components={components}>{children}</BeezUIProvider>;
+  return <BaseBeezUIProvider components={components} themeOptions={themeOptions}>{children}</BaseBeezUIProvider>;
 }

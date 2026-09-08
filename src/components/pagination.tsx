@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react"
-import { useBeezUIComponents } from "../providers/beez-ui-provider.js"
+import { Link, type LinkProps } from "./link.js"
 
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
@@ -36,24 +36,17 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
   return <li data-slot="pagination-item" {...props} />
 }
 
-/** Accepts native anchor props and an optional consumer-owned routing adapter. */
-type PaginationAnchorProps = React.ComponentProps<"a"> & { href: string }
-
 export type PaginationLinkProps = {
   isActive?: boolean
-  component?: React.ComponentType<PaginationAnchorProps> | "a"
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  PaginationAnchorProps
+  LinkProps
 
 function PaginationLink({
   className,
   isActive,
   size = "icon",
-  component,
   ...props
 }: PaginationLinkProps) {
-  const adapters = useBeezUIComponents()
-  const Component = component ?? adapters.Link ?? "a"
   return (
     <Button
       asChild
@@ -61,7 +54,7 @@ function PaginationLink({
       size={size}
       className={cn(className)}
     >
-      <Component
+      <Link
         aria-current={isActive ? "page" : undefined}
         data-slot="pagination-link"
         data-active={isActive}

@@ -46,6 +46,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Button, parseFilterQuery, parseYearMonthFilterInput } from "beez-ui";
 assert.throws(() => createRequire(import.meta.url).resolve("next"));
+assert.throws(() => createRequire(import.meta.url).resolve("@tanstack/react-router"));
 const html = renderToStaticMarkup(createElement(Button, { disabled: true }, "Guardar"));
 assert.match(html, /<button[^>]*disabled/);
 assert.match(html, /Guardar<\\/button>/);

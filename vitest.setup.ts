@@ -2,6 +2,11 @@ import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
+// jsdom has no viewport scrolling implementation; browser tests exercise real scrolling.
+if (typeof window !== "undefined") {
+  window.scrollTo = function scrollToTestStub(): void {};
+}
+
 const RELATIVE_TIME_ELEMENT_TAG = "relative-time";
 
 class ResizeObserverTestStub implements ResizeObserver {
