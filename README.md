@@ -104,7 +104,7 @@ El comando valida nuevamente nombre, versión, contenido y checksum antes de inv
 
 `prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows; no publica automáticamente.
 
-Tras publicar, los consumidores pueden instalar `pnpm add beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. LaTribu mantiene un artefacto versionado en `vendor` y su lockfile para instalaciones reproducibles.
+Tras publicar, los consumidores pueden instalar `pnpm add beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. LaTribu consume la versión publicada en npm y fija la resolución e integridad mediante su lockfile, sin guardar tarballs locales.
 
 Los componentes nuevos de shadcn/ui se agregan mediante su CLI en esta biblioteca y se exportan desde la raíz. No editar las copias instaladas en los consumidores.
 
