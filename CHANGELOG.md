@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.4.0 - 2026-09-08
+
+- Distribuye los providers nativo, Next y TanStack con tema compartido, navegación e imágenes adaptadas al framework.
+- Incluye CSS precompilado, tema y fuentes; los consumidores sólo importan `beez-ui/styles.css`, sin configurar Tailwind.
+- Valida el tarball sin compiladores CSS y las integraciones en Chromium y WebKit.
+
 ## 0.3.1 - 2026-09-08
 
 - Publica CSS precompilado para que los estilos funcionen sin Tailwind ni detección de clases en el consumidor.
