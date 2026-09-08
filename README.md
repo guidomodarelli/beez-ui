@@ -89,8 +89,21 @@ El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [A
 
 El flujo sigue el utilizado en `eslint-plugin-no-magic`: build reproducible, checks, validación del contenido del tarball y publicación explícita.
 
-1. Actualizar `package.json` y la primera entrada de `CHANGELOG.md` con la misma versión.
-2. Ejecutar `pnpm release:prepare`. Instala desde el lockfile congelado, compila JavaScript y tipos, ejecuta lint, typechecks, tests unitarios, prueba del tarball y tests de navegador.
+Desde el repositorio de beez-ui, crear una release con:
+
+```sh
+pnpm run create-version patch
+pnpm run create-version patch --notes "Corrige los estilos de los componentes"
+pnpm run create-version minor --notes "Agrega un componente" --notes "Amplía sus opciones"
+pnpm run create-version 0.5.0 --notes "Describe los cambios de esta versión"
+```
+
+Acepta `patch`, `minor`, `major` o una versión estable explícita mayor que la actual. Las notas son opcionales y pueden repetirse. Sin `--notes`, se agrega una entrada básica que indica la nueva versión; las notas explícitas no pueden estar vacías. El comando actualiza `package.json`, agrega la entrada de changelog con fecha UTC, conserva el historial y ejecuta `release:prepare`. No crea commits, tags ni publicaciones. `pnpm run create-version --help` muestra la sintaxis.
+
+Si la preparación falla, los metadatos de la nueva versión quedan disponibles para corregir el problema y reintentar con `pnpm release:prepare`, sin incrementar nuevamente la versión. Entradas inválidas se rechazan antes de modificar los archivos.
+
+1. Ejecutar `pnpm run create-version` con el incremento y las notas deseadas. Alternativamente, actualizar `package.json` y la primera entrada de `CHANGELOG.md` manualmente.
+2. El comando ejecuta `pnpm release:prepare` automáticamente. Para una versión editada manualmente o para reintentar, ejecutar ese paso directamente: instala desde el lockfile congelado, compila JavaScript, tipos y CSS, ejecuta lint, typechecks, tests unitarios, prueba del tarball y tests de navegador.
 3. El comando deja un archivo en `releases/<version>-<sha256>/beez-ui-<version>.tgz`, verifica sus exports y excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`. Las fuentes, estilos y licencias públicas sí forman parte del paquete. Conserva releases anteriores.
 4. Revisar y commitear la versión y sus notas. La preparación no crea commits ni tags y no publica.
 5. Configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado.

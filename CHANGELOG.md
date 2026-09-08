@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.4.1 - 2026-09-08
+
+- Actualiza el paquete a la versión 0.4.1.
+
 ## 0.4.0 - 2026-09-08
 
 - Distribuye los providers nativo, Next y TanStack con tema compartido, navegación e imágenes adaptadas al framework.
