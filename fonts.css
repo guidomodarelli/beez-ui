@@ -1,0 +1,5 @@
+/* Shared self-hosted typography; app-provided font tokens take precedence. */
+@font-face { font-family: "Beez Geist"; src: url("./assets/fonts/geist-latin-variable.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Beez Poppins"; src: url("./assets/fonts/poppins-latin-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Beez Mono"; src: url("./assets/fonts/ibm-plex-mono-latin-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Beez Mono"; src: url("./assets/fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
