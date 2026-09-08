@@ -5,7 +5,12 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { parseArgs } from "node:util";
 import { ownedPath } from "./owned-path.js";
+import { compileReactSources } from "./compile-react.js";
+
+/** Exposes an explicit comparison mode; normal builds and releases always enable React Compiler. */
+const { values } = parseArgs({ options: { "no-react-compiler": { type: "boolean", default: false } } });
 
 /** Anchors generated output to the repository containing this script. */
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -15,6 +20,7 @@ const compilerRoot = dirname(require.resolve("@typescript/native/package.json"))
 const output = ownedPath(root, join(root, "dist"));
 rmSync(output, { recursive: true, force: true });
 execFileSync(process.execPath, [join(compilerRoot, compiler.bin.tsc), "--project", "tsconfig.build.json"], { cwd: root, stdio: "inherit" });
+compileReactSources(root, output, !values["no-react-compiler"]);
 
 /** Compiles only the library's emitted classes, independently of consumer source detection. */
 const cssCompilerRoot = dirname(require.resolve("@tailwindcss/cli/package.json"));

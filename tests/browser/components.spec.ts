@@ -1,4 +1,4 @@
-/** Verifies real interactions and generated styles without Next.js or next-themes. */
+/** Verifies compiled library interactions, styles and framework boundaries in actual consumers. */
 import { expect, test } from "@playwright/test";
 
 test("preserves the default theme and shared interactions", async ({ page }) => {
@@ -41,6 +41,8 @@ test("activates Next adapters only through their optional entrypoint", async ({ 
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("http://127.0.0.1:3109/");
+  await expect(page.getByLabel("Carga del servidor")).toBeVisible();
+  await expect(page.getByLabel("Carga del servidor")).toHaveAttribute("data-slot", "skeleton");
   const image = page.getByRole("img", { name: "Avatar Next" });
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute("data-nimg", "1");

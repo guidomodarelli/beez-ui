@@ -66,6 +66,26 @@ La tabla conserva agrupación estable, columnas configurables, memoización, exc
 
 Los componentes compartidos conservan el tema de LaTribu. Se incorporaron atributos `data-variant`/`data-size` del botón, scroll para paneles largos y persistencia opcional del sidebar. Se mantienen `Button.asChild`, estados deshabilitados y skeletons deterministas. `AvatarImage` delega carga y fallback a Base UI; conserva carga diferida y recuperación al cambiar `src`. El export original `Toaster` permanece disponible; `ThemedToaster` agrega los estilos e iconos compartidos.
 
+## React Compiler
+
+El build usa el port de React Compiler en Rust de [Oxc](https://oxc.rs/blog/2026-08-18-react-compiler-support), mediante `oxc-transform-react`. Esta integración sigue marcada como experimental por Oxc.
+
+Las optimizaciones se incluyen en el JavaScript publicado: el consumidor no necesita habilitar React Compiler en Vite, Next ni otro bundler. El target es React 19 y utiliza `react/compiler-runtime`, incluido en el peer React 19.2; no se añade un runtime independiente.
+
+TypeScript 7 valida los tipos y genera las declaraciones. Oxc recibe los fuentes originales y ejecuta React Compiler antes de eliminar TypeScript y transformar JSX. Conserva ESM, los exports y las directivas de cliente. Sólo los módulos cuyo prólogo declara `"use client"` reciben memoización automática; los módulos compatibles con Server Components se emiten sin cachés de cliente. Esto evita introducir hooks del runtime de cliente en el render servidor de Next.
+
+La cobertura depende de las heurísticas del compilador y de las reglas de React: algunas funciones conservan su implementación sin optimizar. Las memoizaciones y comentarios del código fuente permanecen intactos. El build informa cuántos módulos incluyen memoización automática y falla ante errores fatales de transformación.
+
+```sh
+# Comparar el comportamiento sin memoización automática.
+pnpm test:uncompiled
+
+# Volver a generar la distribución optimizada.
+pnpm build
+```
+
+`test:uncompiled` usa `pnpm build --no-react-compiler` y ejecuta Vitest. CI y `release:prepare` ejecutan esa comparación antes del check normal, que restaura el build optimizado. Los consumidores de prueba no habilitan un segundo compilador: ejercen el paquete generado, incluido un componente de servidor real en Next.
+
 ## Desarrollo y validación
 
 Usar pnpm **12.3.4**. Las dependencias tienen rangos `^` y el lockfile fija las versiones verificadas.
@@ -79,7 +99,7 @@ pnpm build
 pnpm release:prepare
 ```
 
-`pnpm build` compila JavaScript, declaraciones y CSS con el CLI de Tailwind. `pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Los consumidores de navegador no instalan plugins de Tailwind, y una prueba adicional sirve el tarball por HTTP sin procesadores CSS para verificar estilos computados y carga de fuentes. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
+`pnpm build` genera las declaraciones con TypeScript 7, JavaScript con Oxc/React Compiler y CSS con el CLI de Tailwind. `pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Los consumidores de navegador no instalan plugins de Tailwind, y una prueba adicional sirve el tarball por HTTP sin procesadores CSS para verificar estilos computados y carga de fuentes. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
 
 Los tests resuelven `beez-ui`, `beez-ui/next` y `beez-ui/tanstack` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
 
@@ -100,7 +120,7 @@ Acepta `patch`, `minor`, `major` o una versión estable explícita mayor que la 
 El comando ejecuta el flujo completo:
 
 1. Actualiza `package.json` y agrega la entrada del changelog con fecha UTC, conservando el historial.
-2. Prepara la release: instalación congelada, build de JavaScript, tipos y CSS, lint, typechecks, tests unitarios y pruebas de navegador.
+2. Prepara la release: instalación congelada, tests sin React Compiler, build optimizado de JavaScript, tipos y CSS, lint, typechecks, tests unitarios y pruebas de navegador.
 3. Genera el tarball en `releases/<version>-<sha256>/beez-ui-<version>.tgz` y valida su contenido, exports e integridad.
 4. Publica ese mismo artefacto en npm con acceso público y etiqueta `latest`.
 

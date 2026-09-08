@@ -19,7 +19,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 export function prepareRelease() {
   const metadata = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   validateReleaseMetadata(metadata, readFileSync(join(root, "CHANGELOG.md"), "utf8"));
-  for (const command of ["pnpm install --frozen-lockfile", "pnpm check", "pnpm exec playwright test"]) {
+  for (const command of ["pnpm install --frozen-lockfile", "pnpm test:uncompiled", "pnpm check", "pnpm exec playwright test"]) {
     execSync(command, { cwd: root, stdio: "inherit" });
   }
   const releases = ownedPath(root, join(root, "releases"));
