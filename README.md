@@ -1,6 +1,6 @@
 # beez-ui
 
-Biblioteca React compartida, independiente de Next.js y de gestores de tema. Reúne los componentes de LaTribu y las funcionalidades reutilizables de agenda-mensual. No contiene `next`, `next-themes`, un provider obligatorio ni un componente `Link`.
+Biblioteca de componentes React reutilizables, agnóstica de framework y con tema controlado por la aplicación. Reúne los componentes de LaTribu y las funcionalidades reutilizables de agenda-mensual.
 
 ## Consumo
 
@@ -8,7 +8,7 @@ Biblioteca React compartida, independiente de Next.js y de gestores de tema. Re�
 import { Button, Avatar, AvatarImage, DataTable, Calendar } from "beez-ui";
 ```
 
-Agrupar los imports desde la raíz. El paquete distribuye TypeScript y conserva las fronteras `use client` de los componentes; la gramática de filtros y los helpers de mes-año son independientes de React. En Next.js, el consumidor agrega `beez-ui` a `transpilePackages` y `experimental.optimizePackageImports`.
+Agrupar los imports desde la raíz. El paquete distribuye TypeScript: el bundler del consumidor debe procesar sus archivos y optimizar los imports. La gramática de filtros y los helpers de mes-año son independientes de React.
 
 ```css
 @import "tailwindcss";
@@ -30,7 +30,7 @@ La hoja compartida registra las clases mediante `@source` e incluye el **tema de
 
 La tabla conserva agrupación estable, columnas configurables, memoización, exclusiones y sincronización de qualifiers por identificadores. La barra conserva navegación por teclado, autocompletado y filtros de texto, rangos, fechas, presencia y carpetas. `Calendar` usa español por defecto y acepta otra locale. Los textos y configuraciones de filtros se pueden personalizar por props.
 
-Los componentes compartidos conservan el tema de LaTribu. Se incorporaron atributos `data-variant`/`data-size` del botón, scroll para paneles largos y persistencia opcional del sidebar. Se mantienen `Button.asChild`, estados deshabilitados y skeletons deterministas. `AvatarImage` delega carga y fallback a Base UI; conserva carga diferida y recuperación al cambiar `src`, sin estado de errores duplicado ni dimensiones impuestas por Next. El export original `Toaster` permanece disponible; `ThemedToaster` agrega los estilos e iconos compartidos.
+Los componentes compartidos conservan el tema de LaTribu. Se incorporaron atributos `data-variant`/`data-size` del botón, scroll para paneles largos y persistencia opcional del sidebar. Se mantienen `Button.asChild`, estados deshabilitados y skeletons deterministas. `AvatarImage` delega carga y fallback a Base UI; conserva carga diferida y recuperación al cambiar `src`. El export original `Toaster` permanece disponible; `ThemedToaster` agrega los estilos e iconos compartidos.
 
 ## Desarrollo y validación
 
@@ -44,7 +44,7 @@ pnpm test:browser
 pnpm pack --pack-destination ../LaTribu/vendor
 ```
 
-`pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` sirve una app React/Vite real y verifica Chromium y WebKit en desktop y móvil, sin Next.js.
+`pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` sirve una app React/Vite real y verifica Chromium y WebKit en desktop y móvil.
 
 El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [API de compatibilidad oficial de TypeScript 6](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0) mediante un alias; no reemplaza el compilador de los typechecks.
 
