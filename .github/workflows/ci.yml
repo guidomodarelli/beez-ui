@@ -12,12 +12,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: pnpm/action-setup@v6.1.0
       - uses: actions/setup-node@v7.0.0
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          package-manager-cache: false
+      # Install the native pnpm binary instead of PowerShell shims, and wait for
+      # frozen installation before checks or cache persistence can start.
+      - uses: pnpm/setup@v2.1.0
+        with:
+          cache: true
+          require-lockfile: true
       - run: pnpm check
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm exec playwright test
