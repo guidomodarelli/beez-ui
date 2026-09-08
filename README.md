@@ -8,7 +8,7 @@ Biblioteca de componentes React reutilizables, agnóstica de framework y con tem
 import { Button, Avatar, AvatarImage, DataTable, Calendar } from "beez-ui";
 ```
 
-Agrupar los imports desde la raíz. El paquete distribuye TypeScript: el bundler del consumidor debe procesar sus archivos y optimizar los imports. La gramática de filtros y los helpers de mes-año son independientes de React.
+Agrupar los imports de componentes desde la raíz. El paquete publica JavaScript ESM y declaraciones TypeScript en `dist`; el consumidor no necesita transpilar el código fuente de la librería. La gramática de filtros y los helpers de mes-año son independientes de React.
 
 ```css
 @import "tailwindcss";
@@ -17,10 +17,31 @@ Agrupar los imports desde la raíz. El paquete distribuye TypeScript: el bundler
 
 La hoja compartida registra las clases mediante `@source` e incluye el **tema default de LaTribu**, sus variantes clara/oscura, radios y fuentes locales Geist, Poppins e IBM Plex Mono. Poppins se reserva para títulos grandes mediante `--font-display`. Los consumidores pueden sobrescribir tokens. Las fuentes conservan sus licencias en `assets/fonts`.
 
+## Integración opcional con Next.js
+
+El núcleo usa elementos nativos sin configuración. `BeezUIProvider` permite instalar adaptadores propios mediante `components.Image` y `components.Link`. El tema sigue controlado por la aplicación.
+
+En una app Next.js, activar su integración desde un componente cliente:
+
+```tsx
+"use client";
+
+import type { ReactNode } from "react";
+import { NextBeezUIProvider } from "beez-ui/next";
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <NextBeezUIProvider>{children}</NextBeezUIProvider>;
+}
+```
+
+`NextBeezUIProvider` utiliza `next/image` y `next/link` para avatares y paginación. El prefetch está desactivado por defecto; se puede activar con `prefetch`. La optimización de imágenes se activa con `optimizeImages`, después de configurar los hosts permitidos en la aplicación. El default conserva la carga directa de imágenes que ya usa LaTribu.
+
+La integración está aislada en `beez-ui/next` y Next.js es un peer opcional. Los repos que no lo usan importan solamente `beez-ui`: no se intenta detectar ni cargar el framework durante la hidratación. El mismo proveedor se utiliza en servidor y cliente para mantener un primer render consistente. No hay dependencia de `next-themes` ni se exporta un componente global `Link`.
+
 ## Responsabilidades del consumidor
 
 - Tema: la app aplica la clase `dark`, decide la preferencia del sistema y conserva la selección. `AnimatedThemeToggler` recibe `theme`, `resolvedTheme` y `onThemeChange`; `ThemedToaster` recibe `theme`. No requieren contexto global.
-- Navegación: `PaginationNext`, `PaginationPrevious` y `PaginationLink` usan anclas nativas. El prop opcional `component` admite el adaptador del router que elija la app. La librería no implementa ni importa un router.
+- Navegación: `PaginationNext`, `PaginationPrevious` y `PaginationLink` usan anclas nativas. El prop opcional `component` admite el adaptador del router que elija la app. Sin proveedor usa el elemento nativo; con el proveedor de Next usa su navegación cliente.
 - Sidebar: `defaultOpen` y el modo controlado conservan la semántica de LaTribu. `storageKey` activa opcionalmente persistencia local segura tras hidratar, sin cambiar la cookie pública `sidebar_state` ni sus siete días de duración.
 - Formularios y tablas: el consumidor provee sus datos, validaciones y callbacks. No se importan servicios, modelos de negocio ni endpoints de agenda-mensual.
 
@@ -41,18 +62,36 @@ pnpm install --frozen-lockfile
 pnpm check
 pnpm exec playwright install chromium webkit
 pnpm test:browser
-pnpm pack --pack-destination ../LaTribu/vendor
+pnpm build
+pnpm release:prepare
 ```
 
-`pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` sirve una app React/Vite real y verifica Chromium y WebKit en desktop y móvil.
+`pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
 
 El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [API de compatibilidad oficial de TypeScript 6](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0) mediante un alias; no reemplaza el compilador de los typechecks.
 
-## Distribución
+## Preparar y publicar una versión
 
-LaTribu consume `vendor/beez-ui-0.1.0.tgz`. Cualquier app React con un bundler capaz de procesar TypeScript puede instalar ese artefacto con `pnpm add ./ruta/beez-ui-0.1.0.tgz`. No depende de un directorio hermano ni de una publicación pendiente.
+El flujo sigue el utilizado en `eslint-plugin-no-magic`: build reproducible, checks, validación del contenido del tarball y publicación explícita.
 
-Para una entrega posterior: modificar esta biblioteca, ejecutar los checks, incrementar su versión, generar un tarball nuevo y actualizar dependencia y lockfile en los consumidores. No editar componentes instalados ni mantener copias en las apps. Los nuevos componentes de shadcn/ui se agregan mediante su CLI en esta biblioteca y se exportan desde la raíz.
+1. Actualizar `package.json` y la primera entrada de `CHANGELOG.md` con la misma versión.
+2. Ejecutar `pnpm release:prepare`. Instala desde el lockfile congelado, compila JavaScript y tipos, ejecuta lint, typechecks, tests unitarios, prueba del tarball y tests de navegador.
+3. El comando deja un archivo en `releases/<version>-<sha256>/beez-ui-<version>.tgz`, verifica sus exports y excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`. Las fuentes, estilos y licencias públicas sí forman parte del paquete. Conserva releases anteriores.
+4. Revisar y commitear la versión y sus notas. La preparación no crea commits ni tags y no publica.
+5. Configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado.
+6. Publicar el artefacto exacto que imprimió la preparación:
+
+```sh
+pnpm release:publish releases/<version>-<sha256>/beez-ui-<version>.tgz
+```
+
+El comando valida nuevamente nombre, versión, contenido y checksum antes de invocar `pnpm publish --access public`. Carga `.env` sólo si el token no existe en el entorno y no imprime su contenido. La autenticación se configura mediante `.npmrc` con la referencia `${NPM_TOKEN}`. Los controles de Git de pnpm permanecen activos.
+
+`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y ambos modos de navegador en Linux y Windows; no publica automáticamente.
+
+Tras publicar, los consumidores pueden instalar `pnpm add beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. LaTribu mantiene un artefacto versionado en `vendor` y su lockfile para instalaciones reproducibles.
+
+Los componentes nuevos de shadcn/ui se agregan mediante su CLI en esta biblioteca y se exportan desde la raíz. No editar las copias instaladas en los consumidores.
 
 ## Procedencia
 

@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
     "types": ["node", "@testing-library/jest-dom/vitest", "vite/client"]
   },
   "include": [

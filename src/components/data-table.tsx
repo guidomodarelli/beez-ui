@@ -24,15 +24,15 @@ import {
   X,
 } from "lucide-react";
 
-import { Button } from "./button";
-import { Badge } from "./badge";
-import { FilterQueryBar } from "./filter-query-bar";
+import { Button } from "./button.js";
+import { Badge } from "./badge.js";
+import { FilterQueryBar } from "./filter-query-bar.js";
 import {
   parseFilterQuery,
   serializeFilterQuery,
   type AppliedFilter,
   type FilterQualifierConfig,
-} from "./filter-query-grammar";
+} from "./filter-query-grammar.js";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -41,8 +41,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { Input } from "./input";
+} from "./dropdown-menu.js";
+import { Input } from "./input.js";
 import {
   Table,
   TableBody,
@@ -51,10 +51,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./table";
+} from "./table.js";
 
-import type { DataTableColumnFilterValue } from "../types/data-table";
-export type { DataTableColumnFilterValue } from "../types/data-table";
+import type { DataTableColumnFilterValue } from "../types/data-table.js";
+export type { DataTableColumnFilterValue } from "../types/data-table.js";
 
 /**
  * Controles imperativos de la barra unificada que la tabla expone vía

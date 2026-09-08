@@ -16,14 +16,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Button } from "./button";
-import { Input } from "./input";
+import { Button } from "./button.js";
+import { Input } from "./input.js";
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
-} from "./popover";
-import { cn } from "../lib/utils";
+} from "./popover.js";
+import { cn } from "../lib/utils.js";
 
 import {
   getActiveFilterToken,
@@ -37,7 +37,7 @@ import {
   type FilterQualifierConfig,
   type FilterQualifierKind,
   type ValueHighlightRange,
-} from "./filter-query-grammar";
+} from "./filter-query-grammar.js";
 
 const DEFAULT_PLACEHOLDER = "Filtrar por campo o palabra clave";
 const DEFAULT_ARIA_LABEL = "Filtrar gastos";

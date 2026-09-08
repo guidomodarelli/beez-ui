@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun, SunMoon } from "lucide-react";
-import type { ThemeMode, ResolvedTheme } from "../theme";
+import type { ThemeMode, ResolvedTheme } from "../theme.js";
 import { flushSync } from "react-dom";
 
 import {
@@ -11,8 +11,8 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { cn } from "../lib/utils";
+} from "./dropdown-menu.js";
+import { cn } from "../lib/utils.js";
 
 const THEME_OPTIONS = [
   {

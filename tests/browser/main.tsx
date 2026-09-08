@@ -16,7 +16,7 @@ function BrowserExample() {
   return <main>
     <h1>Componentes compartidos</h1>
     <div className="controls"><AnimatedThemeToggler theme={theme} resolvedTheme={resolvedTheme} onThemeChange={(nextTheme) => { setTheme(nextTheme); document.documentElement.classList.toggle("dark", nextTheme === "dark"); }} /><Button onClick={() => toast.success("Cambios guardados")}>Notificar</Button><Avatar><AvatarImage src="/missing-avatar.png" alt="Perfil de prueba" /></Avatar></div>
-    <section><Alert><AlertTitle>Listo para usar en React</AlertTitle></Alert></section>
+    <section><Alert><AlertTitle>Listo para usar en React</AlertTitle></Alert><Avatar><AvatarImage src="/avatar.svg" alt="Avatar nativo" /></Avatar></section>
     <section><DataTable columns={COLUMNS} data={ROWS} emptyMessage="Sin resultados" filterColumnId="name" queryFilterConfig={QUERY_CONFIG} queryFilterLabel="Filtrar filas" /></section>
     <section><InputGroup><InputGroupAddon>Buscar</InputGroupAddon><InputGroupInput aria-label="Búsqueda adicional" /></InputGroup></section>
     <section><RadioGroup defaultValue="weekly"><RadioGroupItem value="weekly" aria-label="Semanal" /><RadioGroupItem value="monthly" aria-label="Mensual" /></RadioGroup></section>

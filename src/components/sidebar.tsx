@@ -4,29 +4,29 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
-import { useIsMobile } from "../hooks/use-mobile"
-import { useSidebarPersistence, saveSidebarPreference } from "../hooks/use-sidebar-persistence"
-import { cn } from "../lib/utils"
+import { useIsMobile } from "../hooks/use-mobile.js"
+import { useSidebarPersistence, saveSidebarPreference } from "../hooks/use-sidebar-persistence.js"
+import { cn } from "../lib/utils.js"
 import {
   SIDEBAR_COOKIE_MAX_AGE,
   SIDEBAR_COOKIE_NAME,
-} from "../constants/sidebar"
-import { Button } from "./button"
-import { Input } from "./input"
-import { Separator } from "./separator"
+} from "../constants/sidebar.js"
+import { Button } from "./button.js"
+import { Input } from "./input.js"
+import { Separator } from "./separator.js"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "./sheet"
-import { Skeleton } from "./skeleton"
+} from "./sheet.js"
+import { Skeleton } from "./skeleton.js"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "./tooltip"
+} from "./tooltip.js"
 import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_WIDTH = "16rem"

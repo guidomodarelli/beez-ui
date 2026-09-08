@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "../../../styles.css";
+
+main { padding: 1rem; }

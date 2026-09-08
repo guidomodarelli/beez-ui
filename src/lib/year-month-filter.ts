@@ -1,5 +1,5 @@
 /** Provides server-safe month parsing and matching for table filters. */
-import type { DataTableColumnFilterValue } from "../types/data-table";
+import type { DataTableColumnFilterValue } from "../types/data-table.js";
 
 const YEAR_MONTH_INPUT_PATTERN = /^(0[1-9]|1[0-2])\/(\d{4})$/;
 

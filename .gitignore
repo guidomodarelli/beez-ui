@@ -1,4 +1,9 @@
 node_modules/
+dist/
+releases/
+tests/next-app/.next/
+tests/next-app/next-env.d.ts
+.package-test-*/
 coverage/
 test-results/
 playwright-report/

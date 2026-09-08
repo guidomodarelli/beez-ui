@@ -6,6 +6,7 @@ test("preserves the default theme and shared interactions", async ({ page }) => 
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Componentes compartidos" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Avatar nativo" })).toBeVisible();
   const button = page.getByRole("button", { name: "Notificar" });
   await expect(button).toHaveCSS("border-radius", "10px");
   const lightBackground = await page.locator("body").evaluate(element => getComputedStyle(element).backgroundColor);
@@ -34,4 +35,19 @@ test("preserves the default theme and shared interactions", async ({ page }) => 
   await expect(dialog.getByRole("button", { name: "Última acción" })).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(runtimeErrors).toEqual([]);
+});
+
+test("activates Next adapters only through their optional entrypoint", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("http://127.0.0.1:3109/");
+  const image = page.getByRole("img", { name: "Avatar Next" });
+  await expect(image).toBeVisible();
+  await expect(image).toHaveAttribute("data-nimg", "1");
+  await expect(page.getByText("GH", { exact: true })).toHaveCount(0);
+  await page.evaluate(() => { document.documentElement.dataset.navigationProbe = "preserved"; });
+  await page.getByRole("link").click();
+  await expect(page.getByRole("heading", { name: "Destino del enlace" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-navigation-probe", "preserved");
+  expect(errors).toEqual([]);
 });

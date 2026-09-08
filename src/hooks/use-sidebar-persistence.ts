@@ -2,7 +2,7 @@
 
 /** Keeps optional browser persistence separate from the sidebar rendering contract. */
 import { useCallback, useSyncExternalStore } from "react";
-import { SIDEBAR_COOKIE_COLLAPSED_VALUE, SIDEBAR_COOKIE_OPEN_VALUE } from "../constants/sidebar";
+import { SIDEBAR_COOKIE_COLLAPSED_VALUE, SIDEBAR_COOKIE_OPEN_VALUE } from "../constants/sidebar.js";
 
 /** Reads a preference without making unavailable browser storage a render failure. */
 function readSidebarPreference(storageKey?: string): boolean | null {

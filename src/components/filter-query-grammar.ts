@@ -1,4 +1,4 @@
-import type { DataTableColumnFilterValue } from "../types/data-table";
+import type { DataTableColumnFilterValue } from "../types/data-table.js";
 
 /**
  * Gramática pura (sin React) para una barra de filtro estilo GitHub Issues.

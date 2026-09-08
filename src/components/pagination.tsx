@@ -1,7 +1,10 @@
-import * as React from "react"
+"use client";
 
-import { cn } from "../lib/utils"
-import { Button } from "./button"
+import * as React from "react"
+import { useBeezUIComponents } from "../providers/beez-ui-provider.js"
+
+import { cn } from "../lib/utils.js"
+import { Button } from "./button.js"
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -46,9 +49,11 @@ function PaginationLink({
   className,
   isActive,
   size = "icon",
-  component: Component = "a",
+  component,
   ...props
 }: PaginationLinkProps) {
+  const adapters = useBeezUIComponents()
+  const Component = component ?? adapters.Link ?? "a"
   return (
     <Button
       asChild

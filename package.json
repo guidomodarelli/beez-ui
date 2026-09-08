@@ -1,83 +1,262 @@
 {
   "name": "beez-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared UI components with the customizations extracted from TuTribu.",
   "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
   "files": [
-    "src",
-    "styles.css",
-    "components.json",
+    "dist",
+    "README.md",
     "LICENSE.md",
+    "CHANGELOG.md",
+    "styles.css",
     "theme.css",
     "fonts.css",
     "assets"
   ],
   "exports": {
-    "./alert-dialog": "./src/components/alert-dialog.tsx",
-    "./avatar": "./src/components/avatar.tsx",
-    "./badge": "./src/components/badge.tsx",
-    "./button": "./src/components/button.tsx",
-    "./card": "./src/components/card.tsx",
-    "./carousel": "./src/components/carousel.tsx",
-    "./checkbox": "./src/components/checkbox.tsx",
-    "./dialog": "./src/components/dialog.tsx",
-    "./dropdown-menu": "./src/components/dropdown-menu.tsx",
-    "./hover-card": "./src/components/hover-card.tsx",
-    "./input": "./src/components/input.tsx",
-    "./pagination": "./src/components/pagination.tsx",
-    "./popover": "./src/components/popover.tsx",
-    "./select": "./src/components/select.tsx",
-    "./separator": "./src/components/separator.tsx",
-    "./sheet": "./src/components/sheet.tsx",
-    "./sidebar": "./src/components/sidebar.tsx",
-    "./skeleton": "./src/components/skeleton.tsx",
-    "./switch": "./src/components/switch.tsx",
-    "./table": "./src/components/table.tsx",
-    "./tabs": "./src/components/tabs.tsx",
-    "./textarea": "./src/components/textarea.tsx",
-    "./tooltip": "./src/components/tooltip.tsx",
-    "./svgs/whatsappIcon": "./src/components/svgs/whatsappIcon.tsx",
-    "./utils": "./src/lib/utils.ts",
-    "./use-mobile": "./src/hooks/use-mobile.ts",
-    "./sidebar-constants": "./src/constants/sidebar.ts",
-    "./sonner": "./src/sonner.ts",
+    "./alert-dialog": {
+      "types": "./dist/components/alert-dialog.d.ts",
+      "import": "./dist/components/alert-dialog.js",
+      "default": "./dist/components/alert-dialog.js"
+    },
+    "./avatar": {
+      "types": "./dist/components/avatar.d.ts",
+      "import": "./dist/components/avatar.js",
+      "default": "./dist/components/avatar.js"
+    },
+    "./badge": {
+      "types": "./dist/components/badge.d.ts",
+      "import": "./dist/components/badge.js",
+      "default": "./dist/components/badge.js"
+    },
+    "./button": {
+      "types": "./dist/components/button.d.ts",
+      "import": "./dist/components/button.js",
+      "default": "./dist/components/button.js"
+    },
+    "./card": {
+      "types": "./dist/components/card.d.ts",
+      "import": "./dist/components/card.js",
+      "default": "./dist/components/card.js"
+    },
+    "./carousel": {
+      "types": "./dist/components/carousel.d.ts",
+      "import": "./dist/components/carousel.js",
+      "default": "./dist/components/carousel.js"
+    },
+    "./checkbox": {
+      "types": "./dist/components/checkbox.d.ts",
+      "import": "./dist/components/checkbox.js",
+      "default": "./dist/components/checkbox.js"
+    },
+    "./dialog": {
+      "types": "./dist/components/dialog.d.ts",
+      "import": "./dist/components/dialog.js",
+      "default": "./dist/components/dialog.js"
+    },
+    "./dropdown-menu": {
+      "types": "./dist/components/dropdown-menu.d.ts",
+      "import": "./dist/components/dropdown-menu.js",
+      "default": "./dist/components/dropdown-menu.js"
+    },
+    "./hover-card": {
+      "types": "./dist/components/hover-card.d.ts",
+      "import": "./dist/components/hover-card.js",
+      "default": "./dist/components/hover-card.js"
+    },
+    "./input": {
+      "types": "./dist/components/input.d.ts",
+      "import": "./dist/components/input.js",
+      "default": "./dist/components/input.js"
+    },
+    "./pagination": {
+      "types": "./dist/components/pagination.d.ts",
+      "import": "./dist/components/pagination.js",
+      "default": "./dist/components/pagination.js"
+    },
+    "./popover": {
+      "types": "./dist/components/popover.d.ts",
+      "import": "./dist/components/popover.js",
+      "default": "./dist/components/popover.js"
+    },
+    "./select": {
+      "types": "./dist/components/select.d.ts",
+      "import": "./dist/components/select.js",
+      "default": "./dist/components/select.js"
+    },
+    "./separator": {
+      "types": "./dist/components/separator.d.ts",
+      "import": "./dist/components/separator.js",
+      "default": "./dist/components/separator.js"
+    },
+    "./sheet": {
+      "types": "./dist/components/sheet.d.ts",
+      "import": "./dist/components/sheet.js",
+      "default": "./dist/components/sheet.js"
+    },
+    "./sidebar": {
+      "types": "./dist/components/sidebar.d.ts",
+      "import": "./dist/components/sidebar.js",
+      "default": "./dist/components/sidebar.js"
+    },
+    "./skeleton": {
+      "types": "./dist/components/skeleton.d.ts",
+      "import": "./dist/components/skeleton.js",
+      "default": "./dist/components/skeleton.js"
+    },
+    "./switch": {
+      "types": "./dist/components/switch.d.ts",
+      "import": "./dist/components/switch.js",
+      "default": "./dist/components/switch.js"
+    },
+    "./table": {
+      "types": "./dist/components/table.d.ts",
+      "import": "./dist/components/table.js",
+      "default": "./dist/components/table.js"
+    },
+    "./tabs": {
+      "types": "./dist/components/tabs.d.ts",
+      "import": "./dist/components/tabs.js",
+      "default": "./dist/components/tabs.js"
+    },
+    "./textarea": {
+      "types": "./dist/components/textarea.d.ts",
+      "import": "./dist/components/textarea.js",
+      "default": "./dist/components/textarea.js"
+    },
+    "./tooltip": {
+      "types": "./dist/components/tooltip.d.ts",
+      "import": "./dist/components/tooltip.js",
+      "default": "./dist/components/tooltip.js"
+    },
+    "./svgs/whatsappIcon": {
+      "types": "./dist/components/svgs/whatsappIcon.d.ts",
+      "import": "./dist/components/svgs/whatsappIcon.js",
+      "default": "./dist/components/svgs/whatsappIcon.js"
+    },
+    "./utils": {
+      "types": "./dist/lib/utils.d.ts",
+      "import": "./dist/lib/utils.js",
+      "default": "./dist/lib/utils.js"
+    },
+    "./use-mobile": {
+      "types": "./dist/hooks/use-mobile.d.ts",
+      "import": "./dist/hooks/use-mobile.js",
+      "default": "./dist/hooks/use-mobile.js"
+    },
+    "./sidebar-constants": {
+      "types": "./dist/constants/sidebar.d.ts",
+      "import": "./dist/constants/sidebar.js",
+      "default": "./dist/constants/sidebar.js"
+    },
+    "./sonner": {
+      "types": "./dist/sonner.d.ts",
+      "import": "./dist/sonner.js",
+      "default": "./dist/sonner.js"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json",
-    ".": "./src/index.ts",
-    "./alert": "./src/components/alert.tsx",
-    "./animated-theme-toggler": "./src/components/animated-theme-toggler.tsx",
-    "./calendar": "./src/components/calendar.tsx",
-    "./data-table": "./src/components/data-table.tsx",
-    "./filter-query-bar": "./src/components/filter-query-bar.tsx",
-    "./filter-query-grammar": "./src/components/filter-query-grammar.ts",
-    "./form": "./src/components/form.tsx",
-    "./highlighter": "./src/components/highlighter.tsx",
-    "./input-group": "./src/components/input-group.tsx",
-    "./label": "./src/components/label.tsx",
-    "./radio-group": "./src/components/radio-group.tsx",
-    "./typing-animation": "./src/components/typing-animation.tsx",
-    "./themed-toaster": "./src/components/themed-toaster.tsx",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./alert": {
+      "types": "./dist/components/alert.d.ts",
+      "import": "./dist/components/alert.js",
+      "default": "./dist/components/alert.js"
+    },
+    "./animated-theme-toggler": {
+      "types": "./dist/components/animated-theme-toggler.d.ts",
+      "import": "./dist/components/animated-theme-toggler.js",
+      "default": "./dist/components/animated-theme-toggler.js"
+    },
+    "./calendar": {
+      "types": "./dist/components/calendar.d.ts",
+      "import": "./dist/components/calendar.js",
+      "default": "./dist/components/calendar.js"
+    },
+    "./data-table": {
+      "types": "./dist/components/data-table.d.ts",
+      "import": "./dist/components/data-table.js",
+      "default": "./dist/components/data-table.js"
+    },
+    "./filter-query-bar": {
+      "types": "./dist/components/filter-query-bar.d.ts",
+      "import": "./dist/components/filter-query-bar.js",
+      "default": "./dist/components/filter-query-bar.js"
+    },
+    "./filter-query-grammar": {
+      "types": "./dist/components/filter-query-grammar.d.ts",
+      "import": "./dist/components/filter-query-grammar.js",
+      "default": "./dist/components/filter-query-grammar.js"
+    },
+    "./form": {
+      "types": "./dist/components/form.d.ts",
+      "import": "./dist/components/form.js",
+      "default": "./dist/components/form.js"
+    },
+    "./highlighter": {
+      "types": "./dist/components/highlighter.d.ts",
+      "import": "./dist/components/highlighter.js",
+      "default": "./dist/components/highlighter.js"
+    },
+    "./input-group": {
+      "types": "./dist/components/input-group.d.ts",
+      "import": "./dist/components/input-group.js",
+      "default": "./dist/components/input-group.js"
+    },
+    "./label": {
+      "types": "./dist/components/label.d.ts",
+      "import": "./dist/components/label.js",
+      "default": "./dist/components/label.js"
+    },
+    "./radio-group": {
+      "types": "./dist/components/radio-group.d.ts",
+      "import": "./dist/components/radio-group.js",
+      "default": "./dist/components/radio-group.js"
+    },
+    "./typing-animation": {
+      "types": "./dist/components/typing-animation.d.ts",
+      "import": "./dist/components/typing-animation.js",
+      "default": "./dist/components/typing-animation.js"
+    },
+    "./themed-toaster": {
+      "types": "./dist/components/themed-toaster.d.ts",
+      "import": "./dist/components/themed-toaster.js",
+      "default": "./dist/components/themed-toaster.js"
+    },
     "./theme.css": "./theme.css",
-    "./fonts.css": "./fonts.css"
+    "./fonts.css": "./fonts.css",
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "import": "./dist/next.js",
+      "default": "./dist/next.js"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guidomodarelli/beez-ui.git"
   },
   "scripts": {
-    "typecheck": "pnpm typecheck:src && pnpm typecheck:tests",
+    "typecheck": "pnpm build && pnpm typecheck:src && pnpm typecheck:tests",
     "typecheck:src": "tsc --noEmit -p tsconfig.json",
     "typecheck:tests": "tsc --noEmit -p tests/tsconfig.json",
-    "test": "vitest run",
-    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "test": "pnpm build && vitest run",
+    "check": "pnpm build && pnpm lint && pnpm typecheck:src && pnpm typecheck:tests && pnpm exec vitest run",
     "lint": "eslint .",
-    "test:browser": "playwright test"
+    "test:browser": "pnpm build && playwright test",
+    "build": "node scripts/build.js",
+    "prepack": "pnpm build",
+    "release:prepare": "node scripts/prepare-release.js",
+    "release:publish": "node scripts/publish-release.js"
   },
   "peerDependencies": {
     "lucide-react": "^1.16.0",
+    "next": "^16.3.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.0.0"
@@ -99,6 +278,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
@@ -113,6 +293,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^29.1.1",
     "lucide-react": "^1.41.0",
+    "next": "^16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3",
@@ -125,5 +306,22 @@
   "engines": {
     "node": ">=22",
     "pnpm": ">=12 <13"
+  },
+  "license": "MIT",
+  "author": "Guido Modarelli",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/guidomodarelli/beez-ui#readme",
+  "bugs": {
+    "url": "https://github.com/guidomodarelli/beez-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
   }
 }

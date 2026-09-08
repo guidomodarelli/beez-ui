@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import type React from "react"
 import { annotate } from "rough-notation"
-import { type RoughAnnotation } from "rough-notation/lib/model"
+import { type RoughAnnotation } from "rough-notation/lib/model.js"
 
 type AnnotationAction =
   | "highlight"

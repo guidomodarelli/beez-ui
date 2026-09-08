@@ -3,7 +3,8 @@
 import * as React from "react"
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
 
-import { cn } from "../lib/utils"
+import { cn } from "../lib/utils.js"
+import { useBeezUIComponents } from "../providers/beez-ui-provider.js"
 
 /** Accepts native image props and nullable image sources from application results. */
 export type AvatarImageProps = Omit<React.ComponentProps<"img">, "src"> & {
@@ -37,13 +38,15 @@ function AvatarImage({
   src,
   ...props
 }: AvatarImageProps) {
+  const { Image: ImageComponent = "img" } = useBeezUIComponents()
   return (
     <AvatarPrimitive.Image
+      render={<ImageComponent />}
       keepMounted
       alt={alt}
       data-slot="avatar-image"
       className={cn(
-        "absolute inset-0 aspect-square size-full rounded-full object-cover data-[loading]:hidden data-[error]:hidden",
+        "absolute inset-0 aspect-square size-full rounded-full object-cover data-[loading]:opacity-0 data-[error]:hidden",
         className
       )}
       src={src ?? undefined}
