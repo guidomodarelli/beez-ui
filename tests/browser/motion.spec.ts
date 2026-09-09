@@ -6,33 +6,52 @@ test("should animate menus and dialogs while preserving keyboard dismissal", asy
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/motion.html");
-  await page.getByRole("button", { name: "Abrir menú" }).click();
-  expect(
-    await page
-      .getByRole("menu")
-      .evaluate((element) =>
-        element
-          .getAnimations()
-          .some((animation) => !(animation instanceof CSSAnimation)),
-      ),
-  ).toBe(true);
-  await page.getByRole("menuitem", { name: "Editar" }).click();
-  await expect(page.getByLabel("Acción")).toHaveText("Edición seleccionada");
-  await expect(page.getByRole("menu")).not.toBeVisible();
-  await page.getByRole("button", { name: "Abrir diálogo" }).click();
-  const dialog = page.getByRole("dialog");
-  expect(
-    await dialog.evaluate((element) =>
-      element
-        .getAnimations()
-        .some((animation) => !(animation instanceof CSSAnimation)),
-    ),
-  ).toBe(true);
-  await page.keyboard.press("Escape");
-  await expect(dialog).not.toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Abrir diálogo" }),
-  ).toBeFocused();
+  // Record native animations when created: sampling frames can miss short playback
+  // entirely when WebKit is busy. Delegate unchanged to the real browser API.
+  const animatedRoles = await page.evaluateHandle(() => {
+    const observed = new Set<string>();
+    const nativeAnimate = Element.prototype.animate;
+
+    /** Observes real animations without replacing their effects, timing or controls. */
+    Element.prototype.animate = function (...args) {
+      const animation = nativeAnimate.apply(this, args);
+      const role = this.getAttribute("role");
+      if ((role === "menu" || role === "dialog") && animation.effect) {
+        observed.add(role);
+      }
+      return animation;
+    };
+    return {
+      observed,
+      stop: () => {
+        Element.prototype.animate = nativeAnimate;
+      },
+    };
+  });
+  try {
+    await page.getByRole("button", { name: "Abrir menú" }).click();
+    await expect
+      .poll(() => animatedRoles.evaluate(({ observed }) => observed.has("menu")))
+      .toBe(true);
+    await page.getByRole("menuitem", { name: "Editar" }).click();
+    await expect(page.getByLabel("Acción")).toHaveText("Edición seleccionada");
+    await expect(page.getByRole("menu")).not.toBeVisible();
+    // Exit presence must release the menu's focus scope before opening another modal.
+    await expect(page.getByRole("menu", { includeHidden: true })).toHaveCount(0);
+    await page.getByRole("button", { name: "Abrir diálogo" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect
+      .poll(() => animatedRoles.evaluate(({ observed }) => observed.has("dialog")))
+      .toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Abrir diálogo" }),
+    ).toBeFocused();
+  } finally {
+    await animatedRoles.evaluate(({ stop }) => stop());
+    await animatedRoles.dispose();
+  }
 });
 
 test("should give pressed buttons restrained feedback without animating disabled actions", async ({
