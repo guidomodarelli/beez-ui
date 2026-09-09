@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["node", "vite/client"],
+    "paths": {
+      "beez-ui": ["../dist/index"],
+      "beez-ui/tanstack": ["../dist/tanstack"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../.storybook/**/*.ts",
+    "../.storybook/**/*.tsx",
+    "../playwright.storybook.config.ts"
+  ]
+}

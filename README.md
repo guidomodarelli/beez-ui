@@ -2,7 +2,36 @@
 
 Biblioteca de componentes React reutilizables, con adaptadores opcionales por framework y tema compartido. Reúne los componentes de LaTribu y las funcionalidades reutilizables de agenda-mensual.
 
-## Consumo
+## Storybook
+
+```bash
+pnpm storybook
+```
+
+Abre `http://localhost:6006` para explorar los componentes con controles de texto,
+variantes, tamaños, estados y comportamiento. El selector de la barra permite
+probar el tema claro, oscuro o del sistema. Las stories de componentes compuestos
+incluyen sus piezas en ejemplos completos; los campos editables y selectores
+sincronizan sus interacciones con Controls. `BeezUIProvider` configura el preview
+y no forma parte del catálogo. Las notificaciones se exploran en `ThemedToaster`,
+sin duplicar una story de `Toaster`; `WhatsappIcon` está en la sección `Icons`.
+
+```bash
+pnpm build-storybook       # Genera storybook-static para servirlo o publicarlo
+pnpm typecheck:stories    # Comprueba stories y configuración con TypeScript
+pnpm test:storybook       # Build y navegación/interacciones en Chromium y WebKit
+```
+
+El catálogo consume los exports públicos y el CSS compilado de la librería. Los
+scripts compilan `beez-ui` antes de arrancar; si editás sus fuentes con Storybook
+abierto, ejecutá `pnpm build` para actualizar el paquete que muestra el preview.
+Los cambios en las stories se actualizan durante el desarrollo. Storybook y sus
+addons son dependencias de desarrollo y no se incluyen en el paquete publicado.
+
+Configuración basada en [React con Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite)
+y [Controls](https://storybook.js.org/docs/essentials/controls).
+
+## Uso del paquete
 
 ```tsx
 import { Button, Avatar, AvatarImage, DataTable, Calendar } from "beez-ui";

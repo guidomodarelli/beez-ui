@@ -1,0 +1,71 @@
+.StoryFrame {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  padding: 1rem;
+}
+.StoryFullscreen {
+  width: 100%;
+  min-height: 100svh;
+}
+.StoryStack {
+  display: grid;
+  gap: 1rem;
+  max-width: 32rem;
+}
+.StoryRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.StoryCard {
+  width: min(100%, 24rem);
+}
+.StoryScrollContent {
+  min-height: 120svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.StoryVerticalSeparator {
+  height: 5rem;
+}
+.StoryCarousel {
+  width: min(70vw, 24rem);
+  margin: 4rem auto;
+}
+.StoryCarousel__vertical {
+  height: 14rem;
+}
+.StorySlide {
+  padding: 1rem;
+}
+.StorySlide__content {
+  display: grid;
+  place-items: center;
+  min-height: 10rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.StorySidebarContent {
+  padding: 2rem;
+}
+.StoryIcon {
+  width: 3rem;
+  height: 3rem;
+}
+.StoryOutput {
+  display: block;
+  margin-top: 1rem;
+  color: var(--muted-foreground);
+}
+.StorySkeleton {
+  width: 16rem;
+  height: 1.25rem;
+}
+.StorySkeleton--avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+}
