@@ -24,8 +24,6 @@ test("preserves the default theme and shared interactions", async ({ page }) => 
   await expect(page.getByRole("radio", { name: "Mensual" })).toBeChecked();
   await page.getByRole("button", { name: /jueves, 10 de septiembre/i }).click();
   await expect(page.getByLabel("Día seleccionado")).toHaveText("10");
-  await button.click();
-  await expect(page.getByText("Cambios guardados")).toBeVisible();
   await expect(page.getByText("Texto animado")).toBeVisible();
   await expect(page.getByAltText("Perfil de prueba")).not.toBeVisible();
   await page.getByRole("button", { name: "Abrir panel largo" }).click();
@@ -34,6 +32,11 @@ test("preserves the default theme and shared interactions", async ({ page }) => 
   await dialog.getByRole("button", { name: "Última acción" }).scrollIntoViewIfNeeded();
   await expect(dialog.getByRole("button", { name: "Última acción" })).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(0);
+  // Check the toast last so its mobile overlay cannot cover later interaction targets.
+  await button.click();
+  await expect(page.getByText("Cambios guardados")).toBeVisible();
   expect(runtimeErrors).toEqual([]);
 });
 
