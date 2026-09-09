@@ -1,6 +1,6 @@
 {
   "name": "beez-ui",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Shared UI components with the customizations extracted from TuTribu.",
   "type": "module",
   "sideEffects": [
