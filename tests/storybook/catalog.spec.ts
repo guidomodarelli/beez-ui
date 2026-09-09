@@ -115,3 +115,29 @@ test("should open composed controls and update their state", async ({
     page.getByText("Cambios guardados", { exact: true }),
   ).toBeVisible();
 });
+
+test("should synchronize the theme story with the toolbar", async ({
+  page,
+}) => {
+  await page.goto("/?path=/story/components-animatedthemetoggler--playground");
+  const canvas = page.frameLocator("#storybook-preview-iframe");
+  await canvas.getByRole("button", { name: "Alternar tema" }).click();
+  await canvas
+    .getByRole("menuitemradio", { name: "Oscuro", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Tema compartido Oscuro" }),
+  ).toBeVisible();
+  await expect(canvas.locator("html")).toHaveClass(/dark/);
+  await canvas.getByRole("button", { name: "Alternar tema" }).click();
+  await expect(
+    canvas.getByRole("menuitemradio", { name: "Oscuro", exact: true }),
+  ).toHaveAttribute("aria-checked", "true");
+  await canvas
+    .getByRole("menuitemradio", { name: "Claro", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Tema compartido Claro" }),
+  ).toBeVisible();
+  await expect(canvas.locator("html")).toHaveClass(/light/);
+});

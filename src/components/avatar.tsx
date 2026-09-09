@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 import { useBeezUIComponents } from "../providers/beez-ui-provider.js"
 
@@ -19,7 +20,7 @@ function Avatar({
   size?: "default" | "sm" | "lg"
 }) {
   return (
-    <AvatarPrimitive.Root
+    <MotionSlot kind="fade"><AvatarPrimitive.Root
       data-slot="avatar"
       data-size={size}
       className={cn(
@@ -27,7 +28,7 @@ function Avatar({
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 
@@ -40,7 +41,7 @@ function AvatarImage({
 }: AvatarImageProps) {
   const { Image: ImageComponent = "img" } = useBeezUIComponents()
   return (
-    <AvatarPrimitive.Image
+    <MotionSlot kind="field"><AvatarPrimitive.Image
       render={<ImageComponent />}
       keepMounted
       alt={alt}
@@ -53,7 +54,7 @@ function AvatarImage({
       loading="lazy"
       decoding="async"
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

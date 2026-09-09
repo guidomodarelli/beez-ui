@@ -77,7 +77,12 @@ const meta = {
           variant={args.variant}
           collapsible={args.collapsible}
         >
-          <SidebarHeader>{args.title}</SidebarHeader>
+          <SidebarHeader>
+            <div className="StorySidebarBrand">
+              <Home aria-hidden="true" />
+              <span className="StorySidebarLabel">{args.title}</span>
+            </div>
+          </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Secciones</SidebarGroupLabel>
@@ -97,7 +102,9 @@ const meta = {
               </SidebarMenu>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter>Cuenta de ejemplo</SidebarFooter>
+          <SidebarFooter>
+            <span className="StorySidebarLabel">Cuenta de ejemplo</span>
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <div className="StorySidebarContent">

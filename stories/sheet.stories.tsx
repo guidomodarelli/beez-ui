@@ -67,7 +67,7 @@ const meta = {
             </SheetDescription>
           </SheetHeader>
           <div
-            className={args.longContent ? "StoryScrollContent" : "StoryStack"}
+            className={`StorySheetBody ${args.longContent ? "StoryScrollContent" : "StoryStack"}`}
           >
             <p>Inicio del contenido.</p>
             <p>Fin del contenido.</p>

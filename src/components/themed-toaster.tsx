@@ -1,5 +1,6 @@
 "use client"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { useTheme } from "next-themes"
 import { CircleCheck, Info, TriangleAlert, OctagonAlert, Loader } from "lucide-react"
@@ -15,16 +16,16 @@ const ThemedToaster = ({ theme, ...props }: ToasterProps) => {
       className="toaster group"
       icons={{
         success: (
-          <CircleCheck className="size-4" />
+          <MotionSlot kind="selection"><CircleCheck className="size-4" /></MotionSlot>
         ),
         info: (
-          <Info className="size-4" />
+          <MotionSlot kind="selection"><Info className="size-4" /></MotionSlot>
         ),
         warning: (
-          <TriangleAlert className="size-4" />
+          <MotionSlot kind="selection"><TriangleAlert className="size-4" /></MotionSlot>
         ),
         error: (
-          <OctagonAlert className="size-4" />
+          <MotionSlot kind="selection"><OctagonAlert className="size-4" /></MotionSlot>
         ),
         loading: (
           <Loader className="size-4 animate-spin" />

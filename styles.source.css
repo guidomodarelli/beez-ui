@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./src/styles/motion.css";
 
 @source "./dist/**/*.js";
 
@@ -13,12 +14,6 @@
 }
 
 @custom-variant dark (&:is(.dark *));
-
-:root.BeezThemeTransition::view-transition-old(root),
-:root.BeezThemeTransition::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
 
 @theme inline {
   --font-sans: var(--font-geist, "Beez Geist", sans-serif);

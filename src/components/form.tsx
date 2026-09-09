@@ -13,6 +13,7 @@ import {
   type FieldValues,
 } from "react-hook-form"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 import { Label } from "./label.js"
 
@@ -77,13 +78,13 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId()
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <MotionSlot kind="field"><FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
         className={cn("grid gap-2", className)}
         {...props}
       />
-    </FormItemContext.Provider>
+    </FormItemContext.Provider></MotionSlot>
   )
 }
 
@@ -144,14 +145,14 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   }
 
   return (
-    <p
+    <MotionSlot kind="fade"><p
       data-slot="form-message"
       id={formMessageId}
       className={cn("text-sm text-destructive", className)}
       {...props}
     >
       {body}
-    </p>
+    </p></MotionSlot>
   )
 }
 

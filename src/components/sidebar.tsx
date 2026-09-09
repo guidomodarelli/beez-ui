@@ -6,6 +6,7 @@ import { Slot } from "radix-ui"
 
 import { useIsMobile } from "../hooks/use-mobile.js"
 import { useSidebarPersistence, saveSidebarPreference } from "../hooks/use-sidebar-persistence.js"
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 import {
   SIDEBAR_COOKIE_MAX_AGE,
@@ -534,14 +535,14 @@ function SidebarMenuButton({
   )
 
   const button = (
-    <Comp
+    <MotionSlot kind="press"><Comp
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
-    />
+    /></MotionSlot>
   )
 
   // Avoid SSR/client markup drift caused by tooltip trigger wrappers during hydration.
@@ -686,7 +687,7 @@ function SidebarMenuSubButton({
   const Comp = asChild ? Slot.Root : "a"
 
   return (
-    <Comp
+    <MotionSlot kind="press"><Comp
       data-slot="sidebar-menu-sub-button"
       data-sidebar="menu-sub-button"
       data-size={size}
@@ -696,7 +697,7 @@ function SidebarMenuSubButton({
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

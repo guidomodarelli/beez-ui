@@ -2,6 +2,7 @@
 
 /** Shares optional rendering adapters without importing a framework into the core. */
 import { createContext, useContext, useMemo, type ComponentProps, type ComponentType, type ReactNode } from "react";
+import { MotionConfig } from "motion/react";
 import { ThemeProvider, type ThemeProviderProps } from "next-themes";
 
 /** Defines the native link contract accepted by routing adapters. */
@@ -33,7 +34,7 @@ const AdapterContext = createContext<BeezUIComponents>(EMPTY_COMPONENTS);
 export function BeezUIProvider({ children, components = EMPTY_COMPONENTS, themeOptions }: BeezUIProviderProps) {
   const parent = useContext(AdapterContext);
   const value = useMemo(() => ({ ...parent, ...components }), [parent, components]);
-  return <ThemeProvider attribute="class" {...themeOptions}><AdapterContext.Provider value={value}>{children}</AdapterContext.Provider></ThemeProvider>;
+  return <ThemeProvider attribute="class" {...themeOptions}><MotionConfig reducedMotion="user"><AdapterContext.Provider value={value}>{children}</AdapterContext.Provider></MotionConfig></ThemeProvider>;
 }
 
 /** Reads adapters internally; native components work without a provider. */

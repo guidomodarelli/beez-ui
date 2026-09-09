@@ -5,3 +5,4 @@ section { margin-block: 1.5rem; }
 h1 { font-family: var(--font-display); font-size: 2rem; }
 .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .long-content { height: 120svh; display: flex; flex-direction: column; justify-content: space-between; }
+.motion-skeleton { width: 12rem; height: 1rem; margin-block: 1rem; }

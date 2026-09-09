@@ -2,6 +2,7 @@
 
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 
 function Separator({
@@ -10,7 +11,7 @@ function Separator({
   ...props
 }: SeparatorPrimitive.Props) {
   return (
-    <SeparatorPrimitive
+    <MotionSlot kind="fade"><SeparatorPrimitive
       data-slot="separator"
       orientation={orientation}
       className={cn(
@@ -18,7 +19,7 @@ function Separator({
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

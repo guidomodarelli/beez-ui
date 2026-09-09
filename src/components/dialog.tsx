@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
+import { MotionSlot } from "../motion/motion-slot.js"
+import { MotionPresence, MotionOpenProvider, useMotionOpenState } from "../motion/presence.js"
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
 import { XIcon } from "lucide-react"
@@ -10,7 +12,9 @@ import { XIcon } from "lucide-react"
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+  const [motionOpen, setMotionOpen] = useMotionOpenState(props)
+
+  return <MotionOpenProvider scope="dialog" open={motionOpen}><DialogPrimitive.Root data-slot="dialog" {...props} open={motionOpen} onOpenChange={setMotionOpen} /></MotionOpenProvider>
 }
 
 function DialogTrigger({
@@ -39,7 +43,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/30 duration-100 supports-backdrop-filter:backdrop-blur-md data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-black/30 supports-backdrop-filter:backdrop-blur-md ",
         className
       )}
       {...props}
@@ -61,12 +65,12 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   return (
-    <DialogPortal>
-      <DialogOverlay />
-      <DialogPrimitive.Content
+    <DialogPortal forceMount><MotionPresence scope="dialog" forceMount={props.forceMount}><React.Fragment>
+      <MotionSlot kind="overlay"><DialogOverlay forceMount /></MotionSlot>
+      <MotionSlot kind="dialog"><DialogPrimitive.Content forceMount
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(100svh-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(100svh-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none sm:max-w-sm ",
           className
         )}
         {...props}
@@ -85,8 +89,8 @@ function DialogContent({
             </Button>
           </DialogPrimitive.Close>
         )}
-      </DialogPrimitive.Content>
-    </DialogPortal>
+      </DialogPrimitive.Content></MotionSlot>
+    </React.Fragment></MotionPresence></DialogPortal>
   )
 }
 

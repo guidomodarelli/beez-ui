@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import type React from "react"
+import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion.js"
 import { annotate } from "rough-notation"
 import { type RoughAnnotation } from "rough-notation/lib/model.js"
 
@@ -37,6 +38,7 @@ export function Highlighter({
   multiline = true,
   isView = false,
 }: HighlighterProps) {
+  const shouldReduceMotion = usePrefersReducedMotion()
   const elementRef = useRef<HTMLSpanElement>(null)
   const annotationRef = useRef<RoughAnnotation | null>(null)
   const [isInView, setIsInView] = useState(
@@ -86,6 +88,7 @@ export function Highlighter({
         color,
         strokeWidth,
         animationDuration,
+        animate: !shouldReduceMotion,
         iterations,
         padding,
         multiline,
@@ -132,6 +135,7 @@ export function Highlighter({
     }
   }, [
     shouldShow,
+    shouldReduceMotion,
     action,
     color,
     strokeWidth,
@@ -142,7 +146,7 @@ export function Highlighter({
   ])
 
   return (
-    <span ref={elementRef} className="relative inline-block bg-transparent">
+    <span data-slot="highlighter" ref={elementRef} className="relative inline-block bg-transparent">
       {children}
     </span>
   )

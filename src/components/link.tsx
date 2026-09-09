@@ -1,6 +1,7 @@
 "use client";
 
 /** Selects the configured routing adapter while keeping a native anchor fallback. */
+import { MotionSlot } from "../motion/motion-slot.js";
 import type { ComponentType } from "react";
 import { useBeezUIComponents, type BeezLinkProps } from "../providers/beez-ui-provider.js";
 
@@ -13,6 +14,8 @@ export type LinkProps = BeezLinkProps & {
 export function Link({ component, prefetch, ...props }: LinkProps) {
   const adapters = useBeezUIComponents();
   const Component = component ?? adapters.Link;
-  if (!Component || Component === "a") return <a {...props} />;
-  return <Component {...props} prefetch={prefetch} />;
+  const link = !Component || Component === "a"
+    ? <a data-slot="link" {...props} />
+    : <Component data-slot="link" {...props} prefetch={prefetch} />;
+  return "data-slot" in props ? link : <MotionSlot kind="link">{link}</MotionSlot>;
 }

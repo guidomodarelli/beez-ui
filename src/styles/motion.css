@@ -1,0 +1,17 @@
+/* Motion owns visual playback. This fallback only stops legacy CSS effects for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    [data-slot],
+    [data-slot] *,
+    [data-slot]::before,
+    [data-slot]::after,
+    [data-sonner-toast],
+    [data-sonner-toast] *,
+    .rough-annotation,
+    .rough-annotation *
+  ) {
+    animation: none !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

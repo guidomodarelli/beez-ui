@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 
 function Card({
@@ -8,7 +9,7 @@ function Card({
   ...props
 }: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
   return (
-    <div
+    <MotionSlot kind="card"><div
       data-slot="card"
       data-size={size}
       className={cn(
@@ -16,7 +17,7 @@ function Card({
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

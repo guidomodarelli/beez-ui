@@ -2,6 +2,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 
 const badgeVariants = cva(
@@ -37,12 +38,12 @@ function Badge({
   const Comp = asChild ? Slot.Root : "span"
 
   return (
-    <Comp
+    <MotionSlot kind="fade"><Comp
       data-slot="badge"
       data-variant={variant}
       className={cn(badgeVariants({ variant }), className)}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

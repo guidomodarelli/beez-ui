@@ -1,11 +1,12 @@
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <InputPrimitive
+    <MotionSlot kind="field"><InputPrimitive
       type={type}
       data-slot="input"
       className={cn(
@@ -13,7 +14,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

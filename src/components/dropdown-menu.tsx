@@ -3,13 +3,17 @@
 import * as React from "react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 
+import { MotionSlot } from "../motion/motion-slot.js"
+import { MotionPresence, MotionOpenProvider, useMotionOpenState } from "../motion/presence.js"
 import { cn } from "../lib/utils.js"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
 
 function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  const [motionOpen, setMotionOpen] = useMotionOpenState(props)
+
+  return <MotionOpenProvider scope="dropdown-menu" open={motionOpen}><DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} open={motionOpen} onOpenChange={setMotionOpen} /></MotionOpenProvider>
 }
 
 function DropdownMenuPortal({
@@ -39,15 +43,15 @@ function DropdownMenuContent({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
-    <DropdownMenuPrimitive.Portal>
-      <DropdownMenuPrimitive.Content
+    <DropdownMenuPrimitive.Portal forceMount><MotionPresence scope="dropdown-menu" forceMount={props.forceMount}>
+      <MotionSlot kind="surface"><DropdownMenuPrimitive.Content forceMount
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         align={align}
-        className={cn("z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-48 max-w-(--radix-dropdown-menu-content-available-width) origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:overflow-hidden data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
+        className={cn("z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-48 max-w-(--radix-dropdown-menu-content-available-width) origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[state=closed]:overflow-hidden relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
         {...props}
-      />
-    </DropdownMenuPrimitive.Portal>
+      /></MotionSlot>
+    </MotionPresence></DropdownMenuPrimitive.Portal>
   )
 }
 
@@ -231,7 +235,9 @@ function DropdownMenuShortcut({
 function DropdownMenuSub({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
-  return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />
+  const [motionOpen, setMotionOpen] = useMotionOpenState(props)
+
+  return <MotionOpenProvider scope="dropdown-sub" open={motionOpen}><DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} open={motionOpen} onOpenChange={setMotionOpen} /></MotionOpenProvider>
 }
 
 /**
@@ -273,11 +279,11 @@ function DropdownMenuSubContent({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
-    <DropdownMenuPrimitive.SubContent
+    <MotionPresence scope="dropdown-sub" forceMount={props.forceMount}><MotionSlot kind="surface"><DropdownMenuPrimitive.SubContent forceMount
       data-slot="dropdown-menu-sub-content"
-      className={cn("z-50 min-w-48 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
+      className={cn("z-50 min-w-48 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
       {...props}
-    />
+    /></MotionSlot></MotionPresence>
   )
 }
 

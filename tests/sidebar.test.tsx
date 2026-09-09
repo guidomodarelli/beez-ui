@@ -1,8 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { act } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SidebarProvider, SidebarTrigger, SIDEBAR_COOKIE_NAME, SIDEBAR_COOKIE_OPEN_VALUE, SidebarMenuSkeleton } from "beez-ui";
 
@@ -24,17 +23,16 @@ describe("SidebarMenuSkeleton", () => {
 
       Math.random = vi.fn(() => 0.9);
 
-      const root = hydrateRoot(container, <SidebarMenuSkeleton showIcon />, {
-        onRecoverableError: (error) => {
-          recoverableErrors.push(error);
-        },
-      });
-
+      let root: ReturnType<typeof hydrateRoot> | undefined;
       await act(async () => {
-        await Promise.resolve();
+        root = hydrateRoot(container, <SidebarMenuSkeleton showIcon />, {
+          onRecoverableError: (error) => {
+            recoverableErrors.push(error);
+          },
+        });
       });
 
-      root.unmount();
+      await act(async () => root?.unmount());
       consoleErrorCalls = consoleErrorSpy.mock.calls;
     } finally {
       Math.random = originalMathRandom;

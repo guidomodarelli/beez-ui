@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
 import { Input } from "./input.js"
@@ -10,7 +11,7 @@ import { Textarea } from "./textarea.js"
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
+    <MotionSlot kind="field"><div
       data-slot="input-group"
       role="group"
       className={cn(
@@ -18,7 +19,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
         className
       )}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 

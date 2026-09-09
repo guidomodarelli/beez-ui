@@ -1,5 +1,5 @@
 /** Shares the production theme, fonts and tooltip context across examples. */
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import type { Preview } from "@storybook/react-vite";
 import { BeezUIProvider, TooltipProvider, useTheme } from "beez-ui";
 import "beez-ui/styles.css";
@@ -8,9 +8,8 @@ import "./preview.css";
 /** Applies toolbar changes without preventing the theme component's own interactions. */
 function ThemeSync({ theme }: { theme: string }) {
   const { setTheme } = useTheme();
-  useEffect(() => {
-    setTheme(theme);
-  }, [theme, setTheme]);
+  const applyTheme = useEffectEvent((nextTheme: string) => setTheme(nextTheme));
+  useEffect(() => { applyTheme(theme); }, [theme]);
   return null;
 }
 
@@ -34,30 +33,38 @@ const preview: Preview = {
   parameters: {
     layout: "padded",
     controls: { expanded: true },
+    docs: {
+      description: {
+        story:
+          "Interactuá con el componente o recargá la story para ver su movimiento sutil. Con movimiento reducido en el sistema, las animaciones se desactivan y el contenido sigue disponible.",
+      },
+    },
     options: { storySort: { method: "alphabetical" } },
   },
   decorators: [
-    (Story, context) => (
-      <BeezUIProvider
-        themeOptions={{
-          storageKey: "beez-ui-storybook-theme",
-          defaultTheme: "light",
-        }}
-      >
-        <ThemeSync theme={context.globals.theme} />
-        <TooltipProvider>
-          <div
-            className={
-              context.parameters.layout === "fullscreen"
-                ? "StoryFullscreen"
-                : "StoryFrame"
-            }
-          >
-            <Story />
-          </div>
-        </TooltipProvider>
-      </BeezUIProvider>
-    ),
+    function WithProviders(Story, context) {
+      return (
+        <BeezUIProvider
+          themeOptions={{
+            storageKey: "beez-ui-storybook-theme",
+            defaultTheme: "light",
+          }}
+        >
+          <ThemeSync theme={context.globals.theme} />
+          <TooltipProvider>
+            <div
+              className={
+                context.parameters.layout === "fullscreen"
+                  ? "StoryFullscreen"
+                  : "StoryFrame"
+              }
+            >
+              <Story />
+            </div>
+          </TooltipProvider>
+        </BeezUIProvider>
+      );
+    },
   ],
 };
 

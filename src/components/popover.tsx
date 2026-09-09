@@ -3,12 +3,16 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "radix-ui"
 
+import { MotionSlot } from "../motion/motion-slot.js"
+import { MotionPresence, MotionOpenProvider, useMotionOpenState } from "../motion/presence.js"
 import { cn } from "../lib/utils.js"
 
 function Popover({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />
+  const [motionOpen, setMotionOpen] = useMotionOpenState(props)
+
+  return <MotionOpenProvider scope="popover" open={motionOpen}><PopoverPrimitive.Root data-slot="popover" {...props} open={motionOpen} onOpenChange={setMotionOpen} /></MotionOpenProvider>
 }
 
 function PopoverTrigger({
@@ -29,18 +33,18 @@ function PopoverContent({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
   return (
-    <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
+    <PopoverPrimitive.Portal forceMount><MotionPresence scope="popover" forceMount={props.forceMount}>
+      <MotionSlot kind="surface"><PopoverPrimitive.Content forceMount
         data-slot="popover-content"
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden ",
           className
         )}
         {...props}
-      />
-    </PopoverPrimitive.Portal>
+      /></MotionSlot>
+    </MotionPresence></PopoverPrimitive.Portal>
   )
 }
 

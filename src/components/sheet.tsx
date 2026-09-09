@@ -3,12 +3,16 @@
 import * as React from "react"
 import { Dialog as SheetPrimitive } from "radix-ui"
 
+import { MotionSlot } from "../motion/motion-slot.js"
+import { MotionPresence, MotionOpenProvider, useMotionOpenState } from "../motion/presence.js"
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
 import { XIcon } from "lucide-react"
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />
+  const [motionOpen, setMotionOpen] = useMotionOpenState(props)
+
+  return <MotionOpenProvider scope="sheet" open={motionOpen}><SheetPrimitive.Root data-slot="sheet" {...props} open={motionOpen} onOpenChange={setMotionOpen} /></MotionOpenProvider>
 }
 
 function SheetTrigger({
@@ -37,7 +41,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/30 duration-100 supports-backdrop-filter:backdrop-blur-md data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 z-50 bg-black/30 supports-backdrop-filter:backdrop-blur-md ",
         className
       )}
       {...props}
@@ -61,13 +65,13 @@ function SheetContent({
   showCloseButton?: boolean
 }) {
   return (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content
+    <SheetPortal forceMount><MotionPresence scope="sheet" forceMount={props.forceMount}><React.Fragment>
+      <MotionSlot kind="overlay"><SheetOverlay forceMount /></MotionSlot>
+      <MotionSlot kind="sheet"><SheetPrimitive.Content forceMount
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 overflow-y-auto overscroll-contain data-[side=bottom]:max-h-dvh data-[side=top]:max-h-dvh bg-background bg-clip-padding text-sm shadow-lg transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10 data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10",
+          "fixed z-50 flex flex-col gap-4 overflow-y-auto overscroll-contain data-[side=bottom]:max-h-dvh data-[side=top]:max-h-dvh bg-background bg-clip-padding text-sm shadow-lg transition ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm ",
           className
         )}
         {...props}
@@ -86,8 +90,8 @@ function SheetContent({
             </Button>
           </SheetPrimitive.Close>
         )}
-      </SheetPrimitive.Content>
-    </SheetPortal>
+      </SheetPrimitive.Content></MotionSlot>
+    </React.Fragment></MotionPresence></SheetPortal>
   )
 }
 

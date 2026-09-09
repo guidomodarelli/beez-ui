@@ -51,6 +51,22 @@
 .StorySidebarContent {
   padding: 2rem;
 }
+.StorySidebarBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.StorySidebarBrand svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+:where([data-collapsible="icon"]) .StorySidebarLabel {
+  display: none;
+}
+.StorySheetBody {
+  padding-inline: 1rem;
+}
 .StoryIcon {
   width: 3rem;
   height: 3rem;

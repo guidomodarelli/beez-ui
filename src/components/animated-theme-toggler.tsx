@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun, SunMoon } from "lucide-react";
 import type { ThemeMode, ResolvedTheme } from "../theme.js";
-import { flushSync } from "react-dom";
+import { animate, frame, type AnimationPlaybackControlsWithThen } from "motion/react";
+import { MOTION_EASE } from "../motion/tokens.js";
 import { useTheme } from "next-themes";
 
 import {
@@ -13,6 +14,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu.js";
+import { REDUCED_MOTION_QUERY } from "../constants/motion.js";
 import { cn } from "../lib/utils.js";
 
 const THEME_OPTIONS = [
@@ -33,10 +35,9 @@ const THEME_OPTIONS = [
   },
 ] as const;
 
-/** Restricts transition styling to theme changes initiated by this component. */
-const THEME_TRANSITION_CLASS = "BeezThemeTransition";
-/** Respects user preferences when deciding whether to animate a theme change. */
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+/** Converts the public duration (milliseconds) to Motion seconds. */
+const MILLISECONDS_PER_SECOND = 1000;
+
 
 type ThemeOption = (typeof THEME_OPTIONS)[number]["value"];
 
@@ -61,6 +62,8 @@ export const AnimatedThemeToggler = ({
   const resolvedTheme = controlledResolvedTheme ?? providerTheme.resolvedTheme;
   const onThemeChange = controlledOnThemeChange ?? providerTheme.setTheme;
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const animationRef = useRef<AnimationPlaybackControlsWithThen | null>(null);
+  useEffect(() => () => { animationRef.current?.cancel(); animationRef.current = null; }, []);
   const isHydrated = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -82,53 +85,18 @@ export const AnimatedThemeToggler = ({
       return;
     }
 
-    const { top, left, width, height } = button.getBoundingClientRect();
-    const x = left + width / 2;
-    const y = top + height / 2;
-    const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-    const maxRadius = Math.hypot(
-      Math.max(x, viewportWidth - x),
-      Math.max(y, viewportHeight - y)
-    );
-
-    const applyTheme = () => {
-      onThemeChange(nextTheme);
-    };
-
-    if (
-      typeof document.startViewTransition !== "function" ||
-      typeof document.documentElement.animate !== "function" ||
-      window.matchMedia?.(REDUCED_MOTION_QUERY).matches
-    ) {
-      applyTheme();
-      return;
-    }
-
-    document.documentElement.classList.add(THEME_TRANSITION_CLASS);
-    const transition = document.startViewTransition(() => {
-      flushSync(applyTheme);
-    });
-
-      void transition.ready.then(() => {
-        return document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${maxRadius}px at ${x}px ${y}px)`,
-            ],
-          },
-          {
-            duration,
-            easing: "ease-in-out",
-            pseudoElement: "::view-transition-new(root)",
-          }
-        ).finished;
-      }).catch(() => {
-        // Skipped transitions retain the applied theme without an unhandled rejection.
-      }).finally(() => {
-        document.documentElement.classList.remove(THEME_TRANSITION_CLASS);
-      });
+    onThemeChange(nextTheme);
+    animationRef.current?.cancel();
+    if (window.matchMedia?.(REDUCED_MOTION_QUERY).matches || !Number.isFinite(duration) || duration <= 0) return;
+    const original = { transform: button.style.transform, opacity: button.style.opacity };
+    const animation = animate(button, { transform: ["rotate(-8deg)", "rotate(0deg)"], opacity: [0.65, 1] }, { duration: duration / MILLISECONDS_PER_SECOND, ease: [...MOTION_EASE] });
+    animationRef.current = animation;
+    void animation.then(() => frame.postRender(() => {
+      if (animationRef.current !== animation) return;
+      button.style.transform = original.transform;
+      button.style.opacity = original.opacity;
+      animationRef.current = null;
+    }));
   }, [duration, isDisabled, onThemeChange]);
 
   return (
@@ -146,6 +114,7 @@ export const AnimatedThemeToggler = ({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
+        data-beez-theme-menu
         align="end"
         className="w-44 rounded-xl p-2"
         side="bottom"

@@ -15,6 +15,8 @@ import {
   type MotionProps,
 } from "motion/react"
 
+import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion.js"
+
 import { cn } from "../lib/utils.js"
 
 const motionElements = {
@@ -74,6 +76,8 @@ export function TypingAnimation({
   cursorStyle = "line",
   ...props
 }: TypingAnimationProps) {
+  const shouldReduceMotion = usePrefersReducedMotion()
+  const wasReducedMotionRef = useRef(false)
   const MotionComponent = motionElements[
     Component
   ] as TypingAnimationMotionComponent
@@ -133,10 +137,17 @@ export function TypingAnimation({
   }, [isInView, startOnView])
 
   useEffect(() => {
-    if (lastResetSourceKeyRef.current === animationSourceKey) {
+    if (shouldReduceMotion) {
+      wasReducedMotionRef.current = true
+      lastResetSourceKeyRef.current = animationSourceKey
+      setDisplayedText(wordsToAnimate.join(" · "))
+      return
+    }
+    if (lastResetSourceKeyRef.current === animationSourceKey && !wasReducedMotionRef.current) {
       return
     }
 
+    wasReducedMotionRef.current = false
     lastResetSourceKeyRef.current = animationSourceKey
 
     const resetTimeout = setTimeout(() => {
@@ -149,9 +160,10 @@ export function TypingAnimation({
     return () => {
       clearTimeout(resetTimeout)
     }
-  }, [animationSourceKey])
+  }, [animationSourceKey, shouldReduceMotion, wordsToAnimate])
 
   useEffect(() => {
+    if (shouldReduceMotion) return
     let timeout: ReturnType<typeof setTimeout> | null = null
 
     if (shouldStart && wordsToAnimate.length > 0) {
@@ -213,6 +225,7 @@ export function TypingAnimation({
     }
   }, [
     shouldStart,
+    shouldReduceMotion,
     phase,
     currentCharIndex,
     currentWordIndex,
@@ -237,6 +250,7 @@ export function TypingAnimation({
 
   const shouldShowCursor =
     showCursor &&
+    !shouldReduceMotion &&
     !isComplete &&
     (hasMultipleWords || loop || currentCharIndex < currentWordGraphemes.length)
 
@@ -255,6 +269,7 @@ export function TypingAnimation({
   return (
     <MotionComponent
       ref={elementRef}
+      data-slot="typing-animation"
       className={cn(
         "tracking-[-0.02em]",
         Component === "h1" && "text-3xl font-bold leading-tight md:text-4xl",

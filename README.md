@@ -55,6 +55,38 @@ Los componentes usan por defecto los espaciados compactos de Agenda: `Select` mi
 
 Los `Sheet` superiores e inferiores limitan su altura al viewport dinámico (`100dvh`) y permiten desplazar el contenido para mantener accesibles las acciones de paneles largos.
 
+## Movimiento
+
+Las nuevas animaciones usan la dependencia `motion`: `animate` controla la
+reproducción, `hover` y `press` los gestos, y `AnimatePresence` / `usePresence`
+retienen los overlays durante su salida. Los presets y tiempos viven en
+`src/motion/`. No se usan keyframes CSS para estas animaciones.
+
+`MotionSlot` anima el nodo original del primitive mediante refs compuestos,
+sin agregar wrappers al DOM ni reemplazar sus handlers. Las pulsaciones reducen
+la escala a 0.98; cards y enlaces responden al hover; campos e indicadores
+responden al foco y la selección. Menús, popovers, diálogos y sheets usan entradas
+cortas y salidas de 120 ms. El skeleton pulsa con Motion. Las animaciones
+especializadas existentes de Embla, Sonner y rough-notation se conservan.
+
+El contenido que está saliendo deja de ser interactivo y accesible de inmediato.
+Cada familia de overlays tiene un contexto de visibilidad independiente para
+soportar composiciones anidadas; los portales sin nodo visible no bloquean el
+cierre del padre. `Select` conserva su desmontaje nativo y usa Motion en la entrada.
+La elección explícita de `forceMount` permanece bajo control del consumidor.
+
+Se respeta `prefers-reduced-motion`: las nuevas animaciones se cancelan y se
+restauran los estilos; las anotaciones se dibujan sin animación y el texto aparece
+completo, incluidas todas las palabras de una secuencia. Los controles del carrusel
+avanzan directamente. El CSS solo aporta el fallback de movimiento reducido para
+los efectos heredados. `BeezUIProvider` configura `MotionConfig` con
+`reducedMotion="user"`. El primer render conserva el contrato de SSR.
+
+El selector aplica el tema inmediatamente y anima su icono con Motion; no depende
+de View Transitions nativas ni de una animación para completar el cambio. Los estilos temporales se liberan al terminar
+la reproducción. Las stories permiten probar los gestos y estados reales; el
+selector de tema de la story y la barra de Storybook se mantienen sincronizados.
+
 ## Providers de UI
 
 Elegir un único `BeezUIProvider` según el framework. Los componentes y `useTheme` siempre se importan desde `beez-ui`.

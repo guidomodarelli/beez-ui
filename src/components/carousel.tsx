@@ -5,6 +5,7 @@ import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
 
+import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion.js"
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
@@ -51,6 +52,7 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
+  const shouldReduceMotion = usePrefersReducedMotion()
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -68,12 +70,12 @@ function Carousel({
   }, [])
 
   const scrollPrev = React.useCallback(() => {
-    api?.scrollPrev()
-  }, [api])
+    api?.scrollPrev(shouldReduceMotion)
+  }, [api, shouldReduceMotion])
 
   const scrollNext = React.useCallback(() => {
-    api?.scrollNext()
-  }, [api])
+    api?.scrollNext(shouldReduceMotion)
+  }, [api, shouldReduceMotion])
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {

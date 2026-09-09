@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 
 const alertVariants = cva(
@@ -27,12 +28,12 @@ function Alert({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
   return (
-    <div
+    <MotionSlot kind="fade"><div
       data-slot="alert"
       role="alert"
       className={cn(alertVariants({ variant }), className)}
       {...props}
-    />
+    /></MotionSlot>
   )
 }
 
