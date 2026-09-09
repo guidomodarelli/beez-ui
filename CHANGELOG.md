@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.5.5 - 2026-09-09
+
+- Actualiza el paquete a la versión 0.5.5.
+
 ## 0.5.4 - 2026-09-09
 
 - Actualiza el paquete a la versión 0.5.4.
