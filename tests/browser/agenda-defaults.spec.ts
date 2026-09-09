@@ -47,7 +47,9 @@ for (const side of ["top", "bottom"] as const) {
     await page.getByRole("button", { name: `Abrir panel ${side}` }).click();
     const panel = page.getByRole("dialog", { name: `Panel ${side}`, exact: true });
     await expect(panel).toBeVisible();
-    expect((await panel.boundingBox())!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+    // Measure layout height independently of fractional opening-animation transforms.
+    expect(await panel.evaluate(element => (element as HTMLElement).offsetHeight))
+      .toBeLessThanOrEqual(page.viewportSize()!.height);
     await panel.getByRole("button", { name: "Inicio del panel" }).scrollIntoViewIfNeeded();
     await expect(panel.getByRole("button", { name: "Inicio del panel" })).toBeInViewport();
     await panel.getByRole("button", { name: "Fin del panel" }).scrollIntoViewIfNeeded();
