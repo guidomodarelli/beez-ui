@@ -898,6 +898,10 @@ export function FilterQueryBar({
           align="start"
           className="w-[250px] max-h-[280px] gap-0 overflow-y-auto p-1"
           onCloseAutoFocus={(event) => event.preventDefault()}
+          onInteractOutside={(event) => {
+            // The input owns focus while the portaled suggestions remain open.
+            if (event.target === inputRef.current) event.preventDefault();
+          }}
           onOpenAutoFocus={(event) => event.preventDefault()}
         >
           <ul
@@ -934,6 +938,7 @@ export function FilterQueryBar({
                         : "text-foreground",
                     )}
                     id={`${instanceId}-${suggestion.id}`}
+                    onPointerMove={() => setActiveIndex(index)}
                     onMouseDown={(event) => {
                       event.preventDefault();
                       applySuggestion(suggestion);

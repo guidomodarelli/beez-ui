@@ -87,6 +87,22 @@ describe("FilterQueryBar", () => {
     installPointerCapturePolyfills();
   });
 
+  it("activates hovered suggestions without moving focus and applies them with Enter", async () => {
+    const user = userEvent.setup();
+    render(<FilterQueryBarHarness />);
+    const combobox = screen.getByRole("combobox");
+    await user.click(combobox);
+    const suggestion = screen.getByRole("option", { name: "Dirección" });
+
+    await user.hover(suggestion);
+
+    expect(suggestion).toHaveAttribute("aria-selected", "true");
+    expect(combobox).toHaveAttribute("aria-activedescendant", suggestion.id);
+    expect(combobox).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(combobox).toHaveValue("direccion:");
+  });
+
   it("exposes combobox semantics", () => {
     render(<FilterQueryBarHarness />);
 

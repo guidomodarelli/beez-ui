@@ -1,6 +1,21 @@
 /** Exercises the catalog as a developer would: browse examples and interact with controls. */
 import { expect, test } from "@playwright/test";
 
+test("should preserve filter focus while hovering and applying suggestions", async ({ page }) => {
+  await page.goto("/iframe.html?id=components-filterquerybar--playground&viewMode=story");
+  const input = page.getByRole("combobox");
+  await input.click();
+  await expect(input).toHaveAttribute("aria-expanded", "true");
+  await input.click();
+  const suggestion = page.getByRole("option").nth(1);
+  await suggestion.hover();
+  await expect(suggestion).toHaveAttribute("aria-selected", "true");
+  await expect(input).toBeFocused();
+  await input.press("Enter");
+  await expect(input).toHaveValue("estado:");
+  await expect(input).toBeFocused();
+});
+
 test("should render every catalog example without runtime errors", async ({
   page,
   request,
