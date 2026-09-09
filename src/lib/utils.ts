@@ -1,2 +1,2 @@
 /** Shares class composition and Tailwind conflict resolution across consumers. */
-export { cn } from "cnfast";
+export { cn } from "cn";

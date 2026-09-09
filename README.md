@@ -10,6 +10,8 @@ import { Button, Avatar, AvatarImage, DataTable, Calendar } from "beez-ui";
 
 Agrupar los imports de componentes desde la raíz. El paquete publica JavaScript ESM y declaraciones TypeScript en `dist`; el consumidor no necesita transpilar el código fuente de la librería. La gramática de filtros y los helpers de mes-año son independientes de React.
 
+La utilidad `cn`, también exportada desde `beez-ui`, usa el paquete `cn` para combinar clases condicionales y resolver conflictos de Tailwind.
+
 ```css
 @import "beez-ui/styles.css";
 ```
