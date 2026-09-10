@@ -10,3 +10,5 @@ minimumReleaseAgeExclude:
   - scheduler@0.28.0
   - '@types/react-dom@19.3.0'
   - '@types/react@19.3.0'
+patchedDependencies:
+  happy-dom@20.14.0: patches/happy-dom@20.14.0.patch

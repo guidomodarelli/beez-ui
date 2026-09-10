@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     // Reuse environment initialization while preserving a separate VM per test file.
     pool: "vmThreads",
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: ["./vitest.setup.ts"],
     include: ["tests/**/*.test.{ts,tsx}"],
   },
