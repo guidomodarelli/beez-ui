@@ -63,11 +63,34 @@ retienen los overlays durante su salida. Los presets y tiempos viven en
 `src/motion/`. No se usan keyframes CSS para estas animaciones.
 
 `MotionSlot` anima el nodo original del primitive mediante refs compuestos,
-sin agregar wrappers al DOM ni reemplazar sus handlers. Las pulsaciones reducen
-la escala a 0.98; cards y enlaces responden al hover; campos e indicadores
-responden al foco y la selección. Menús, popovers, diálogos y sheets usan entradas
-cortas y salidas de 120 ms. El skeleton pulsa con Motion. Las animaciones
-especializadas existentes de Embla, Sonner y rough-notation se conservan.
+sin agregar wrappers al DOM ni reemplazar sus handlers. Las curvas y springs
+siguen los tokens de [beui motion](https://beui.dev/components/motion):
+
+- `Button` se comprime con spring a 0.93 y se eleva a 1.02 al hover, solo en
+  dispositivos con hover real (`(hover: hover) and (pointer: fine)`); los ítems de
+  `Sidebar` y `Tabs` se comprimen a 0.98.
+- `Checkbox` y `RadioGroup` se comprimen a 0.92. La marca del checkbox aparece
+  con pop y trazo (`pathLength`) y sale con blur; el punto del radio aparece con spring.
+- El thumb de `Switch` viaja con un spring pesado y se aplasta mientras se presiona.
+- `Input`, `Textarea`, `InputGroup` y `SelectTrigger` tiemblan al pasar a
+  `aria-invalid="true"`; `FormMessage` entra con blur.
+- `Tooltip` entra con blur, escala y desplazamiento desde el trigger.
+  `Popover`, `HoverCard`, `DropdownMenu` y `Select` escalan desde 0.96 y se revelan
+  con un clip desde la esquina más cercana al trigger.
+- `Dialog` y `AlertDialog` suben con spring; `Sheet` entra desde su borde con spring.
+- `GlideSlot` desliza el indicador activo entre ítems como un `layoutId` compartido:
+  la pestaña activa de `Tabs` (fondo o subrayado), el ítem activo de `SidebarMenu` y
+  el ítem resaltado de `DropdownMenu` y `Select`, también con teclado. Una copia
+  transitoria viaja entre ítems y se elimina al llegar, devolviendo el estilo al ítem.
+- El chevron de `SelectTrigger` gira 180° al abrir y los chevrons de `DataTable`
+  (grupos y columnas) giran en lugar de cambiar de ícono; CSS define el ángulo final.
+- Las opciones del `Select` entran escalonadas con blur (las primeras 10; el resto
+  solo se desvanece) y los checks de ítems de `Select` y `DropdownMenu` aparecen con pop.
+- El ícono de `AnimatedThemeToggler` cambia con blur y escala; el botón de cierre de
+  `Dialog` aparece con un pop demorado.
+- El contenido de `Tabs` entra con un desplazamiento de 4 px. Cards y enlaces
+  responden al hover. El skeleton pulsa con Motion. Las animaciones especializadas
+  existentes de Embla, Sonner y rough-notation se conservan.
 
 El contenido que está saliendo deja de ser interactivo y accesible de inmediato.
 Cada familia de overlays tiene un contexto de visibilidad independiente para

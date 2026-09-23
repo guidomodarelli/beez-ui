@@ -78,7 +78,7 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
-            <Button
+            <MotionSlot kind="delayed-pop"><Button
               variant="ghost"
               className="absolute top-2 right-2"
               size="icon-sm"
@@ -86,7 +86,7 @@ function DialogContent({
               <XIcon
               />
               <span className="sr-only">Cerrar</span>
-            </Button>
+            </Button></MotionSlot>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content></MotionSlot>

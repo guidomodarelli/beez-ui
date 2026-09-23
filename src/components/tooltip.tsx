@@ -42,7 +42,7 @@ function TooltipContent({
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
   return (
     <TooltipPrimitive.Portal forceMount><MotionPresence scope="tooltip" forceMount={props.forceMount}>
-      <MotionSlot kind="surface"><TooltipPrimitive.Content forceMount
+      <MotionSlot kind="tooltip"><TooltipPrimitive.Content forceMount
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(

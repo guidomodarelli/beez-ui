@@ -24,6 +24,8 @@ import {
   X,
 } from "lucide-react";
 
+import { cn } from "../lib/utils.js";
+import { MotionSlot } from "../motion/motion-slot.js";
 import { Button } from "./button.js";
 import { Badge } from "./badge.js";
 import { FilterQueryBar } from "./filter-query-bar.js";
@@ -964,11 +966,12 @@ export function DataTable<TData, TValue>({
                     onClick={() => handleGroupToggle(groupKey)}
                     type="button"
                   >
-                    {isGroupCollapsed ? (
-                      <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
-                    ) : (
-                      <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
-                    )}
+                    <MotionSlot kind="rotate">
+                      <ChevronRight
+                        aria-hidden="true"
+                        className={cn("size-4 shrink-0", !isGroupCollapsed && "rotate-90")}
+                      />
+                    </MotionSlot>
                     {groupHeaderContent}
                   </button>
                 ) : (
@@ -1300,12 +1303,14 @@ export function DataTable<TData, TValue>({
                     <DropdownMenuTrigger asChild>
                       <Button
                         aria-label={columnVisibilityButtonLabel}
-                        className="relative"
+                        className="relative aria-expanded:*:data-[slot=data-table-columns-chevron]:rotate-180"
                         type="button"
                         variant="outline"
                       >
                         {columnVisibilityButtonLabel}
-                        <ChevronDown aria-hidden="true" />
+                        <MotionSlot kind="rotate">
+                          <ChevronDown aria-hidden="true" data-slot="data-table-columns-chevron" />
+                        </MotionSlot>
                         {hasToolbarChanges ? (
                           <>
                             <span

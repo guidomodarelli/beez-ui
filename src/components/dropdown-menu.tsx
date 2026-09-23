@@ -3,6 +3,7 @@
 import * as React from "react"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 
+import { GlideSlot } from "../motion/glide-slot.js"
 import { MotionSlot } from "../motion/motion-slot.js"
 import { MotionPresence, MotionOpenProvider, useMotionOpenState } from "../motion/presence.js"
 import { cn } from "../lib/utils.js"
@@ -44,13 +45,13 @@ function DropdownMenuContent({
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
     <DropdownMenuPrimitive.Portal forceMount><MotionPresence scope="dropdown-menu" forceMount={props.forceMount}>
-      <MotionSlot kind="surface"><DropdownMenuPrimitive.Content forceMount
+      <MotionSlot kind="surface"><GlideSlot preset="menu"><DropdownMenuPrimitive.Content forceMount
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         align={align}
         className={cn("z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-48 max-w-(--radix-dropdown-menu-content-available-width) origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[state=closed]:overflow-hidden relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
         {...props}
-      /></MotionSlot>
+      /></GlideSlot></MotionSlot>
     </MotionPresence></DropdownMenuPrimitive.Portal>
   )
 }
@@ -120,10 +121,10 @@ function DropdownMenuCheckboxItem({
         className="pointer-events-none absolute right-2 flex items-center justify-center"
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
-        <DropdownMenuPrimitive.ItemIndicator>
+        <MotionSlot kind="item-check"><DropdownMenuPrimitive.ItemIndicator>
           <CheckIcon
           />
-        </DropdownMenuPrimitive.ItemIndicator>
+        </DropdownMenuPrimitive.ItemIndicator></MotionSlot>
       </span>
       {children}
     </DropdownMenuPrimitive.CheckboxItem>
@@ -168,10 +169,10 @@ function DropdownMenuRadioItem({
         className="pointer-events-none absolute right-2 flex items-center justify-center"
         data-slot="dropdown-menu-radio-item-indicator"
       >
-        <DropdownMenuPrimitive.ItemIndicator>
+        <MotionSlot kind="item-check"><DropdownMenuPrimitive.ItemIndicator>
           <CheckIcon
           />
-        </DropdownMenuPrimitive.ItemIndicator>
+        </DropdownMenuPrimitive.ItemIndicator></MotionSlot>
       </span>
       {children}
     </DropdownMenuPrimitive.RadioItem>
@@ -279,11 +280,11 @@ function DropdownMenuSubContent({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
-    <MotionPresence scope="dropdown-sub" forceMount={props.forceMount}><MotionSlot kind="surface"><DropdownMenuPrimitive.SubContent forceMount
+    <MotionPresence scope="dropdown-sub" forceMount={props.forceMount}><MotionSlot kind="surface"><GlideSlot preset="menu"><DropdownMenuPrimitive.SubContent forceMount
       data-slot="dropdown-menu-sub-content"
       className={cn("z-50 min-w-48 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-destructive/10!", className )}
       {...props}
-    /></MotionSlot></MotionPresence>
+    /></GlideSlot></MotionSlot></MotionPresence>
   )
 }
 

@@ -6,6 +6,7 @@ import { Slot } from "radix-ui"
 
 import { useIsMobile } from "../hooks/use-mobile.js"
 import { useSidebarPersistence, saveSidebarPreference } from "../hooks/use-sidebar-persistence.js"
+import { GlideSlot } from "../motion/glide-slot.js"
 import { MotionSlot } from "../motion/motion-slot.js"
 import { cn } from "../lib/utils.js"
 import {
@@ -471,12 +472,12 @@ function SidebarGroupContent({
 
 function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
   return (
-    <ul
+    <GlideSlot preset="sidebar"><ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
       className={cn("flex w-full min-w-0 flex-col gap-1", className)}
       {...props}
-    />
+    /></GlideSlot>
   )
 }
 
@@ -535,7 +536,7 @@ function SidebarMenuButton({
   )
 
   const button = (
-    <MotionSlot kind="press"><Comp
+    <MotionSlot kind="subtle-press"><Comp
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
@@ -687,7 +688,7 @@ function SidebarMenuSubButton({
   const Comp = asChild ? Slot.Root : "a"
 
   return (
-    <MotionSlot kind="press"><Comp
+    <MotionSlot kind="subtle-press"><Comp
       data-slot="sidebar-menu-sub-button"
       data-sidebar="menu-sub-button"
       data-size={size}

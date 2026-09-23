@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun, SunMoon } from "lucide-react";
 import type { ThemeMode, ResolvedTheme } from "../theme.js";
 import { animate, frame, type AnimationPlaybackControlsWithThen } from "motion/react";
+import { MotionSlot } from "../motion/motion-slot.js";
 import { MOTION_EASE } from "../motion/tokens.js";
 import { useTheme } from "next-themes";
 
@@ -14,7 +15,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu.js";
-import { REDUCED_MOTION_QUERY } from "../constants/motion.js";
+import { MILLISECONDS_PER_SECOND, REDUCED_MOTION_QUERY } from "../constants/motion.js";
 import { cn } from "../lib/utils.js";
 
 const THEME_OPTIONS = [
@@ -35,8 +36,6 @@ const THEME_OPTIONS = [
   },
 ] as const;
 
-/** Converts the public duration (milliseconds) to Motion seconds. */
-const MILLISECONDS_PER_SECOND = 1000;
 
 
 type ThemeOption = (typeof THEME_OPTIONS)[number]["value"];
@@ -109,7 +108,12 @@ export const AnimatedThemeToggler = ({
           className={cn(className)}
           {...props}
         >
-          {!isThemeReady ? <SunMoon aria-hidden="true" /> : isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+          {/* Keyed by theme, so each change remounts the icon and plays its swap-in. */}
+          {!isThemeReady ? <SunMoon aria-hidden="true" /> : (
+            <MotionSlot key={isDark ? "dark" : "light"} kind="icon-swap">
+              {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+            </MotionSlot>
+          )}
           <span className="sr-only">Alternar tema</span>
         </button>
       </DropdownMenuTrigger>
