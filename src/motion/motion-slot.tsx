@@ -210,7 +210,9 @@ export function MotionSlot({
         const computed = getComputedStyle(element!);
         const snapshot: Partial<Record<AnimatedProperty, string>> = {};
         new Set([...animations.values()].flat()).forEach((property) => {
-          snapshot[property] = computed[property];
+          const value = computed[property];
+          // Motion cannot animate from "none", and needs opacity as a number like its target.
+          if (value && value !== "none") snapshot[property] = value;
         });
         interruptedRef.current = snapshot;
       }
@@ -291,7 +293,9 @@ export function MotionSlot({
       if (!isPresent && interrupted) {
         Object.entries(interrupted).forEach(([property, value]) => {
           const frames = keyframes[property];
-          if (Array.isArray(frames) && value) keyframes[property] = [value, ...frames.slice(1)];
+          if (!Array.isArray(frames) || !value) return;
+          const start = property === "opacity" ? Number.parseFloat(value) : value;
+          keyframes[property] = [start, ...frames.slice(1)];
         });
       }
       play(keyframes as DOMKeyframesDefinition, step.transition, { remove: !isPresent });

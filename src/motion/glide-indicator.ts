@@ -81,9 +81,23 @@ function toContainerBox(container: HTMLElement, rect: Box): Box {
   };
 }
 
-/** Measures the highlight: the item box, or its positioned `::after` bar for line variants. */
+/** Translation an item's own running entrance adds, read from its computed `matrix()`. */
+function inFlightTranslation(item: Element): { x: number; y: number } {
+  const values = /^matrix\(([^)]+)\)$/.exec(getComputedStyle(item).transform);
+  if (!values) return { x: 0, y: 0 };
+  const parts = values[1]!.split(",").map(Number.parseFloat);
+  return { x: parts[4] ?? 0, y: parts[5] ?? 0 };
+}
+
+/**
+ * Measures the highlight: the item box, or its positioned `::after` bar for line variants.
+ * An item still sliding into place (staggered Select options) is measured where it will
+ * settle, so the highlight does not land offset and jump when the entrance ends.
+ */
 function highlightBox(item: Element, surface: GlideSurface): Box {
-  const rect = item.getBoundingClientRect();
+  const box = item.getBoundingClientRect();
+  const offset = inFlightTranslation(item);
+  const rect = { left: box.left - offset.x, top: box.top - offset.y, width: box.width, height: box.height };
   if (surface === "background") return rect;
   const pseudo = getComputedStyle(item, "::after");
   return {

@@ -106,7 +106,8 @@ test("should open a submenu with motion and glide inside it", async ({ page }) =
   await expect(page.locator("[data-glide-indicator]")).toHaveCount(0);
   await expect(trash).not.toHaveAttribute("data-glide-target");
   await expect(trash).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  expect(await trash.getAttribute("style") ?? "").toBe("");
+  // Suspended transitions come back two painted frames after the glide lands.
+  await expect.poll(async () => (await trash.getAttribute("style")) ?? "").toBe("");
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Última acción")).toHaveText("Movido a papelera");
   await expect(page.getByRole("menu")).toHaveCount(0);
@@ -266,4 +267,52 @@ test("should continue an interrupted thumb glide from where it is", async ({ pag
     "transform",
     "none",
   );
+});
+
+test("should close overlays mid-entrance from where they are without Motion warnings", async ({
+  page,
+}) => {
+  const warnings: string[] = [];
+  page.on("console", (message) => {
+    if (/not an animatable value/i.test(message.text())) warnings.push(message.text());
+  });
+  await page.goto("/motion-catalog.html");
+  for (const name of ["Ver filtros", "Más opciones"]) {
+    const trigger = page.getByRole("button", { name });
+    await trigger.click();
+    // Closes while the entrance is still playing.
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-slot=popover-content],[data-slot=dropdown-menu-content]")).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  }
+  await page.getByRole("button", { name: "Eliminar cuenta" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  expect(warnings).toEqual([]);
+});
+
+test("should finish closing a surface whose parent keeps re-rendering", async ({ page }) => {
+  await page.goto("/motion-catalog.html");
+  const trigger = page.getByRole("button", { name: "Ver en vivo" });
+  await trigger.click();
+  await expect(page.getByText("Datos en vivo")).toBeVisible();
+  await page.keyboard.press("Escape");
+  // Each re-render hands out a new presence callback; the exit must still complete once.
+  await expect(page.getByText("Datos en vivo")).toHaveCount(0, { timeout: 2000 });
+  await expect(trigger).toBeFocused();
+});
+
+test("should glide the first sidebar change after hydration remounts its buttons", async ({
+  page,
+}) => {
+  const motion = await recordMotion(page);
+  await page.goto("http://127.0.0.1:3109/sidebar");
+  const reports = page.getByRole("button", { name: "Reportes" });
+  // Tooltip wrappers are added after hydration, which remounts every menu button.
+  await expect(reports).toHaveAttribute("data-state", "closed");
+  await reports.click();
+  await expect(page.getByLabel("Sección activa")).toHaveText("Reportes");
+  await expect.poll(motion.glides).toContain("sidebar-menu");
+  await expect(page.locator("[data-glide-indicator]")).toHaveCount(0);
+  await expect(reports).not.toHaveAttribute("data-glide-target");
 });

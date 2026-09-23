@@ -1,5 +1,5 @@
 /** Renders every motion-enabled component not covered by the basic motion page, with real state. */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useForm } from "react-hook-form";
 import {
@@ -93,6 +93,26 @@ function ProfileForm() {
   );
 }
 
+/** Re-renders its popover every frame, as streaming data would, including while it closes. */
+function TickingPopover() {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    let frameId = requestAnimationFrame(function advance() {
+      setTick((current) => current + 1);
+      frameId = requestAnimationFrame(advance);
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button>Ver en vivo</Button>
+      </PopoverTrigger>
+      <PopoverContent data-tick={tick}>Datos en vivo</PopoverContent>
+    </Popover>
+  );
+}
+
 /** Exercises every remaining component whose motion changed. */
 function MotionCatalog() {
   const [section, setSection] = useState<(typeof SECTIONS)[number]>("Inicio");
@@ -155,6 +175,7 @@ function MotionCatalog() {
             </PopoverTrigger>
             <PopoverContent>Filtros disponibles</PopoverContent>
           </Popover>
+          <TickingPopover />
           <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger href="#perfil">Perfil público</HoverCardTrigger>
             <HoverCardContent>Tarjeta de perfil</HoverCardContent>
