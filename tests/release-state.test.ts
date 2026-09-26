@@ -28,6 +28,8 @@ function configure(cwd: string) {
   git(cwd, "config", "user.name", "Release Test");
   git(cwd, "config", "user.email", "release@example.invalid");
   git(cwd, "config", "commit.gpgSign", "false");
+  // Fixtures have no .gitattributes; a global `core.autocrlf` would convert and warn on commit.
+  git(cwd, "config", "core.autocrlf", "false");
   git(cwd, "config", "core.hooksPath", join(directory, "hooks"));
 }
 
@@ -90,7 +92,8 @@ it("should keep porcelain paths intact and detect uncommitted release metadata",
 
 it("should count commits another clone pushed", async () => {
   const other = join(directory, "other");
-  git(directory, "clone", "--quiet", remote, other);
+  // Configured at clone time: the checkout itself must not convert line endings.
+  git(directory, "clone", "--quiet", "--config", "core.autocrlf=false", remote, other);
   configure(other);
   writeFileSync(join(other, "fix.txt"), "fix");
   git(other, "add", ".");

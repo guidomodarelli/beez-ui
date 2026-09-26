@@ -4,6 +4,7 @@ releases/
 tests/next-app/.next/
 tests/next-app/next-env.d.ts
 .package-test-*/
+.dist-build-*
 coverage/
 test-results/
 playwright-report/
