@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -12,38 +12,6 @@ type TableRow = {
 };
 
 describe("DataTable", () => {
-  beforeEach(() => {
-    if (typeof HTMLElement !== "undefined") {
-      if (!HTMLElement.prototype.hasPointerCapture) {
-        Object.defineProperty(HTMLElement.prototype, "hasPointerCapture", {
-          configurable: true,
-          value: () => false,
-        });
-      }
-
-      if (!HTMLElement.prototype.setPointerCapture) {
-        Object.defineProperty(HTMLElement.prototype, "setPointerCapture", {
-          configurable: true,
-          value: () => undefined,
-        });
-      }
-
-      if (!HTMLElement.prototype.releasePointerCapture) {
-        Object.defineProperty(HTMLElement.prototype, "releasePointerCapture", {
-          configurable: true,
-          value: () => undefined,
-        });
-      }
-    }
-
-    if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
-      Object.defineProperty(Element.prototype, "scrollIntoView", {
-        configurable: true,
-        value: () => undefined,
-      });
-    }
-  });
-
   it("renders a single header per group even when the rows arrive interleaved", () => {
     // Datos NO contiguos por grupo (p. ej. con orden manual del usuario): el
     // agrupado debe particionar por clave, no depender de la contigüidad.

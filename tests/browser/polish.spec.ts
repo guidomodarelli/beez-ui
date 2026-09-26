@@ -137,14 +137,27 @@ test.describe("with motion", () => {
     await expect(typing).toContainText("Hola");
     const cursor = page.locator('[data-slot="typing-animation-cursor"]');
     await expect(cursor).toHaveAttribute("aria-hidden", "true");
-    // Paused after the first word, the caret blinks: its opacity keeps changing over time.
-    const opacities = new Set<string>();
-    await expect
-      .poll(async () => {
-        opacities.add(await cursor.evaluate((element) => getComputedStyle(element).opacity));
-        return opacities.size;
-      })
-      .toBeGreaterThan(1);
+    // Paused after the first word, the caret blinks. Sampling every frame for a cycle and a half
+    // (not with a backing-off poll, whose interval can match the blink period) must see it both
+    // shown and hidden.
+    const { lowest, highest } = await cursor.evaluate(
+      (element) =>
+        new Promise<{ lowest: number; highest: number }>((resolve) => {
+          const startedAt = performance.now();
+          let lowest = 1;
+          let highest = 0;
+          const sample = () => {
+            const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+            lowest = Math.min(lowest, opacity);
+            highest = Math.max(highest, opacity);
+            if (performance.now() - startedAt < 1500) requestAnimationFrame(sample);
+            else resolve({ lowest, highest });
+          };
+          requestAnimationFrame(sample);
+        }),
+    );
+    expect(highest).toBeGreaterThan(0.9);
+    expect(lowest).toBeLessThan(0.1);
   });
 
   test("should close the sheet with the drawer curve and pop its close button in", async ({ page }) => {

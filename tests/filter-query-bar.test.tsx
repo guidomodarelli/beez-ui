@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { useState } from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -50,43 +50,7 @@ function FilterQueryBarHarness() {
   );
 }
 
-function installPointerCapturePolyfills() {
-  if (typeof HTMLElement !== "undefined") {
-    if (!HTMLElement.prototype.hasPointerCapture) {
-      Object.defineProperty(HTMLElement.prototype, "hasPointerCapture", {
-        configurable: true,
-        value: () => false,
-      });
-    }
-
-    if (!HTMLElement.prototype.setPointerCapture) {
-      Object.defineProperty(HTMLElement.prototype, "setPointerCapture", {
-        configurable: true,
-        value: () => undefined,
-      });
-    }
-
-    if (!HTMLElement.prototype.releasePointerCapture) {
-      Object.defineProperty(HTMLElement.prototype, "releasePointerCapture", {
-        configurable: true,
-        value: () => undefined,
-      });
-    }
-  }
-
-  if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
-    Object.defineProperty(Element.prototype, "scrollIntoView", {
-      configurable: true,
-      value: () => undefined,
-    });
-  }
-}
-
 describe("FilterQueryBar", () => {
-  beforeEach(() => {
-    installPointerCapturePolyfills();
-  });
-
   it("activates hovered suggestions without moving focus and applies them with Enter", async () => {
     const user = userEvent.setup();
     render(<FilterQueryBarHarness />);
