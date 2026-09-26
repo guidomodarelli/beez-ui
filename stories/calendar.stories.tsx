@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Calendar } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   selected: string;
@@ -62,26 +63,32 @@ const meta = {
   },
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
-    const parsed = new Date(`${args.selected}T12:00:00`);
-    const selected = Number.isNaN(parsed.getTime()) ? undefined : parsed;
     return (
-      <Calendar
-        mode="single"
-        defaultMonth={new Date(2026, 8, 1)}
-        selected={selected}
-        onSelect={(date) =>
-          updateArgs({
-            selected: date
-              ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-              : "",
-          })
-        }
-        numberOfMonths={args.numberOfMonths}
-        disabled={args.disabled}
-        showOutsideDays={args.showOutsideDays}
-        captionLayout={args.captionLayout}
-        weekStartsOn={args.weekStartsOn}
-      />
+      <LiveArgs args={args} names={["selected"]} updateArgs={updateArgs}>
+        {({ selected: selectedDay }, { selected: setSelectedDay }) => {
+          const parsed = new Date(`${selectedDay}T12:00:00`);
+          const selected = Number.isNaN(parsed.getTime()) ? undefined : parsed;
+          return (
+            <Calendar
+              mode="single"
+              defaultMonth={new Date(2026, 8, 1)}
+              selected={selected}
+              onSelect={(date) =>
+                setSelectedDay(
+                  date
+                    ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+                    : "",
+                )
+              }
+              numberOfMonths={args.numberOfMonths}
+              disabled={args.disabled}
+              showOutsideDays={args.showOutsideDays}
+              captionLayout={args.captionLayout}
+              weekStartsOn={args.weekStartsOn}
+            />
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

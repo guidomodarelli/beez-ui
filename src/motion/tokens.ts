@@ -16,6 +16,10 @@ export const MOTION_TIMING = {
   listStagger: 0.035,
   closeEnter: 0.2,
   closeDelay: 0.16,
+  sheetExit: 0.24,
+  reveal: 0.4,
+  monthSwap: 0.24,
+  cursorBlink: 1,
   skeleton: 1.8,
 } as const;
 
@@ -51,6 +55,14 @@ export const SPRING_LAYOUT = {
   stiffness: 360,
   damping: 32,
   mass: 0.6,
+} as const;
+
+/** Keyboard highlight in menus and lists: quick enough to keep up with a held arrow key. */
+export const SPRING_HIGHLIGHT = {
+  type: "spring",
+  stiffness: 700,
+  damping: 45,
+  mass: 0.5,
 } as const;
 
 /** Tab indicator glide, tuned to settle without overshooting the list edges. */
@@ -94,10 +106,23 @@ export const MOTION_ITEM_CHECK_SCALE = 0.75;
 export const MOTION_ICON_SWAP_SCALE = 0.25;
 export const MOTION_CLOSE_BUTTON_SCALE = 0.8;
 export const MOTION_LIST_ITEM_DISTANCE = 6;
+/** Loaded images settle from a slight zoom, so they develop in place instead of popping in. */
+export const MOTION_REVEAL_SCALE = 1.06;
+export const MOTION_REVEAL_BLUR_PX = 6;
+/** Calendar months slide just enough to show the direction of navigation. */
+export const MOTION_MONTH_DISTANCE = 12;
+/** Skeleton shine travels from fully before the box to fully past it, as a `translate` value. */
+export const MOTION_SHIMMER_TRANSLATE = ["-100% 0", "100% 0"] as const;
+
+/** Hovered interactive cards gain a soft drop shadow; the rest value has the same shape, invisible. */
+export const MOTION_CARD_SHADOW_LIFT = "0px 4px 16px 0px rgba(0, 0, 0, 0.08)";
+export const MOTION_CARD_SHADOW_REST = "0px 0px 0px 0px rgba(0, 0, 0, 0)";
 
 export const MOTION_SURFACE_SCALE = 0.96;
 /** Fraction of the surface kept hidden by the clip at the start of its reveal, in percent. */
 export const MOTION_SURFACE_CLIP_PERCENT = 92;
+/** Room left outside a revealing surface for its ring and drop shadow (`shadow-lg` spans ~22px). */
+export const MOTION_SURFACE_CLIP_BLEED_PX = 24;
 export const MOTION_TOOLTIP_DISTANCE = 8;
 export const MOTION_DIALOG_DISTANCE = 20;
 export const MOTION_CONTENT_DISTANCE = 4;
@@ -125,6 +150,7 @@ export type MotionKind =
   | "icon-swap"
   | "delayed-pop"
   | "skeleton"
+  | "reveal"
   | "link"
   | "icon"
   | "tooltip"

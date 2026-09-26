@@ -23,6 +23,7 @@ import {
   PopoverAnchor,
   PopoverContent,
 } from "./popover.js";
+import { GlideSlot } from "../motion/glide-slot.js";
 import { cn } from "../lib/utils.js";
 
 import {
@@ -904,13 +905,14 @@ export function FilterQueryBar({
           }}
           onOpenAutoFocus={(event) => event.preventDefault()}
         >
-          <ul
+          <GlideSlot preset="suggestions"><ul
             aria-label={
               suggestions.some((suggestion) => suggestion.group === "value")
                 ? VALUE_GROUP_LABEL
                 : KEY_GROUP_LABEL
             }
             className="grid gap-0.5"
+            data-slot="filter-query-bar-suggestions"
             id={listboxId}
             role="listbox"
           >
@@ -954,7 +956,7 @@ export function FilterQueryBar({
                 </React.Fragment>
               );
             })}
-          </ul>
+          </ul></GlideSlot>
         </PopoverContent>
       </Popover>
       <span aria-live="polite" className="sr-only">

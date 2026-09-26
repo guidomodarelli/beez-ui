@@ -15,6 +15,7 @@ import {
   SidebarTrigger,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 import { Home } from "lucide-react";
 /** Editable inputs specific to this example. */
 type Args = {
@@ -68,52 +69,58 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <SidebarProvider
-        open={args.open}
-        onOpenChange={(open) => updateArgs({ open })}
-      >
-        <Sidebar
-          side={args.side}
-          variant={args.variant}
-          collapsible={args.collapsible}
-        >
-          <SidebarHeader>
-            <div className="StorySidebarBrand">
-              <Home aria-hidden="true" />
-              <span className="StorySidebarLabel">{args.title}</span>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Secciones</SidebarGroupLabel>
-              <SidebarMenu>
-                {["Resumen", "Actividad", "Ajustes"].map((label) => (
-                  <SidebarMenuItem key={label}>
-                    <SidebarMenuButton
-                      isActive={args.active === label}
-                      tooltip={label}
-                      onClick={() => updateArgs({ active: label })}
-                    >
-                      <Home />
-                      <span>{label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter>
-            <span className="StorySidebarLabel">Cuenta de ejemplo</span>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>
-          <div className="StorySidebarContent">
-            <SidebarTrigger />
-            <h2>{args.active}</h2>
-            <p>Probá el menú también con el viewport móvil.</p>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+      <LiveArgs args={args} names={["open", "active"]} updateArgs={updateArgs}>
+        {({ open, active }, { open: setOpen, active: setActive }) => {
+          return (
+            <SidebarProvider
+              open={open}
+              onOpenChange={(open) => setOpen(open)}
+            >
+              <Sidebar
+                side={args.side}
+                variant={args.variant}
+                collapsible={args.collapsible}
+              >
+                <SidebarHeader>
+                  <div className="StorySidebarBrand">
+                    <Home aria-hidden="true" />
+                    <span className="StorySidebarLabel">{args.title}</span>
+                  </div>
+                </SidebarHeader>
+                <SidebarContent>
+                  <SidebarGroup>
+                    <SidebarGroupLabel>Secciones</SidebarGroupLabel>
+                    <SidebarMenu>
+                      {["Resumen", "Actividad", "Ajustes"].map((label) => (
+                        <SidebarMenuItem key={label}>
+                          <SidebarMenuButton
+                            isActive={active === label}
+                            tooltip={label}
+                            onClick={() => setActive(label)}
+                          >
+                            <Home />
+                            <span>{label}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroup>
+                </SidebarContent>
+                <SidebarFooter>
+                  <span className="StorySidebarLabel">Cuenta de ejemplo</span>
+                </SidebarFooter>
+              </Sidebar>
+              <SidebarInset>
+                <div className="StorySidebarContent">
+                  <SidebarTrigger />
+                  <h2>{active}</h2>
+                  <p>Probá el menú también con el viewport móvil.</p>
+                </div>
+              </SidebarInset>
+            </SidebarProvider>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

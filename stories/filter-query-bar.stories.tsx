@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { FilterQueryBar } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 import { FILTER_CONFIGS } from "./table-data.js";
 /** Editable inputs specific to this example. */
 type Args = { value: string; placeholder: string };
@@ -23,18 +24,24 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <div className="StoryStack">
-        <FilterQueryBar
-          configs={FILTER_CONFIGS}
-          value={args.value}
-          onValueChange={(value) => updateArgs({ value })}
-          placeholder={args.placeholder}
-          ariaLabel="Filtrar movimientos"
-        />
-        <output className="StoryOutput">
-          Consulta: {args.value || "Sin filtros"}
-        </output>
-      </div>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <div className="StoryStack">
+              <FilterQueryBar
+                configs={FILTER_CONFIGS}
+                value={value}
+                onValueChange={(value) => setValue(value)}
+                placeholder={args.placeholder}
+                ariaLabel="Filtrar movimientos"
+              />
+              <output className="StoryOutput">
+                Consulta: {value || "Sin filtros"}
+              </output>
+            </div>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

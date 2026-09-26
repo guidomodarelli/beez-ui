@@ -476,6 +476,92 @@ describe("DataTable", () => {
     expect(screen.queryByText("Item 40")).not.toBeInTheDocument();
   });
 
+  describe("columns targeted by query qualifiers without their own filterFn", () => {
+    type ExpenseRow = {
+      concept: string;
+      amount: number;
+      status: string;
+      month: number | null;
+    };
+    const expenseRows: ExpenseRow[] = [
+      { concept: "Internet", amount: 15000, status: "Pendiente", month: 202601 },
+      { concept: "Alquiler", amount: 250000, status: "Pagado", month: 202603 },
+      { concept: "Seguro", amount: 18000, status: "Pagado", month: null },
+    ];
+    // Plain accessor columns, as a consumer would first write them: TanStack would otherwise
+    // pick `inNumberRange` for the numeric column and crash on the structured filter value.
+    const expenseColumns: ColumnDef<ExpenseRow>[] = [
+      { accessorKey: "concept", header: "Concepto" },
+      { accessorKey: "amount", header: "Importe" },
+      { accessorKey: "status", header: "Estado" },
+      { accessorKey: "month", header: "Mes" },
+    ];
+
+    /** Renders the table with a controlled query, so each case types a single qualifier. */
+    function renderExpenseTable() {
+      function ExpenseHarness() {
+        const [conceptFilter, setConceptFilter] = useState("");
+        return (
+          <DataTable
+            columns={expenseColumns}
+            data={expenseRows}
+            emptyMessage="Sin movimientos"
+            filterColumnId="concept"
+            filterValue={conceptFilter}
+            onFilterValueChange={setConceptFilter}
+            queryFilterConfig={[
+              { key: "", kind: "text", label: "Concepto" },
+              { columnId: "amount", key: "importe", kind: "numberRange", label: "Importe" },
+              {
+                columnId: "status",
+                key: "estado",
+                kind: "enum",
+                label: "Estado",
+                options: [
+                  { slug: "pagado", value: "Pagado", label: "Pagado" },
+                  { slug: "pendiente", value: "Pendiente", label: "Pendiente" },
+                ],
+              },
+              { columnId: "month", key: "mes", kind: "yearMonthRange", label: "Mes" },
+            ]}
+            queryFilterLabel="Filtrar movimientos"
+          />
+        );
+      }
+      render(<ExpenseHarness />);
+      return screen.getByRole("combobox", { name: "Filtrar movimientos" });
+    }
+
+    /** Lists the concepts of the rows currently rendered by the table body. */
+    function visibleConcepts() {
+      return ["Internet", "Alquiler", "Seguro"].filter((concept) => screen.queryByText(concept));
+    }
+
+    it("filters a numeric column by range instead of crashing", async () => {
+      const user = userEvent.setup();
+      const queryBar = renderExpenseTable();
+      await user.type(queryBar, "importe:>16000");
+      expect(visibleConcepts()).toEqual(["Alquiler", "Seguro"]);
+      await user.clear(queryBar);
+      await user.type(queryBar, "importe:10000..20000");
+      expect(visibleConcepts()).toEqual(["Internet", "Seguro"]);
+    });
+
+    it("filters an enum column by the selected option value", async () => {
+      const user = userEvent.setup();
+      const queryBar = renderExpenseTable();
+      await user.type(queryBar, "estado:pendiente");
+      expect(visibleConcepts()).toEqual(["Internet"]);
+    });
+
+    it("filters a year-month column with the shared year-month matcher", async () => {
+      const user = userEvent.setup();
+      const queryBar = renderExpenseTable();
+      await user.type(queryBar, "mes:2026-02..2026-12");
+      expect(visibleConcepts()).toEqual(["Alquiler"]);
+    });
+  });
+
   it("keeps non-column query filters in the bar after it loses focus", async () => {
     const user = userEvent.setup();
     type LinkRow = { label: string; link: string };

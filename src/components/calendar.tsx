@@ -7,8 +7,12 @@ import {
   getDefaultClassNames,
   type DayButton,
   type Locale,
+  type MonthProps,
 } from "react-day-picker"
+import { animate, frame } from "motion/react"
 
+import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion.js"
+import { MOTION_EASE, MOTION_MONTH_DISTANCE, MOTION_TIMING } from "../motion/tokens.js"
 import { cn } from "../lib/utils.js"
 import { Button, buttonVariants } from "./button.js"
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
@@ -165,6 +169,7 @@ function Calendar({
         DayButton: ({ ...props }) => (
           <CalendarDayButton locale={locale} {...props} />
         ),
+        Month: CalendarMonth,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -178,6 +183,71 @@ function Calendar({
       }}
       {...props}
     />
+  )
+}
+
+/**
+ * Renders one displayed month and slides it in from the side the user navigated from.
+ * DayPicker keys months by display position, so this instance survives navigation and can
+ * compare the new month with the previous one. The first render and reduced motion stay static.
+ * @param props - DayPicker month properties, including the month being displayed.
+ * @returns The month container with its caption and grid.
+ */
+function CalendarMonth({
+  calendarMonth,
+  displayIndex,
+  children,
+  ...props
+}: MonthProps) {
+  const monthRef = React.useRef<HTMLDivElement>(null)
+  const monthTime = calendarMonth.date.getTime()
+  const previousMonthTimeRef = React.useRef(monthTime)
+  const reduceMotion = usePrefersReducedMotion()
+
+  React.useLayoutEffect(() => {
+    const previousMonthTime = previousMonthTimeRef.current
+    previousMonthTimeRef.current = monthTime
+    const element = monthRef.current
+    if (!element || reduceMotion || previousMonthTime === monthTime) return
+    const isForward = monthTime > previousMonthTime
+    const isRightToLeft = getComputedStyle(element).direction === "rtl"
+    const direction = isForward !== isRightToLeft ? 1 : -1
+    const original = { opacity: element.style.opacity, transform: element.style.transform }
+    const restore = () => {
+      element.style.opacity = original.opacity
+      element.style.transform = original.transform
+    }
+    const animation = animate(
+      element,
+      {
+        opacity: [0, 1],
+        transform: [`translateX(${direction * MOTION_MONTH_DISTANCE}px)`, "translateX(0px)"],
+      },
+      { duration: MOTION_TIMING.monthSwap, ease: [...MOTION_EASE] }
+    )
+    let isActive = true
+    // Motion commits final values after `then`; restoring on the next render frame wins over them.
+    void animation.then(() =>
+      frame.postRender(() => {
+        if (isActive) restore()
+      })
+    )
+    return () => {
+      isActive = false
+      animation.cancel()
+      restore()
+    }
+  }, [monthTime, reduceMotion])
+
+  return (
+    <div
+      ref={monthRef}
+      data-slot="calendar-month"
+      data-display-index={displayIndex}
+      {...props}
+    >
+      {children}
+    </div>
   )
 }
 

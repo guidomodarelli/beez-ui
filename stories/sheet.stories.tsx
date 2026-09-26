@@ -12,6 +12,7 @@ import {
   SheetClose,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -55,30 +56,36 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <Sheet open={args.open} onOpenChange={(open) => updateArgs({ open })}>
-        <SheetTrigger asChild>
-          <Button>Abrir panel</Button>
-        </SheetTrigger>
-        <SheetContent side={args.side} showCloseButton={args.showCloseButton}>
-          <SheetHeader>
-            <SheetTitle>{args.title}</SheetTitle>
-            <SheetDescription>
-              Explorá el panel desde cualquiera de sus bordes.
-            </SheetDescription>
-          </SheetHeader>
-          <div
-            className={`StorySheetBody ${args.longContent ? "StoryScrollContent" : "StoryStack"}`}
-          >
-            <p>Inicio del contenido.</p>
-            <p>Fin del contenido.</p>
-          </div>
-          <SheetFooter>
-            <SheetClose asChild>
-              <Button>Cerrar panel</Button>
-            </SheetClose>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <LiveArgs args={args} names={["open"]} updateArgs={updateArgs}>
+        {({ open }, { open: setOpen }) => {
+          return (
+            <Sheet open={open} onOpenChange={(open) => setOpen(open)}>
+              <SheetTrigger asChild>
+                <Button>Abrir panel</Button>
+              </SheetTrigger>
+              <SheetContent side={args.side} showCloseButton={args.showCloseButton}>
+                <SheetHeader>
+                  <SheetTitle>{args.title}</SheetTitle>
+                  <SheetDescription>
+                    Explorá el panel desde cualquiera de sus bordes.
+                  </SheetDescription>
+                </SheetHeader>
+                <div
+                  className={`StorySheetBody ${args.longContent ? "StoryScrollContent" : "StoryStack"}`}
+                >
+                  <p>Inicio del contenido.</p>
+                  <p>Fin del contenido.</p>
+                </div>
+                <SheetFooter>
+                  <SheetClose asChild>
+                    <Button>Cerrar panel</Button>
+                  </SheetClose>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

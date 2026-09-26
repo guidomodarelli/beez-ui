@@ -16,6 +16,7 @@ import {
 } from "motion/react"
 
 import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion.js"
+import { MOTION_TIMING } from "../motion/tokens.js"
 
 import { cn } from "../lib/utils.js"
 
@@ -33,6 +34,10 @@ const motionElements = {
   section: motion.section,
   span: motion.span,
 } as const
+
+/** Idle cursors fade out and back in, like a text editor's caret. */
+const CURSOR_BLINK_OPACITY = [1, 1, 0, 0, 1]
+const CURSOR_BLINK_TIMES = [0, 0.4, 0.5, 0.9, 1]
 
 type MotionElementType = Extract<
   keyof DOMMotionComponents,
@@ -254,6 +259,9 @@ export function TypingAnimation({
     !isComplete &&
     (hasMultipleWords || loop || currentCharIndex < currentWordGraphemes.length)
 
+  // Like an editor caret, the cursor stays solid while characters change and blinks when idle.
+  const isCursorIdle = !shouldStart || phase === "pause" || displayedText === ""
+
   const getCursorChar = () => {
     switch (cursorStyle) {
       case "block":
@@ -280,11 +288,26 @@ export function TypingAnimation({
     >
       {displayedText}
       {shouldShowCursor && (
-        <span
-          className={cn("inline-block", blinkCursor && "animate-blink-cursor")}
+        <motion.span
+          aria-hidden="true"
+          data-slot="typing-animation-cursor"
+          className="inline-block"
+          animate={{
+            opacity: blinkCursor && isCursorIdle ? CURSOR_BLINK_OPACITY : 1,
+          }}
+          transition={
+            blinkCursor && isCursorIdle
+              ? {
+                  duration: MOTION_TIMING.cursorBlink,
+                  times: CURSOR_BLINK_TIMES,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
+              : { duration: MOTION_TIMING.fast }
+          }
         >
           {getCursorChar()}
-        </span>
+        </motion.span>
       )}
     </MotionComponent>
   )

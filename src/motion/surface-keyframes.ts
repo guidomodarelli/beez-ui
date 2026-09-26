@@ -3,6 +3,8 @@ import type { AnimationOptions, DOMKeyframesDefinition } from "motion/react";
 import {
   MOTION_DIALOG_DISTANCE,
   MOTION_EASE,
+  MOTION_EASE_DRAWER,
+  MOTION_SURFACE_CLIP_BLEED_PX,
   MOTION_SURFACE_CLIP_PERCENT,
   MOTION_SURFACE_SCALE,
   MOTION_TIMING,
@@ -24,6 +26,7 @@ type Side = "top" | "right" | "bottom" | "left";
 type Align = "start" | "center" | "end";
 
 const EASE_OUT: [number, number, number, number] = [...MOTION_EASE];
+const EASE_DRAWER: [number, number, number, number] = [...MOTION_EASE_DRAWER];
 const SIDES: readonly Side[] = ["top", "right", "bottom", "left"];
 const ALIGNS: readonly Align[] = ["start", "center", "end"];
 
@@ -53,23 +56,31 @@ function offsetAwayFromTrigger(side: Side | undefined, distance: number) {
   return { x: 0, y: 0 };
 }
 
+/**
+ * Open edges extend the clip past the box, so the ring and drop shadow drawn outside it
+ * (Tailwind rings are box-shadows) are never cut while the surface reveals or settles.
+ */
+const OPEN_EDGE = `-${MOTION_SURFACE_CLIP_BLEED_PX}px`;
+/** Fully revealed clip: nothing of the surface, its outline or its shadow is hidden. */
+const REVEALED_CLIP = `inset(${OPEN_EDGE} ${OPEN_EDGE} ${OPEN_EDGE} ${OPEN_EDGE})`;
+
 /** Collapsed clip anchored at the corner or edge closest to the trigger. */
 function collapsedClip(side: Side | undefined, align: Align): string {
   const hidden = `${MOTION_SURFACE_CLIP_PERCENT}%`;
   const half = `${MOTION_SURFACE_CLIP_PERCENT / 2}%`;
   /** Maps an alignment to the inset kept on the leading and trailing edges of the cross axis. */
   const crossAxis = (value: Align): [string, string] =>
-    value === "start" ? ["0%", hidden] : value === "end" ? [hidden, "0%"] : [half, half];
+    value === "start" ? [OPEN_EDGE, hidden] : value === "end" ? [hidden, OPEN_EDGE] : [half, half];
   if (side === "bottom" || side === "top") {
     const [left, right] = crossAxis(align);
     return side === "bottom"
-      ? `inset(0% ${right} ${hidden} ${left})`
-      : `inset(${hidden} ${right} 0% ${left})`;
+      ? `inset(${OPEN_EDGE} ${right} ${hidden} ${left})`
+      : `inset(${hidden} ${right} ${OPEN_EDGE} ${left})`;
   }
   const [top, bottom] = crossAxis(align);
   return side === "right"
-    ? `inset(${top} ${hidden} ${bottom} 0%)`
-    : `inset(${top} 0% ${bottom} ${hidden})`;
+    ? `inset(${top} ${hidden} ${bottom} ${OPEN_EDGE})`
+    : `inset(${top} ${OPEN_EDGE} ${bottom} ${hidden})`;
 }
 
 /** Edge-panel travel: fully off-screen on the side the sheet is attached to. */
@@ -127,7 +138,7 @@ export function surfaceEnter(element: Element, kind: SurfaceKind): MotionStep {
   };
   // Primitives aligned over their trigger (Select item-aligned) have no side to reveal from.
   if (side) {
-    keyframes.clipPath = [collapsedClip(side, align), "inset(0% 0% 0% 0%)"];
+    keyframes.clipPath = [collapsedClip(side, align), REVEALED_CLIP];
   }
   return {
     keyframes,
@@ -170,9 +181,10 @@ export function surfaceExit(element: Element, kind: SurfaceKind): MotionStep {
   }
   if (kind === "sheet") {
     const offset = sheetOffset(element);
+    // A spring would linger at the edge; the drawer curve accelerates the panel away.
     return {
       keyframes: { transform: [transform("0%", "0%"), transform(offset.x, offset.y)] },
-      transition: SPRING_PANEL,
+      transition: { duration: MOTION_TIMING.sheetExit, ease: EASE_DRAWER },
     };
   }
   return {

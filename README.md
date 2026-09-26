@@ -77,10 +77,15 @@ siguen los tokens de [beui motion](https://beui.dev/components/motion):
 - `Tooltip` entra con blur, escala y desplazamiento desde el trigger.
   `Popover`, `HoverCard`, `DropdownMenu` y `Select` escalan desde 0.96 y se revelan
   con un clip desde la esquina más cercana al trigger.
-- `Dialog` y `AlertDialog` suben con spring; `Sheet` entra desde su borde con spring.
+- `Dialog` y `AlertDialog` suben con spring; `Sheet` entra desde su borde con spring
+  y sale con la curva de cajón (0.24 s), sin demorar la siguiente interacción.
 - `GlideSlot` desliza el indicador activo entre ítems como un `layoutId` compartido:
-  la pestaña activa de `Tabs` (fondo o subrayado), el ítem activo de `SidebarMenu` y
-  el ítem resaltado de `DropdownMenu` y `Select`, también con teclado. Una copia
+  la pestaña activa de `Tabs` (fondo o subrayado), el ítem activo de `SidebarMenu`, la
+  página actual de `PaginationContent`, y al navegar con teclado el ítem resaltado de
+  `DropdownMenu` y `Select` y la sugerencia activa de `FilterQueryBar`. Con el puntero,
+  esos resaltados lo siguen al instante: el propio puntero ya marca la posición.
+- Las superficies flotantes se revelan con un clip que deja 24 px libres fuera de la
+  caja, así su borde (`ring`) y su sombra se ven desde el primer frame. Una copia
   transitoria viaja entre ítems y se elimina al llegar, devolviendo el estilo al ítem.
 - El chevron de `SelectTrigger` gira 180° al abrir y los chevrons de `DataTable`
   (grupos y columnas) giran en lugar de cambiar de ícono; CSS define el ángulo final.
@@ -88,8 +93,14 @@ siguen los tokens de [beui motion](https://beui.dev/components/motion):
   solo se desvanece) y los checks de ítems de `Select` y `DropdownMenu` aparecen con pop.
 - El ícono de `AnimatedThemeToggler` cambia con blur y escala; el botón de cierre de
   `Dialog` aparece con un pop demorado.
-- El contenido de `Tabs` entra con un desplazamiento de 4 px. Cards y enlaces
-  responden al hover. El skeleton pulsa con Motion. Las animaciones especializadas
+- El contenido de `Tabs` entra con un desplazamiento de 4 px y `Alert` entra con blur.
+  Cards y enlaces responden al hover; el avatar bajo el puntero de un `AvatarGroup` se
+  eleva. Un brillo recorre el `Skeleton` desde su `::after` con reproducción nativa,
+  sin trabajo por frame en JavaScript.
+- `Calendar` desliza el mes entrante desde el lado de la navegación (invertido en RTL).
+- `AvatarImage` se revela con blur y un zoom de 1.06 al terminar de cargar; las imágenes
+  ya cargadas al montar no se animan.
+- El cursor de `TypingAnimation` queda fijo mientras escribe y parpadea en reposo. Las animaciones especializadas
   existentes de Embla, Sonner y rough-notation se conservan.
 
 El contenido que está saliendo deja de ser interactivo y accesible de inmediato.

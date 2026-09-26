@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RadioGroup, RadioGroupItem, Label } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   value: string;
@@ -32,25 +33,31 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <RadioGroup
-        value={args.value}
-        disabled={args.disabled}
-        orientation={args.orientation}
-        className={
-          args.orientation === "horizontal" ? "StoryRow" : "StoryStack"
-        }
-        onValueChange={(value) => updateArgs({ value })}
-      >
-        {[
-          { value: "weekly", label: "Semanal" },
-          { value: "monthly", label: "Mensual" },
-        ].map((option) => (
-          <div className="StoryRow" key={option.value}>
-            <RadioGroupItem value={option.value} id={`radio-${option.value}`} />
-            <Label htmlFor={`radio-${option.value}`}>{option.label}</Label>
-          </div>
-        ))}
-      </RadioGroup>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <RadioGroup
+              value={value}
+              disabled={args.disabled}
+              orientation={args.orientation}
+              className={
+                args.orientation === "horizontal" ? "StoryRow" : "StoryStack"
+              }
+              onValueChange={(value) => setValue(value)}
+            >
+              {[
+                { value: "weekly", label: "Semanal" },
+                { value: "monthly", label: "Mensual" },
+              ].map((option) => (
+                <div className="StoryRow" key={option.value}>
+                  <RadioGroupItem value={option.value} id={`radio-${option.value}`} />
+                  <Label htmlFor={`radio-${option.value}`}>{option.label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

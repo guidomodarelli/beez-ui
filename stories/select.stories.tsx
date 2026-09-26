@@ -10,6 +10,7 @@ import {
   SelectItem,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   value: string;
@@ -47,23 +48,29 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <Select
-        value={args.value}
-        disabled={args.disabled}
-        onValueChange={(value) => updateArgs({ value })}
-      >
-        <SelectTrigger aria-label="Frecuencia" size={args.size}>
-          <SelectValue placeholder={args.placeholder} />
-        </SelectTrigger>
-        <SelectContent position="popper">
-          <SelectGroup>
-            <SelectLabel>Frecuencia</SelectLabel>
-            <SelectItem value="weekly">Semanal</SelectItem>
-            <SelectItem value="monthly">Mensual</SelectItem>
-            <SelectItem value="yearly">Anual</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <Select
+              value={value}
+              disabled={args.disabled}
+              onValueChange={(value) => setValue(value)}
+            >
+              <SelectTrigger aria-label="Frecuencia" size={args.size}>
+                <SelectValue placeholder={args.placeholder} />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectGroup>
+                  <SelectLabel>Frecuencia</SelectLabel>
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="monthly">Mensual</SelectItem>
+                  <SelectItem value="yearly">Anual</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -53,21 +54,27 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <Dialog open={args.open} onOpenChange={(open) => updateArgs({ open })}>
-        <DialogTrigger asChild>
-          <Button>Abrir diálogo</Button>
-        </DialogTrigger>
-        <DialogContent showCloseButton={args.showCloseButton}>
-          <DialogHeader>
-            <DialogTitle>{args.title}</DialogTitle>
-            <DialogDescription>{args.description}</DialogDescription>
-          </DialogHeader>
-          <p>{args.content}</p>
-          <DialogFooter showCloseButton>
-            <Button onClick={() => updateArgs({ open: false })}>Guardar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <LiveArgs args={args} names={["open"]} updateArgs={updateArgs}>
+        {({ open }, { open: setOpen }) => {
+          return (
+            <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+              <DialogTrigger asChild>
+                <Button>Abrir diálogo</Button>
+              </DialogTrigger>
+              <DialogContent showCloseButton={args.showCloseButton}>
+                <DialogHeader>
+                  <DialogTitle>{args.title}</DialogTitle>
+                  <DialogDescription>{args.description}</DialogDescription>
+                </DialogHeader>
+                <p>{args.content}</p>
+                <DialogFooter showCloseButton>
+                  <Button onClick={() => setOpen(false)}>Guardar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

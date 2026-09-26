@@ -14,6 +14,7 @@ import {
   DropdownMenuSubContent,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -57,39 +58,45 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <DropdownMenu
-        open={args.open}
-        onOpenChange={(open) => updateArgs({ open })}
-      >
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline">Abrir acciones</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align={args.align}>
-          <DropdownMenuLabel>Registro</DropdownMenuLabel>
-          <DropdownMenuItem disabled={args.disabled}>
-            Editar datos
-          </DropdownMenuItem>
-          <DropdownMenuCheckboxItem
-            checked={args.checked}
-            onCheckedChange={(checked) => updateArgs({ checked })}
-          >
-            Mostrar detalles
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Carpetas</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem>Comprobantes</DropdownMenuItem>
-              <DropdownMenuItem>Archivo histórico</DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant={args.destructive ? "destructive" : "default"}
-          >
-            Eliminar registro
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <LiveArgs args={args} names={["open", "checked"]} updateArgs={updateArgs}>
+        {({ open, checked }, { open: setOpen, checked: setChecked }) => {
+          return (
+            <DropdownMenu
+              open={open}
+              onOpenChange={(open) => setOpen(open)}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">Abrir acciones</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={args.align}>
+                <DropdownMenuLabel>Registro</DropdownMenuLabel>
+                <DropdownMenuItem disabled={args.disabled}>
+                  Editar datos
+                </DropdownMenuItem>
+                <DropdownMenuCheckboxItem
+                  checked={checked}
+                  onCheckedChange={(checked) => setChecked(checked)}
+                >
+                  Mostrar detalles
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Carpetas</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem>Comprobantes</DropdownMenuItem>
+                    <DropdownMenuItem>Archivo histórico</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant={args.destructive ? "destructive" : "default"}
+                >
+                  Eliminar registro
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

@@ -4,6 +4,36 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- `PaginationContent` desliza el resaltado de la página actual hacia la página elegida cuando la lista permanece montada (paginación en el cliente).
+- `Calendar` desliza el mes entrante desde el lado de la navegación (también en RTL) y se mantiene estático con movimiento reducido.
+- `AvatarImage` revela la imagen con un desenfoque y un zoom breves al terminar de cargar, en lugar de aparecer de golpe sobre el fallback.
+- Las sugerencias de `FilterQueryBar` deslizan el resaltado entre opciones con teclado, como los menús y `Select`.
+- `AvatarGroup` eleva levemente el avatar bajo el puntero en dispositivos con hover real.
+- El chevron de `DropdownMenuSubTrigger` se desplaza hacia el submenú abierto.
+
+### Changed
+
+- `Skeleton` muestra un brillo que recorre el placeholder en lugar del pulso de opacidad; con movimiento reducido queda como un bloque liso.
+- `Sheet` se cierra con una curva de cajón breve en lugar de un spring, y su botón de cierre aparece con un pop demorado como el de `Dialog`.
+- `Alert` entra con un leve desplazamiento y desenfoque.
+- Los anillos de foco y bordes de `Input`, `Textarea`, `InputGroup`, `SelectTrigger`, `Checkbox` y `RadioGroupItem` aparecen con una transición en lugar de saltar.
+- En menús, `Select` y sugerencias, el resaltado sigue al puntero al instante y solo se desliza al navegar con teclado, con un spring más rápido.
+- El sidebar colapsa y expande con una curva de cajón de 300 ms en lugar de una transición lineal.
+- El thumb de `Switch` tiene una sombra sutil que lo separa del track.
+
+### Fixed
+
+- El cursor de `TypingAnimation` vuelve a parpadear: queda fijo mientras escribe o borra, parpadea en reposo y los lectores de pantalla lo ignoran.
+- `Carousel` vertical responde a las flechas arriba y abajo; antes solo reaccionaba a izquierda y derecha.
+- `SidebarMenuButton` con `variant="outline"` vuelve a pintar su borde con los tokens `oklch` del tema.
+- `FormLabel`, `FormControl`, `FormDescription` y `FormMessage` fuera de un `FormField` lanzan un error claro en lugar de fallar en silencio.
+- Los bordes sin color explícito (footers de `Card`, `Dialog` y `AlertDialog`, `Alert`, filas de `Table`, bordes de `Sheet` y del sidebar) usan el token `--border` del tema en lugar del color del texto cuando se consume `beez-ui/styles.css` sin Tailwind.
+- `DropdownMenu`, sus submenús, `Popover`, `HoverCard` y `Select` muestran su borde y su sombra desde el primer frame al abrirse; antes el revelado los recortaba durante ~650 ms.
+- `DataTable` filtra las columnas apuntadas por `queryFilterConfig` que no declaran `filterFn` (rangos numéricos, enums y año-mes); antes un rango sobre una columna numérica lanzaba `TypeError: val is not iterable` y un enum ocultaba todas las filas. Un `filterFn` propio de la columna sigue teniendo prioridad.
+- Las `Card` interactivas conservan su contorno mientras muestran la sombra de hover; antes la sombra reemplazaba el anillo del borde.
+
 ## [0.6.2] - 2026-09-26
 
 ### Changed

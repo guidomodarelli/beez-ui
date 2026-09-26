@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Switch, Label } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   label: string;
@@ -39,16 +40,22 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <div className="StoryRow">
-        <Switch
-          id="story-switch"
-          checked={args.checked}
-          disabled={args.disabled}
-          size={args.size}
-          onCheckedChange={(checked) => updateArgs({ checked })}
-        />
-        <Label htmlFor="story-switch">{args.label}</Label>
-      </div>
+      <LiveArgs args={args} names={["checked"]} updateArgs={updateArgs}>
+        {({ checked }, { checked: setChecked }) => {
+          return (
+            <div className="StoryRow">
+              <Switch
+                id="story-switch"
+                checked={checked}
+                disabled={args.disabled}
+                size={args.size}
+                onCheckedChange={(checked) => setChecked(checked)}
+              />
+              <Label htmlFor="story-switch">{args.label}</Label>
+            </div>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

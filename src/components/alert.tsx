@@ -28,7 +28,7 @@ function Alert({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
   return (
-    <MotionSlot kind="fade"><div
+    <MotionSlot kind="message"><div
       data-slot="alert"
       role="alert"
       className={cn(alertVariants({ variant }), className)}

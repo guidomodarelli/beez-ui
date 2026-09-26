@@ -36,6 +36,11 @@ import {
   MOTION_LIST_ITEM_DISTANCE,
   MOTION_LIST_STAGGER_LIMIT,
   MOTION_EASE_IN_OUT,
+  MOTION_REVEAL_BLUR_PX,
+  MOTION_REVEAL_SCALE,
+  MOTION_SHIMMER_TRANSLATE,
+  MOTION_CARD_SHADOW_LIFT,
+  MOTION_CARD_SHADOW_REST,
   SPRING_CHEVRON,
   SPRING_PANEL,
   SPRING_PRESS,
@@ -308,19 +313,19 @@ export function MotionSlot({
       return dispose;
     }
 
-    if (kind === "skeleton") {
-      animations.set(
-        animate(
-          element,
-          { opacity: [1, 0.6, 1] },
-          {
-            duration: MOTION_TIMING.skeleton,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        ),
-        ["opacity"],
+    if (kind === "skeleton" && typeof element.animate === "function") {
+      // A soft shine sweeps across the placeholder. It is the box's `::after`, translated with
+      // native playback so the loop runs on the compositor; CSS parks it outside at rest.
+      const shimmer = element.animate(
+        { translate: [...MOTION_SHIMMER_TRANSLATE] },
+        {
+          duration: MOTION_TIMING.skeleton * MILLISECONDS_PER_SECOND,
+          easing: `cubic-bezier(${MOTION_EASE_IN_OUT.join(", ")})`,
+          iterations: Infinity,
+          pseudoElement: "::after",
+        },
       );
+      cleanups.push(() => shimmer.cancel());
     } else if (kind === "icon-swap") {
       // Keyed icons remount on change; the newcomer grows out of a blur in place of the old one.
       play(
@@ -436,6 +441,16 @@ export function MotionSlot({
         );
       }
     }
+    /**
+     * Tailwind rings are box-shadows, so the card outline lives in the resting shadow. The lift
+     * is appended to it instead of replacing it, keeping the outline visible while hovered.
+     * The resting value is read only while no playback writes the inline shadow.
+     */
+    let restingShadow = "none";
+    const withRestingShadow = (shadow: string) => {
+      if (!element.style.boxShadow) restingShadow = getComputedStyle(element).boxShadow;
+      return restingShadow === "none" ? shadow : `${restingShadow}, ${shadow}`;
+    };
     if (kind === "card" || kind === "link" || kind === "icon") {
       cleanups.push(
         hover(element, () => {
@@ -446,8 +461,15 @@ export function MotionSlot({
           )
             return;
           const keep = { restoreOnComplete: false };
-          if (kind === "card")
-            play({ boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }, tween(MOTION_TIMING.enter), keep);
+          if (kind === "card") {
+            const rest = withRestingShadow(MOTION_CARD_SHADOW_REST);
+            const from = element.style.boxShadow ? getComputedStyle(element).boxShadow : rest;
+            play(
+              { boxShadow: [from, withRestingShadow(MOTION_CARD_SHADOW_LIFT)] },
+              tween(MOTION_TIMING.enter),
+              keep,
+            );
+          }
           else if (kind === "icon")
             play(
               { transform: ["rotate(0deg) scale(1)", "rotate(-3deg) scale(1.025)"] },
@@ -458,7 +480,12 @@ export function MotionSlot({
           return () => {
             if (kind === "card")
               play(
-                { boxShadow: original.boxShadow || "0 0px 0px rgba(0,0,0,0)" },
+                {
+                  boxShadow: [
+                    getComputedStyle(element).boxShadow,
+                    withRestingShadow(MOTION_CARD_SHADOW_REST),
+                  ],
+                },
                 tween(MOTION_TIMING.fast),
               );
             else if (kind === "icon")
@@ -605,6 +632,31 @@ export function MotionSlot({
           attributeFilter: ["aria-expanded", "data-state", "class"],
         });
       }
+      cleanups.push(() => observer.disconnect());
+    }
+    if (kind === "reveal") {
+      // Images develop in place once loaded, instead of popping in over their fallback.
+      // Already-loaded images (cached or server-rendered) are left untouched on mount.
+      const isLoading = () => element.hasAttribute("data-loading");
+      let wasLoading = isLoading();
+      const observer = new MutationObserver(() => {
+        const loading = isLoading();
+        const loaded = wasLoading && !loading && !element.hasAttribute("data-error");
+        wasLoading = loading;
+        if (!loaded) return;
+        play(
+          {
+            opacity: [0, 1],
+            transform: [`scale(${MOTION_REVEAL_SCALE})`, "scale(1)"],
+            filter: [`blur(${MOTION_REVEAL_BLUR_PX}px)`, "blur(0px)"],
+          },
+          tween(MOTION_TIMING.reveal),
+        );
+      });
+      observer.observe(element, {
+        attributes: true,
+        attributeFilter: ["data-loading", "data-error"],
+      });
       cleanups.push(() => observer.disconnect());
     }
     if (kind === "thumb") {

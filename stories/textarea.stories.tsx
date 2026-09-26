@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Textarea, Label } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   label: string;
@@ -45,17 +46,23 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <div className="StoryStack">
-        <Label htmlFor="story-textarea">{args.label}</Label>
-        <Textarea
-          id="story-textarea"
-          value={args.value}
-          placeholder={args.placeholder}
-          disabled={args.disabled}
-          aria-invalid={args.invalid}
-          onChange={(event) => updateArgs({ value: event.target.value })}
-        />
-      </div>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <div className="StoryStack">
+              <Label htmlFor="story-textarea">{args.label}</Label>
+              <Textarea
+                id="story-textarea"
+                value={value}
+                placeholder={args.placeholder}
+                disabled={args.disabled}
+                aria-invalid={args.invalid}
+                onChange={(event) => setValue(event.target.value)}
+              />
+            </div>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

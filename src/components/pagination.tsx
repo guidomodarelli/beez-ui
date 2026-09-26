@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Link, type LinkProps } from "./link.js"
 
+import { GlideSlot } from "../motion/glide-slot.js"
 import { cn } from "../lib/utils.js"
 import { Button } from "./button.js"
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
@@ -19,16 +20,17 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   )
 }
 
+/** Lists page links; the current page's highlight glides to the newly selected page. */
 function PaginationContent({
   className,
   ...props
 }: React.ComponentProps<"ul">) {
   return (
-    <ul
+    <GlideSlot preset="pagination"><ul
       data-slot="pagination-content"
       className={cn("flex items-center gap-1", className)}
       {...props}
-    />
+    /></GlideSlot>
   )
 }
 

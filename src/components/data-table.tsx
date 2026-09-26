@@ -4,6 +4,7 @@ import * as React from "react";
 import type {
   ColumnDef,
   ColumnFiltersState,
+  FilterFn,
   OnChangeFn,
   SortingState,
   VisibilityState,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "../lib/utils.js";
+import { matchesColumnFilterValue, normalizeFilterToken } from "../lib/column-filter-value.js";
 import { MotionSlot } from "../motion/motion-slot.js";
 import { Button } from "./button.js";
 import { Badge } from "./badge.js";
@@ -177,7 +179,6 @@ export interface DataTableColumnMeta {
   onHeaderClick?: (event: React.MouseEvent<HTMLTableCellElement>) => void;
 }
 
-const DIACRITICS_PATTERN = /[\u0300-\u036f]/g;
 const CLEAR_FILTER_ARIA_LABEL = "Limpiar filtro";
 const ACTIVE_EXCLUSIONS_SR_LABEL = "Filtros de exclusión activos";
 const HIDE_EXCLUDE_FILTERS_ARIA_LABEL = "Ocultar filtros de exclusión";
@@ -188,12 +189,37 @@ const CLEAR_ALL_EXCLUSIONS_ARIA_LABEL = "Quitar todas las exclusiones";
 const CLEAR_ALL_EXCLUSIONS_FROM_INPUT_ARIA_LABEL = "Limpiar filtros excluidos";
 const REVERSE_FILTER_PENDING_MESSAGE =
   "Estás escribiendo una exclusión. Presioná Enter para aplicarla.";
-function normalizeFilterToken(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(DIACRITICS_PATTERN, "")
-    .toLocaleLowerCase()
-    .trim();
+/** Filters a column with the structured values the query bar writes, or plain text. */
+const columnFilterValueFn: FilterFn<unknown> = (row, columnId, filterValue) =>
+  matchesColumnFilterValue(row.getValue(columnId), filterValue);
+
+/** Mirrors TanStack's column id resolution: explicit id, else the accessor key with dots as `_`. */
+function getColumnDefId<TData, TValue>(column: ColumnDef<TData, TValue>): string | undefined {
+  if (column.id) return column.id;
+  const accessorKey = (column as { accessorKey?: unknown }).accessorKey;
+  return typeof accessorKey === "string" ? accessorKey.replaceAll(".", "_") : undefined;
+}
+
+/**
+ * Gives the columns targeted by query qualifiers a filter that understands the query bar's
+ * structured values. TanStack would otherwise infer one from the data (`inNumberRange` for
+ * numbers, which crashes on an object). A consumer's own `filterFn` always wins.
+ */
+function withQueryFilterFns<TData, TValue>(
+  columns: ColumnDef<TData, TValue>[],
+  targetedColumnIds: ReadonlySet<string>,
+): ColumnDef<TData, TValue>[] {
+  if (targetedColumnIds.size === 0) return columns;
+  return columns.map((column) => {
+    if ("columns" in column && column.columns) {
+      return { ...column, columns: withQueryFilterFns(column.columns, targetedColumnIds) };
+    }
+    const columnId = getColumnDefId(column);
+    if (column.filterFn != null || columnId == null || !targetedColumnIds.has(columnId)) {
+      return column;
+    }
+    return { ...column, filterFn: columnFilterValueFn as FilterFn<TData> };
+  });
 }
 
 function getTableFilterValue(
@@ -685,8 +711,12 @@ export function DataTable<TData, TValue>({
   );
 
   // TanStack Table manages internal reactive state through this hook.
+  const tableColumns = React.useMemo(
+    () => withQueryFilterFns(columns, advancedFilterColumnIds),
+    [columns, advancedFilterColumnIds],
+  );
   const table = useReactTable({
-    columns,
+    columns: tableColumns,
     data,
     // La tabla no pagina (no hay `getPaginationRowModel`). Con el auto-reset por
     // defecto, cada cambio de filtro dispara `resetPageIndex` → `setPagination`,

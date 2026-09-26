@@ -6,6 +6,7 @@
 import { animate, type AnimationPlaybackControlsWithThen } from "motion/react";
 import {
   GLIDE_CONTINUITY_MS,
+  SPRING_HIGHLIGHT,
   SPRING_LAYOUT,
   SPRING_TABS,
 } from "./tokens.js";
@@ -25,7 +26,13 @@ export interface GlidePreset {
   attributes: string[];
   isActive: (item: Element) => boolean;
   surface: (container: HTMLElement) => GlideSurface;
-  spring: typeof SPRING_LAYOUT | typeof SPRING_TABS;
+  spring: typeof SPRING_LAYOUT | typeof SPRING_TABS | typeof SPRING_HIGHLIGHT;
+  /**
+   * Highlights that follow the pointer (menus, listboxes) jump straight to the hovered item:
+   * the pointer already marks the position, so a travelling copy would only trail behind it.
+   * The glide is kept for keyboard navigation.
+   */
+  instantOnPointer?: boolean;
 }
 
 export const GLIDE_PRESETS = {
@@ -46,13 +53,31 @@ export const GLIDE_PRESETS = {
     surface: () => "background",
     spring: SPRING_LAYOUT,
   },
+  pagination: {
+    itemSelector: '[data-slot="pagination-link"]',
+    containerSelector: '[data-slot="pagination-content"]',
+    attributes: ["aria-current"],
+    isActive: (item) => item.getAttribute("aria-current") === "page",
+    surface: () => "background",
+    spring: SPRING_LAYOUT,
+  },
+  suggestions: {
+    itemSelector: '[role="option"]',
+    containerSelector: '[role="listbox"]',
+    attributes: ["aria-selected"],
+    isActive: (item) => item.getAttribute("aria-selected") === "true",
+    surface: () => "background",
+    spring: SPRING_HIGHLIGHT,
+    instantOnPointer: true,
+  },
   menu: {
     itemSelector: '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"]',
     containerSelector: '[role="menu"],[role="listbox"]',
     attributes: ["data-highlighted"],
     isActive: (item) => item.hasAttribute("data-highlighted"),
     surface: () => "background",
-    spring: SPRING_LAYOUT,
+    spring: SPRING_HIGHLIGHT,
+    instantOnPointer: true,
   },
 } satisfies Record<string, GlidePreset>;
 
@@ -169,6 +194,20 @@ export function attachGlideIndicator(
     position: container.style.position,
     isolation: container.style.isolation,
   };
+  // The last input decides whether a highlight change was driven by the pointer or the keyboard.
+  // Keyboard focus may live outside the container (a combobox input), so both are read from the
+  // document; the pointer only counts while it moves over this container.
+  let isPointerDriven = false;
+  const onPointerMove = () => {
+    isPointerDriven = true;
+  };
+  const onKeyDown = () => {
+    isPointerDriven = false;
+  };
+  if (preset.instantOnPointer) {
+    container.addEventListener("pointermove", onPointerMove);
+    container.ownerDocument.addEventListener("keydown", onKeyDown, true);
+  }
 
   /** Puts the item's own highlight back and removes the travelling copy. */
   function settle() {
@@ -290,7 +329,7 @@ export function attachGlideIndicator(
         now - lastActiveSeenAt <= GLIDE_CONTINUITY_MS);
     lastActive = active;
     lastActiveSeenAt = Number.NEGATIVE_INFINITY;
-    if (isContinuous) glide(previous, active);
+    if (isContinuous && !(preset.instantOnPointer && isPointerDriven)) glide(previous, active);
     else settle();
   });
   observer.observe(container, {
@@ -302,6 +341,8 @@ export function attachGlideIndicator(
 
   return () => {
     observer.disconnect();
+    container.removeEventListener("pointermove", onPointerMove);
+    container.ownerDocument.removeEventListener("keydown", onKeyDown, true);
     settle();
   };
 }

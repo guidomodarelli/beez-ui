@@ -10,6 +10,7 @@ import {
   PopoverDescription,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -52,17 +53,23 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <Popover open={args.open} onOpenChange={(open) => updateArgs({ open })}>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Ver detalle</Button>
-        </PopoverTrigger>
-        <PopoverContent side={args.side} align={args.align}>
-          <PopoverHeader>
-            <PopoverTitle>{args.title}</PopoverTitle>
-            <PopoverDescription>{args.description}</PopoverDescription>
-          </PopoverHeader>
-        </PopoverContent>
-      </Popover>
+      <LiveArgs args={args} names={["open"]} updateArgs={updateArgs}>
+        {({ open }, { open: setOpen }) => {
+          return (
+            <Popover open={open} onOpenChange={(open) => setOpen(open)}>
+              <PopoverTrigger asChild>
+                <Button variant="outline">Ver detalle</Button>
+              </PopoverTrigger>
+              <PopoverContent side={args.side} align={args.align}>
+                <PopoverHeader>
+                  <PopoverTitle>{args.title}</PopoverTitle>
+                  <PopoverDescription>{args.description}</PopoverDescription>
+                </PopoverHeader>
+              </PopoverContent>
+            </Popover>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

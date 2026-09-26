@@ -43,16 +43,22 @@ const FormField = <
   )
 }
 
+/**
+ * Reads the field and item context shared by the form parts.
+ * @returns Accessible ids plus the react-hook-form state of the enclosing field.
+ * @throws When used outside `<FormField>`, where no field name is available.
+ */
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState } = useFormContext()
   const formState = useFormState({ name: fieldContext.name })
-  const fieldState = getFieldState(fieldContext.name, formState)
 
-  if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>")
+  if (!fieldContext.name) {
+    throw new Error("useFormField: must be used within <FormField>, which provides the field name")
   }
+
+  const fieldState = getFieldState(fieldContext.name, formState)
 
   const { id } = itemContext
 
@@ -78,13 +84,13 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId()
 
   return (
-    <MotionSlot kind="field"><FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
         className={cn("grid gap-2", className)}
         {...props}
       />
-    </FormItemContext.Provider></MotionSlot>
+    </FormItemContext.Provider>
   )
 }
 

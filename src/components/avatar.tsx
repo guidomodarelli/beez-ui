@@ -32,7 +32,7 @@ function Avatar({
   )
 }
 
-/** Delegates loading, failure and fallback synchronization to the avatar primitive. */
+/** Delegates loading, failure and fallback synchronization to the avatar primitive; loaded images develop in place. */
 function AvatarImage({
   alt = "",
   className,
@@ -41,7 +41,7 @@ function AvatarImage({
 }: AvatarImageProps) {
   const { Image: ImageComponent = "img" } = useBeezUIComponents()
   return (
-    <MotionSlot kind="field"><AvatarPrimitive.Image
+    <MotionSlot kind="reveal"><AvatarPrimitive.Image
       render={<ImageComponent />}
       keepMounted
       alt={alt}
@@ -90,12 +90,13 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   )
 }
 
+/** Overlaps avatars; the hovered one lifts slightly above its neighbours. */
 function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="avatar-group"
       className={cn(
-        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
+        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:transition-[translate] *:data-[slot=avatar]:duration-200 *:data-[slot=avatar]:ease-out *:data-[slot=avatar]:hover:z-10 *:data-[slot=avatar]:hover:-translate-y-0.5",
         className
       )}
       {...props}

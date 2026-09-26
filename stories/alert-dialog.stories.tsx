@@ -13,6 +13,7 @@ import {
   AlertDialogCancel,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -56,28 +57,34 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <AlertDialog
-        open={args.open}
-        onOpenChange={(open) => updateArgs({ open })}
-      >
-        <AlertDialogTrigger asChild>
-          <Button variant="outline">Abrir confirmación</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent size={args.size}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{args.title}</AlertDialogTitle>
-            <AlertDialogDescription>{args.description}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              variant={args.destructive ? "destructive" : "default"}
+      <LiveArgs args={args} names={["open"]} updateArgs={updateArgs}>
+        {({ open }, { open: setOpen }) => {
+          return (
+            <AlertDialog
+              open={open}
+              onOpenChange={(open) => setOpen(open)}
             >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">Abrir confirmación</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent size={args.size}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{args.title}</AlertDialogTitle>
+                  <AlertDialogDescription>{args.description}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant={args.destructive ? "destructive" : "default"}
+                  >
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

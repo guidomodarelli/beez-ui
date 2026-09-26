@@ -7,6 +7,7 @@ import {
   InputGroupButton,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   value: string;
@@ -42,24 +43,30 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <InputGroup>
-        <InputGroupAddon>{args.prefix}</InputGroupAddon>
-        <InputGroupInput
-          aria-label="Dirección"
-          value={args.value}
-          placeholder={args.placeholder}
-          disabled={args.disabled}
-          onChange={(event) => updateArgs({ value: event.target.value })}
-        />
-        <InputGroupAddon align="inline-end">
-          <InputGroupButton
-            disabled={args.disabled || !args.value}
-            onClick={() => updateArgs({ value: "" })}
-          >
-            Limpiar
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <InputGroup>
+              <InputGroupAddon>{args.prefix}</InputGroupAddon>
+              <InputGroupInput
+                aria-label="Dirección"
+                value={value}
+                placeholder={args.placeholder}
+                disabled={args.disabled}
+                onChange={(event) => setValue(event.target.value)}
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  disabled={args.disabled || !value}
+                  onClick={() => setValue("")}
+                >
+                  Limpiar
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

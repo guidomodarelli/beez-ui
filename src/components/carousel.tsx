@@ -31,6 +31,12 @@ type CarouselContextProps = {
   canScrollNext: boolean
 } & CarouselProps
 
+/** Arrow keys that move to the previous and next slide along each axis. */
+const CAROUSEL_KEYS = {
+  horizontal: { previous: "ArrowLeft", next: "ArrowRight" },
+  vertical: { previous: "ArrowUp", next: "ArrowDown" },
+} as const
+
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
 
 function useCarousel() {
@@ -79,15 +85,16 @@ function Carousel({
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowLeft") {
+      const keys = CAROUSEL_KEYS[orientation]
+      if (event.key === keys.previous) {
         event.preventDefault()
         scrollPrev()
-      } else if (event.key === "ArrowRight") {
+      } else if (event.key === keys.next) {
         event.preventDefault()
         scrollNext()
       }
     },
-    [scrollPrev, scrollNext]
+    [orientation, scrollPrev, scrollNext]
   )
 
   React.useEffect(() => {

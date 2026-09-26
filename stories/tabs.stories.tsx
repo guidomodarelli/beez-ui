@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
+import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */
 type Args = {
   value: string;
@@ -42,22 +43,28 @@ const meta = {
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <Tabs
-        value={args.value}
-        orientation={args.orientation}
-        onValueChange={(value) => updateArgs({ value })}
-      >
-        <TabsList variant={args.variant} aria-label="Secciones">
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="activity" disabled={args.disabledSecond}>
-            Actividad
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview">Resumen de la cuenta.</TabsContent>
-        <TabsContent value="activity">
-          Últimos movimientos de la cuenta.
-        </TabsContent>
-      </Tabs>
+      <LiveArgs args={args} names={["value"]} updateArgs={updateArgs}>
+        {({ value }, { value: setValue }) => {
+          return (
+            <Tabs
+              value={value}
+              orientation={args.orientation}
+              onValueChange={(value) => setValue(value)}
+            >
+              <TabsList variant={args.variant} aria-label="Secciones">
+                <TabsTrigger value="overview">Resumen</TabsTrigger>
+                <TabsTrigger value="activity" disabled={args.disabledSecond}>
+                  Actividad
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview">Resumen de la cuenta.</TabsContent>
+              <TabsContent value="activity">
+                Últimos movimientos de la cuenta.
+              </TabsContent>
+            </Tabs>
+          );
+        }}
+      </LiveArgs>
     );
   },
 } satisfies Meta<Args>;

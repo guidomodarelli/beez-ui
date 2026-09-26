@@ -6,6 +6,15 @@
 @source "./dist/**/*.js";
 
 @layer base {
+  /* Tailwind's preflight leaves borders in currentColor; unstyled borders use the theme token. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: var(--background);

@@ -96,6 +96,26 @@ test("should update the canvas from the visible Controls panel", async ({
   ).toBeEnabled();
 });
 
+test("should keep typed text in the canvas and mirror it both ways with Controls", async ({
+  page,
+}) => {
+  await page.goto("/?path=/story/components-input--playground");
+  const canvas = page.frameLocator("#storybook-preview-iframe");
+  const input = canvas.getByRole("textbox", { name: "Nombre", exact: true });
+  await input.pressSequentially("Ana María");
+  await expect(input).toHaveValue("Ana María");
+  // Controls text fields are unnamed; the row of the `value` arg identifies this one.
+  const valueControl = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("cell", { name: "value", exact: true }) })
+    .getByRole("textbox");
+  await expect(valueControl).toHaveValue("Ana María");
+  await valueControl.fill("Beto");
+  await expect(input).toHaveValue("Beto");
+  await page.getByRole("button", { name: "Reset controls", exact: true }).click();
+  await expect(input).toHaveValue("");
+});
+
 test("should open composed controls and update their state", async ({
   page,
 }) => {
