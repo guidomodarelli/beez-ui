@@ -201,7 +201,31 @@ El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [A
 
 ## Crear y publicar una versión
 
-Desde el repositorio de beez-ui, configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado. Después ejecutar:
+Desde el repositorio de beez-ui, configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado.
+
+### Un solo comando: `pnpm release`
+
+```sh
+pnpm release                         # diagnóstico, plan y release interactivo
+pnpm release --bump minor            # patch | minor | major sin preguntar
+pnpm release --set-version 0.7.0     # versión exacta
+pnpm release --notes "Agrega glide"  # notas del CHANGELOG; se puede repetir
+pnpm release --dry-run               # solo muestra el diagnóstico y el plan
+```
+
+El comando hace `git fetch`, consulta npm y muestra un panel con la rama, el upstream, el working tree, `main` frente a origin, la versión local, la última versión publicada, los commits posteriores al último cambio de versión y el artefacto ya preparado. Después decide qué falta:
+
+- **Release nuevo**: si hay commits sin publicar, sugiere `patch`, `minor` o `major` según los commits (breaking change, funcionalidades o solo arreglos) y pregunta con las flechas; las notas del CHANGELOG pueden salir de los commits (sin prefijos convencionales), escribirse en el momento o ser la nota básica. Tras confirmar ejecuta `create-version` con esa versión y esas notas.
+- **Release a medio terminar**: si `package.json` tiene una versión que npm todavía no tiene, completa solo lo que falta: prepara el artefacto (u ofrece reusar el ya preparado, que `release:publish` vuelve a verificar), commitea y pushea la metadata si quedó sin commitear, pushea el commit de release si quedó sólo en local y publica pidiendo confirmación. Nunca vuelve a subir la versión.
+- **Todo al día**: si la versión está publicada y no hay commits nuevos, no hace nada.
+
+`--set-version` sólo acepta el siguiente patch, minor o major de la versión actual (desde `0.6.0`: `0.6.1`, `0.7.0` o `1.0.0`); rechaza versiones menores, iguales, prerelease o que salteen versiones. Los releases salen sólo desde `main` con upstream configurado. Se detiene y explica qué hacer ante otra rama, `HEAD` desacoplado, cambios sin commitear (salvo `package.json` y `CHANGELOG.md` de un release a medio terminar), `main` divergida o npm sin respuesta. Si `main` está atrás, la actualiza con fast-forward antes de versionar. Si algo falla, basta con volver a ejecutar `pnpm release`: retoma desde el primer paso pendiente. Sin terminal interactiva cada pregunta toma su opción por defecto.
+
+La lógica pura vive en `scripts/release-plan.js`, la lectura de Git y npm en `scripts/release-state.js` y la UI de terminal (cajas, colores, spinner y selector) en `scripts/terminal-ui.js`, sin dependencias nuevas.
+
+### Pasos individuales
+
+`pnpm release` usa por debajo los mismos comandos, que siguen disponibles:
 
 ```sh
 pnpm run create-version patch

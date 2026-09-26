@@ -255,13 +255,15 @@ test("should continue an interrupted thumb glide from where it is", async ({ pag
     for (let frame = 0; frame < 60 && left() - start < 4; frame += 1) await nextFrame();
     const beforeReverse = left();
     button.click();
-    await nextFrame();
-    await nextFrame();
+    // The reversed glide paints its first keyframe as soon as the new state is observed,
+    // before any frame passes, so continuity does not depend on how long frames take.
+    await Promise.resolve();
+    await Promise.resolve();
     return { start, beforeReverse, afterReverse: left() };
   });
   expect(positions.beforeReverse).toBeGreaterThan(positions.start);
   // A reversed glide starts where the thumb was painted, never from the far end of the track.
-  expect(Math.abs(positions.afterReverse - positions.beforeReverse)).toBeLessThan(4);
+  expect(Math.abs(positions.afterReverse - positions.beforeReverse)).toBeLessThan(1);
   await expect(toggle).not.toBeChecked();
   await expect(page.locator("#catalog-switch [data-slot=switch-thumb]")).toHaveCSS(
     "transform",
@@ -306,7 +308,7 @@ test("should glide the first sidebar change after hydration remounts its buttons
   page,
 }) => {
   const motion = await recordMotion(page);
-  await page.goto("http://127.0.0.1:3109/sidebar");
+  await page.goto("/motion-hydration.html");
   const reports = page.getByRole("button", { name: "Reportes" });
   // Tooltip wrappers are added after hydration, which remounts every menu button.
   await expect(reports).toHaveAttribute("data-state", "closed");
