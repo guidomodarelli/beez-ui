@@ -1,0 +1,38 @@
+/* Maps the optional emoji picker (beez-ui/emoji-picker) to the shared theme tokens. */
+[data-slot="emoji-picker-content"] .EmojiPickerReact {
+  --epr-bg-color: var(--popover);
+  --epr-category-label-bg-color: color-mix(in oklab, var(--popover) 92%, transparent);
+  --epr-category-label-text-color: var(--popover-foreground);
+  --epr-text-color: var(--muted-foreground);
+  --epr-highlight-color: var(--primary);
+  --epr-hover-bg-color: var(--muted);
+  --epr-focus-bg-color: color-mix(in oklab, var(--primary) 12%, var(--muted));
+  --epr-search-input-bg-color: var(--background);
+  --epr-search-input-bg-color-active: var(--background);
+  --epr-search-input-text-color: var(--foreground);
+  --epr-search-input-placeholder-color: var(--muted-foreground);
+  --epr-search-border-color: var(--border);
+  --epr-search-border-color-active: var(--ring);
+  --epr-picker-border-color: var(--border);
+  --epr-category-icon-active-color: var(--primary);
+  --epr-emoji-hover-color: var(--muted);
+  --epr-picker-border-radius: 0.5rem;
+}
+
+[data-slot="emoji-picker-content"] .EmojiPickerReact.epr-dark-theme {
+  --epr-dark-bg-color: var(--popover);
+  --epr-dark-category-label-bg-color: color-mix(in oklab, var(--popover) 92%, transparent);
+  --epr-dark-text-color: var(--muted-foreground);
+  --epr-dark-highlight-color: var(--primary);
+  --epr-dark-hover-bg-color: var(--muted);
+  --epr-dark-focus-bg-color: color-mix(in oklab, var(--primary) 16%, var(--muted));
+  --epr-dark-search-input-bg-color: var(--background);
+  --epr-dark-search-input-bg-color-active: var(--background);
+  --epr-dark-picker-border-color: var(--border);
+  --epr-dark-category-icon-active-color: var(--primary);
+}
+
+[data-slot="emoji-picker-content"] :is(.EmojiPickerReact, .EmojiPickerReact *) {
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 48%, transparent) transparent;
+  scrollbar-width: thin;
+}

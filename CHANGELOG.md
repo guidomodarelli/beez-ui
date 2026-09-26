@@ -4,6 +4,22 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- Los tokens de movimiento (`MOTION_TIMING`, `MOTION_EASE`, springs y distancias) se exportan desde la raíz y desde `beez-ui/motion-tokens`, con los nuevos `SPRING_POP`, `MOTION_ITEM_ENTER_SCALE` y las duraciones `pop` y `collapse`, para animar superficies propias igual que la biblioteca.
+- Primitivas de movimiento `PresenceSwap`, `AnimatedCount`, `AnimatedCollapse` y `AnimatedListItem`, que respetan el movimiento reducido.
+- `BouncingDotsLoader`, `ProgressRing`, `EmptyState`, `ErrorState`, `InfoPopover`, `ConfirmDeleteButton` y `ReactionButton`.
+- `AccountMenu`: menú de cuenta con avatar, identidad, inicio de sesión como link o callback, cierre de sesión y variante para sidebar.
+- `RichTextContent`, `RichMarkdownContent`, `RichLinkEditor` y `useRichLinkEditor` para mostrar y editar texto con links en markdown sin interpretar HTML, junto con `parseRichTextSegments` y `parseRichMarkdownBlocks`.
+- `OpenInBrowserCta` y `ExternalBrowserHandoff` para salir de navegadores internos de otras apps, con `detectInAppBrowser` y `buildExternalBrowserUrl`.
+- `PwaUpdateControl`, que ofrece aplicar una actualización pendiente del service worker.
+- `NotificationBell` y `NotificationPanel`: bandeja de notificaciones en popover o en sheet según el viewport, a partir de ítems ya resueltos por la app.
+- `MonthGrid` y `MonthCalendarHeader` para calendarios mensuales, con `createMonthGridDays`, `groupItemsByDateKey`, `shiftMonthKey` y `useMonthTransitionDirection`.
+- `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem`, con validación por tipo y tamaño (`classifyFiles`, `isFileTypeAccepted`).
+- `EmojiPicker` en el entrypoint opcional `beez-ui/emoji-picker`; requiere instalar `emoji-picker-react`.
+- Hooks `useIsHydrated`, `useMinuteClock`, `useViewerTimeZone`, `useHorizontalSwipe` y `usePrefersReducedMotion`.
+- Utilidades `formatFileSize`, `copyTextToClipboard`, `getNameInitials`, búsqueda difusa (`getFuzzyMatchRank`, `renderHighlightedText`) y helpers de URL (`replaceCurrentUrlSearchParams`).
+
 ### Fixed
 
 - `BeezUIProvider` ya no provoca el aviso de React «Encountered a script tag» en apps renderizadas solo en el cliente; con SSR conserva el script que aplica el tema antes de hidratar, sin parpadeo.

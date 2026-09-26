@@ -240,6 +240,211 @@
       "types": "./dist/tanstack.d.ts",
       "import": "./dist/tanstack.js",
       "default": "./dist/tanstack.js"
+    },
+    "./animated-collapse": {
+      "types": "./dist/components/animated-collapse.d.ts",
+      "import": "./dist/components/animated-collapse.js",
+      "default": "./dist/components/animated-collapse.js"
+    },
+    "./animated-count": {
+      "types": "./dist/components/animated-count.d.ts",
+      "import": "./dist/components/animated-count.js",
+      "default": "./dist/components/animated-count.js"
+    },
+    "./animated-list-item": {
+      "types": "./dist/components/animated-list-item.d.ts",
+      "import": "./dist/components/animated-list-item.js",
+      "default": "./dist/components/animated-list-item.js"
+    },
+    "./presence-swap": {
+      "types": "./dist/components/presence-swap.d.ts",
+      "import": "./dist/components/presence-swap.js",
+      "default": "./dist/components/presence-swap.js"
+    },
+    "./bouncing-dots-loader": {
+      "types": "./dist/components/bouncing-dots-loader.d.ts",
+      "import": "./dist/components/bouncing-dots-loader.js",
+      "default": "./dist/components/bouncing-dots-loader.js"
+    },
+    "./progress-ring": {
+      "types": "./dist/components/progress-ring.d.ts",
+      "import": "./dist/components/progress-ring.js",
+      "default": "./dist/components/progress-ring.js"
+    },
+    "./confirm-delete-button": {
+      "types": "./dist/components/confirm-delete-button.d.ts",
+      "import": "./dist/components/confirm-delete-button.js",
+      "default": "./dist/components/confirm-delete-button.js"
+    },
+    "./info-popover": {
+      "types": "./dist/components/info-popover.d.ts",
+      "import": "./dist/components/info-popover.js",
+      "default": "./dist/components/info-popover.js"
+    },
+    "./empty-state": {
+      "types": "./dist/components/empty-state.d.ts",
+      "import": "./dist/components/empty-state.js",
+      "default": "./dist/components/empty-state.js"
+    },
+    "./error-state": {
+      "types": "./dist/components/error-state.d.ts",
+      "import": "./dist/components/error-state.js",
+      "default": "./dist/components/error-state.js"
+    },
+    "./account-menu": {
+      "types": "./dist/components/account-menu.d.ts",
+      "import": "./dist/components/account-menu.js",
+      "default": "./dist/components/account-menu.js"
+    },
+    "./rich-text-content": {
+      "types": "./dist/components/rich-text-content.d.ts",
+      "import": "./dist/components/rich-text-content.js",
+      "default": "./dist/components/rich-text-content.js"
+    },
+    "./rich-markdown-content": {
+      "types": "./dist/components/rich-markdown-content.d.ts",
+      "import": "./dist/components/rich-markdown-content.js",
+      "default": "./dist/components/rich-markdown-content.js"
+    },
+    "./rich-link-editor": {
+      "types": "./dist/components/rich-link-editor.d.ts",
+      "import": "./dist/components/rich-link-editor.js",
+      "default": "./dist/components/rich-link-editor.js"
+    },
+    "./open-in-browser-cta": {
+      "types": "./dist/components/open-in-browser-cta.d.ts",
+      "import": "./dist/components/open-in-browser-cta.js",
+      "default": "./dist/components/open-in-browser-cta.js"
+    },
+    "./external-browser-handoff": {
+      "types": "./dist/components/external-browser-handoff.d.ts",
+      "import": "./dist/components/external-browser-handoff.js",
+      "default": "./dist/components/external-browser-handoff.js"
+    },
+    "./pwa-update-control": {
+      "types": "./dist/components/pwa-update-control.d.ts",
+      "import": "./dist/components/pwa-update-control.js",
+      "default": "./dist/components/pwa-update-control.js"
+    },
+    "./reaction-button": {
+      "types": "./dist/components/reaction-button.d.ts",
+      "import": "./dist/components/reaction-button.js",
+      "default": "./dist/components/reaction-button.js"
+    },
+    "./notification-panel": {
+      "types": "./dist/components/notification-panel.d.ts",
+      "import": "./dist/components/notification-panel.js",
+      "default": "./dist/components/notification-panel.js"
+    },
+    "./notification-bell": {
+      "types": "./dist/components/notification-bell.d.ts",
+      "import": "./dist/components/notification-bell.js",
+      "default": "./dist/components/notification-bell.js"
+    },
+    "./month-grid": {
+      "types": "./dist/components/month-grid.d.ts",
+      "import": "./dist/components/month-grid.js",
+      "default": "./dist/components/month-grid.js"
+    },
+    "./month-calendar-header": {
+      "types": "./dist/components/month-calendar-header.d.ts",
+      "import": "./dist/components/month-calendar-header.js",
+      "default": "./dist/components/month-calendar-header.js"
+    },
+    "./file-upload": {
+      "types": "./dist/components/file-upload.d.ts",
+      "import": "./dist/components/file-upload.js",
+      "default": "./dist/components/file-upload.js"
+    },
+    "./motion-tokens": {
+      "types": "./dist/motion/tokens.d.ts",
+      "import": "./dist/motion/tokens.js",
+      "default": "./dist/motion/tokens.js"
+    },
+    "./emoji-picker": {
+      "types": "./dist/emoji-picker.d.ts",
+      "import": "./dist/emoji-picker.js",
+      "default": "./dist/emoji-picker.js"
+    },
+    "./use-is-hydrated": {
+      "types": "./dist/hooks/use-is-hydrated.d.ts",
+      "import": "./dist/hooks/use-is-hydrated.js",
+      "default": "./dist/hooks/use-is-hydrated.js"
+    },
+    "./use-minute-clock": {
+      "types": "./dist/hooks/use-minute-clock.d.ts",
+      "import": "./dist/hooks/use-minute-clock.js",
+      "default": "./dist/hooks/use-minute-clock.js"
+    },
+    "./use-viewer-time-zone": {
+      "types": "./dist/hooks/use-viewer-time-zone.d.ts",
+      "import": "./dist/hooks/use-viewer-time-zone.js",
+      "default": "./dist/hooks/use-viewer-time-zone.js"
+    },
+    "./use-horizontal-swipe": {
+      "types": "./dist/hooks/use-horizontal-swipe.d.ts",
+      "import": "./dist/hooks/use-horizontal-swipe.js",
+      "default": "./dist/hooks/use-horizontal-swipe.js"
+    },
+    "./use-rich-link-editor": {
+      "types": "./dist/hooks/use-rich-link-editor.d.ts",
+      "import": "./dist/hooks/use-rich-link-editor.js",
+      "default": "./dist/hooks/use-rich-link-editor.js"
+    },
+    "./use-month-transition-direction": {
+      "types": "./dist/hooks/use-month-transition-direction.d.ts",
+      "import": "./dist/hooks/use-month-transition-direction.js",
+      "default": "./dist/hooks/use-month-transition-direction.js"
+    },
+    "./use-prefers-reduced-motion": {
+      "types": "./dist/hooks/use-prefers-reduced-motion.d.ts",
+      "import": "./dist/hooks/use-prefers-reduced-motion.js",
+      "default": "./dist/hooks/use-prefers-reduced-motion.js"
+    },
+    "./browser-clipboard": {
+      "types": "./dist/lib/browser-clipboard.d.ts",
+      "import": "./dist/lib/browser-clipboard.js",
+      "default": "./dist/lib/browser-clipboard.js"
+    },
+    "./browser-navigation": {
+      "types": "./dist/lib/browser-navigation.d.ts",
+      "import": "./dist/lib/browser-navigation.js",
+      "default": "./dist/lib/browser-navigation.js"
+    },
+    "./file-acceptance": {
+      "types": "./dist/lib/file-acceptance.d.ts",
+      "import": "./dist/lib/file-acceptance.js",
+      "default": "./dist/lib/file-acceptance.js"
+    },
+    "./format-file-size": {
+      "types": "./dist/lib/format-file-size.d.ts",
+      "import": "./dist/lib/format-file-size.js",
+      "default": "./dist/lib/format-file-size.js"
+    },
+    "./fuzzy-search": {
+      "types": "./dist/lib/fuzzy-search.d.ts",
+      "import": "./dist/lib/fuzzy-search.js",
+      "default": "./dist/lib/fuzzy-search.js"
+    },
+    "./horizontal-swipe": {
+      "types": "./dist/lib/horizontal-swipe.d.ts",
+      "import": "./dist/lib/horizontal-swipe.js",
+      "default": "./dist/lib/horizontal-swipe.js"
+    },
+    "./in-app-browser": {
+      "types": "./dist/lib/in-app-browser.d.ts",
+      "import": "./dist/lib/in-app-browser.js",
+      "default": "./dist/lib/in-app-browser.js"
+    },
+    "./month-grid-utils": {
+      "types": "./dist/lib/month-grid.d.ts",
+      "import": "./dist/lib/month-grid.js",
+      "default": "./dist/lib/month-grid.js"
+    },
+    "./name-initials": {
+      "types": "./dist/lib/name-initials.d.ts",
+      "import": "./dist/lib/name-initials.js",
+      "default": "./dist/lib/name-initials.js"
     }
   },
   "repository": {
@@ -268,6 +473,7 @@
   },
   "peerDependencies": {
     "@tanstack/react-router": "^1.170.33",
+    "emoji-picker-react": "^4.19.1",
     "lucide-react": "^1.16.0",
     "next": "^16.3.4",
     "react": "^19.2.0",
@@ -305,6 +511,7 @@
     "@types/semver": "^7.8.0",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.1.1",
+    "emoji-picker-react": "^4.22.2",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^30.1.1",
@@ -342,6 +549,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependenciesMeta": {
+    "emoji-picker-react": {
+      "optional": true
+    },
     "next": {
       "optional": true
     },

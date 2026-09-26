@@ -1,4 +1,7 @@
-/** Defines the timing, curves and physics shared by Motion animations, aligned with beui.dev/components/motion. */
+/**
+ * Defines the timing, curves and physics shared by Motion animations, aligned with beui.dev/components/motion.
+ * Public: consumers animate their own product surfaces with these tokens so they move like the library.
+ */
 export const MOTION_TIMING = {
   fast: 0.14,
   enter: 0.18,
@@ -18,6 +21,10 @@ export const MOTION_TIMING = {
   closeDelay: 0.16,
   sheetExit: 0.24,
   reveal: 0.4,
+  /** Heart and badge pops that confirm a toggle. */
+  pop: 0.32,
+  /** Height of expanding and collapsing regions. */
+  collapse: 0.26,
   monthSwap: 0.24,
   cursorBlink: 1,
   skeleton: 1.8,
@@ -96,6 +103,14 @@ export const SPRING_THUMB = {
   mass: 4,
 } as const;
 
+/** Small, confident pops for counters, badges and toggled icons. */
+export const SPRING_POP = {
+  type: "spring",
+  stiffness: 520,
+  damping: 30,
+  mass: 0.5,
+} as const;
+
 /** Primary actions compress noticeably; dense navigation items stay subtle. */
 export const MOTION_PRESS_SCALE = 0.93;
 export const MOTION_SUBTLE_PRESS_SCALE = 0.98;
@@ -106,6 +121,8 @@ export const MOTION_ITEM_CHECK_SCALE = 0.75;
 export const MOTION_ICON_SWAP_SCALE = 0.25;
 export const MOTION_CLOSE_BUTTON_SCALE = 0.8;
 export const MOTION_LIST_ITEM_DISTANCE = 6;
+/** Scale a freshly inserted list item starts from, and a leaving one shrinks to. */
+export const MOTION_ITEM_ENTER_SCALE = 0.98;
 /** Loaded images settle from a slight zoom, so they develop in place instead of popping in. */
 export const MOTION_REVEAL_SCALE = 1.06;
 export const MOTION_REVEAL_BLUR_PX = 6;
