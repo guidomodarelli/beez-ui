@@ -5,7 +5,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { prepareReleaseGit, readReleaseMetadata, commitAndPushRelease } from "../scripts/release-git.js";
+import { prepareReleaseGit, readReleaseMetadata, commitAndPushRelease, commitRelease, pushRelease } from "../scripts/release-git.js";
 import { createReleaseVersion } from "../scripts/release-version.js";
 import { ownedPath } from "../scripts/owned-path.js";
 
@@ -101,5 +101,26 @@ it("should stop before pushing if a commit hook stages an unrelated file", () =>
   writeFileSync(hook, '#!/bin/sh\nprintf "hook change" > other.txt\ngit add other.txt\n');
   chmodSync(hook, 0o755);
   expect(() => commitAndPushRelease(repository, state, version, snapshot)).toThrow(/unexpected changes/);
+  expect(git("--git-dir", remote, "rev-parse", "refs/heads/main")).toBe(state.head);
+}, GIT_TEST_TIMEOUT_MS);
+
+it("should commit the release locally without pushing until the release is validated", () => {
+  const state = prepareReleaseGit(repository);
+  const version = createReleaseVersion(repository, "patch");
+  const commit = commitRelease(repository, state, version, readReleaseMetadata(repository));
+  expect(git("rev-parse", "HEAD")).toBe(commit);
+  expect(git("status", "--porcelain")).toBe("");
+  expect(git("--git-dir", remote, "rev-parse", "refs/heads/main")).toBe(state.head);
+  expect(pushRelease(repository, state, commit)).toBe(commit);
+  expect(git("--git-dir", remote, "rev-parse", "refs/heads/main")).toBe(commit);
+}, GIT_TEST_TIMEOUT_MS);
+
+it("should refuse to push the release commit if the checkout moved during validation", () => {
+  const state = prepareReleaseGit(repository);
+  const version = createReleaseVersion(repository, "patch");
+  const commit = commitRelease(repository, state, version, readReleaseMetadata(repository));
+  writeFileSync(join(repository, "other.txt"), "later");
+  git("commit", "--all", "--message", "Later change");
+  expect(() => pushRelease(repository, state, commit)).toThrow(/changed during release validation/u);
   expect(git("--git-dir", remote, "rev-parse", "refs/heads/main")).toBe(state.head);
 }, GIT_TEST_TIMEOUT_MS);

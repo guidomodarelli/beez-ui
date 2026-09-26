@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.6.1 - 2026-09-26
+
+- Actualiza pnpm a 12.6.0 y next a 16.3.6
+- Add terminal UI for interactive prompts and spinners
+- Update release banner and icons for improved visibility
+- Remove create-version script
+- Update release command to create-version and improve documentation
+
 ## 0.6.0 - 2026-09-23
 
 - Actualiza el paquete a la versión 0.6.0.

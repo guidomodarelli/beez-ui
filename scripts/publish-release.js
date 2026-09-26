@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { withNpmAuthConfig } from "./npm-auth.js";
 import { ownedPath } from "./owned-path.js";
 import { validatePackageContents, validateReleaseMetadata } from "./release-checks.js";
 
@@ -27,4 +28,8 @@ if (packed.name !== metadata.name || packed.version !== metadata.version) throw 
 if (!process.env.NPM_TOKEN && existsSync(join(root, ".env"))) process.loadEnvFile(join(root, ".env"));
 if (!process.env.NPM_TOKEN) throw new Error("release: provide NPM_TOKEN through the environment or the ignored .env file");
 // npm's official client supports the interactive web/2FA flow required by this account.
-execSync(`npm publish ${relativeArchive} --access public --tag latest`, { cwd: root, env: process.env, stdio: "inherit" });
+withNpmAuthConfig((userConfigPath) => {
+  // The generated temp path is quoted and rejected if it could break out of its quotes.
+  if (/["%]/u.test(userConfigPath)) throw new Error("release: unsafe temporary npm config path");
+  execSync(`npm publish ${relativeArchive} --access public --tag latest --userconfig "${userConfigPath}"`, { cwd: root, env: process.env, stdio: "inherit" });
+});

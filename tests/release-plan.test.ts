@@ -108,7 +108,7 @@ describe("release plan", () => {
     expect(plan.steps).toEqual([]);
   });
 
-  it("should resume uncommitted release metadata by preparing, committing, pushing and publishing", () => {
+  it("should resume uncommitted release metadata by committing it first, then preparing, pushing and publishing", () => {
     const state = createResumeState({
       versions: { workingTree: "0.7.0", head: "0.6.0", upstream: "0.6.0" },
       workingTreeChanges: [" M package.json", " M CHANGELOG.md"],
@@ -116,7 +116,12 @@ describe("release plan", () => {
     });
     const plan = buildReleasePlan(state);
     expect(plan.mode).toBe(RELEASE_MODE.resume);
-    expect(plan.steps.map((step) => step.id)).toEqual([RELEASE_STEP.prepareArtifact, RELEASE_STEP.commitAndPushMetadata, RELEASE_STEP.publishArtifact]);
+    expect(plan.steps.map((step) => step.id)).toEqual([
+      RELEASE_STEP.commitMetadata,
+      RELEASE_STEP.prepareArtifact,
+      RELEASE_STEP.pushReleaseCommit,
+      RELEASE_STEP.publishArtifact,
+    ]);
   });
 
   it("should resume a local release commit by pushing it before publishing", () => {

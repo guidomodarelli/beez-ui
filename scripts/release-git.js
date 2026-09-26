@@ -52,29 +52,30 @@ export function prepareReleaseGit(root) {
 }
 
 /**
- * Commits the validated metadata without including other staged files, then pushes without force.
+ * Commits the release metadata without including other staged files and verifies the local commit.
+ * Runs right after the version is written, so an interrupted release always leaves a commit to resume from.
  * @param {string} root - Repository directory.
  * @param {ReturnType<typeof prepareReleaseGit>} state - Checkout captured before version creation.
- * @param {string} version - Validated release version.
+ * @param {string} version - Release version.
  * @param {Record<string, string>} expected - Metadata captured immediately after version creation.
- * @returns {string} Commit pushed to the upstream branch.
- * @throws {Error} When concurrent changes, commit hooks or the push prevent completion.
+ * @returns {string} Local release commit.
+ * @throws {Error} When concurrent changes or commit hooks alter the release.
  */
-export function commitAndPushRelease(root, state, version, expected) {
+export function commitRelease(root, state, version, expected) {
   let current;
   try {
     current = prepareReleaseGit(root);
   } catch (error) {
-    throw new Error("create-version: Git checkout or upstream changed during release validation; inspect the prepared release before continuing", { cause: error });
+    throw new Error("create-version: Git checkout or upstream changed during the release, before its commit; inspect the release metadata before continuing", { cause: error });
   }
   if (current.head !== state.head || current.branch !== state.branch || current.remote !== state.remote || current.mergeRef !== state.mergeRef) {
-    throw new Error("create-version: Git checkout or upstream changed during release validation; inspect the prepared release before continuing");
+    throw new Error("create-version: Git checkout or upstream changed during the release, before its commit; inspect the release metadata before continuing");
   }
   const actual = readReleaseMetadata(root);
   if (RELEASE_FILES.some((file) => actual[file] !== expected[file]) || JSON.parse(actual["package.json"]).version !== version) {
-    throw new Error("create-version: release metadata changed during validation; inspect the prepared release before continuing");
+    throw new Error("create-version: release metadata changed during validation; inspect the release metadata before continuing");
   }
-  execFileSync("git", ["commit", "--only", "-m", `chore(release): prepara la versión ${version}`, "-m", "Actualiza package.json y CHANGELOG.md con la versión validada y sus notas de release.", "--", ...RELEASE_FILES], { cwd: root, stdio: "inherit" });
+  execFileSync("git", ["commit", "--only", "-m", `chore(release): prepara la versión ${version}`, "-m", "Actualiza package.json y CHANGELOG.md con la versión y sus notas de release.", "--", ...RELEASE_FILES], { cwd: root, stdio: "inherit" });
   const commit = readGit(root, ["rev-parse", "HEAD"]);
   const changedFiles = readGit(root, ["diff-tree", "--no-commit-id", "--name-only", "-r", commit]).split(/\r?\n/u);
   if (readGit(root, ["rev-parse", `${commit}^`]) !== state.head || changedFiles.some((file) => !RELEASE_FILES.includes(file))) {
@@ -83,9 +84,43 @@ export function commitAndPushRelease(root, state, version, expected) {
   for (const file of RELEASE_FILES) {
     const committed = execFileSync("git", ["show", `${commit}:${file}`], { cwd: root, encoding: "utf8" });
     if (committed.replaceAll("\r\n", "\n") !== expected[file].replaceAll("\r\n", "\n")) {
-      throw new Error("create-version: a Git hook changed the validated metadata; inspect the local commit before pushing");
+      throw new Error("create-version: a Git hook changed the release metadata; inspect the local commit before pushing");
     }
+  }
+  return commit;
+}
+
+/**
+ * Pushes a verified release commit without force, only while it is still the checked-out commit.
+ * @param {string} root - Repository directory.
+ * @param {ReturnType<typeof prepareReleaseGit>} state - Checkout that owns the push destination.
+ * @param {string} commit - Release commit returned by {@link commitRelease}.
+ * @returns {string} Commit pushed to the upstream branch.
+ * @throws {Error} When the checkout moved during validation or the push is rejected.
+ */
+export function pushRelease(root, state, commit) {
+  let current;
+  try {
+    current = prepareReleaseGit(root);
+  } catch (error) {
+    throw new Error("create-version: Git checkout or upstream changed during release validation; inspect the release commit before pushing", { cause: error });
+  }
+  if (current.head !== commit || current.branch !== state.branch || current.remote !== state.remote || current.mergeRef !== state.mergeRef) {
+    throw new Error("create-version: Git checkout or upstream changed during release validation; inspect the release commit before pushing");
   }
   execFileSync("git", ["push", "--no-follow-tags", "--", state.remote, `${commit}:${state.mergeRef}`], { cwd: root, stdio: "inherit" });
   return commit;
+}
+
+/**
+ * Commits the release metadata and pushes it without force.
+ * @param {string} root - Repository directory.
+ * @param {ReturnType<typeof prepareReleaseGit>} state - Checkout captured before version creation.
+ * @param {string} version - Release version.
+ * @param {Record<string, string>} expected - Metadata captured immediately after version creation.
+ * @returns {string} Commit pushed to the upstream branch.
+ * @throws {Error} When concurrent changes, commit hooks or the push prevent completion.
+ */
+export function commitAndPushRelease(root, state, version, expected) {
+  return pushRelease(root, state, commitRelease(root, state, version, expected));
 }

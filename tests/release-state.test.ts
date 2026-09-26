@@ -8,6 +8,7 @@ import { afterEach, beforeEach, expect, it } from "vitest";
 import { ownedPath } from "../scripts/owned-path.js";
 import { buildReleasePlan, RELEASE_MODE } from "../scripts/release-plan.js";
 import { collectReleaseState, findPreparedArchive } from "../scripts/release-state.js";
+import { stripVTControlCharacters } from "node:util";
 import { renderBox, visibleWidth } from "../scripts/terminal-ui.js";
 
 /** Real Git processes need an integration timeout under parallel CI load. */
@@ -108,8 +109,25 @@ it("should find an artifact prepared for the current version", () => {
   expect(findPreparedArchive(repository, "beez-ui", "0.7.0")).toBeNull();
 });
 
-it("should keep box lines aligned while truncating styled text without losing colors", () => {
-  const box = renderBox({ title: "Plan", lines: ["corto", `\x1b[31m${"x".repeat(80)}\x1b[39m`], width: 40 }).split("\n");
-  expect(box.map((line) => visibleWidth(line))).toEqual([40, 40, 40, 40]);
-  expect(box[2]).toContain("\x1b[31m");
+it("should wrap long box lines by words, never truncate them, and keep every line aligned", () => {
+  const sentence = "Corregí el error y corré pnpm create-version: retoma solo lo que falte sin volver a subir la versión.";
+  const box = renderBox({ title: "Plan", lines: ["corto", `→ ${sentence}`], width: 40 }).split("\n");
+  const bodyText = box.slice(2, -1).map((line) => stripVTControlCharacters(line).slice(2, -2).trim()).join(" ");
+  expect(new Set(box.map((line) => visibleWidth(line)))).toEqual(new Set([40]));
+  expect(box.join("\n")).not.toContain("…");
+  expect(bodyText).toBe(`→ ${sentence}`);
+  expect(stripVTControlCharacters(box[3]).startsWith("│   ")).toBe(true);
+});
+
+it("should reopen colors on every wrapped line and split words wider than the box", () => {
+  const box = renderBox({ lines: [`\x1b[31mhttps://example.test/${"x".repeat(60)}\x1b[39m`], width: 30 }).split("\n");
+  expect(new Set(box.map((line) => visibleWidth(line)))).toEqual(new Set([30]));
+  expect(box.slice(1, -1).every((line) => line.includes("\x1b[31m"))).toBe(true);
+  expect(box.join("\n")).not.toContain("…");
+});
+
+it("should move a title that does not fit in the border inside the box", () => {
+  const box = renderBox({ title: "Falló el paso 1: Crear y publicar la nueva versión", lines: ["detalle"], width: 30 });
+  expect(stripVTControlCharacters(box.split("\n")[0])).toBe(`╭${"─".repeat(28)}╮`);
+  expect(stripVTControlCharacters(box)).toContain("Falló el paso 1:");
 });

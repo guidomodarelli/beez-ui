@@ -7,7 +7,7 @@
  * workflow (`createAndPublishRelease`): metadata, full checks,
  * checksum-addressed tarball, metadata commit and push, and `npm publish`.
  * An interrupted release resumes only the missing stages with the same
- * building blocks (`prepareRelease`, `commitAndPushRelease`,
+ * building blocks (`commitRelease`, `prepareRelease`, `git push`,
  * `publish-release.js`). Running the command again always resumes from the
  * first missing stage.
  */
@@ -180,8 +180,6 @@ async function verifyPublished(context, version) {
  *   state: Awaited<ReturnType<typeof collectReleaseState>>,
  *   options: ReturnType<typeof normalizeReleaseOptions>,
  *   archive: string | null,
- *   gitState: ReturnType<import("./release-git.js").prepareReleaseGit> | null,
- *   expectedMetadata: Record<string, string> | null,
  *   publishedVersion: string | null,
  * }} ReleaseContext
  */
@@ -261,20 +259,25 @@ async function createVersionStep(context) {
   const version = await chooseVersion(context);
   const notes = await chooseNotes(context, version);
   print(renderList(`CHANGELOG · ${version}`, notes.length > 0 ? notes : [`Actualiza el paquete a la versión ${version}.`], BOX_TONE.info));
-  const proceed = await confirm(`¿Publicar beez-ui@${version}? Valida todo (varios minutos), commitea, pushea a ${MAIN_BRANCH} y publica en npm.`);
+  const proceed = await confirm(`¿Publicar beez-ui@${version}? Commitea package.json y CHANGELOG.md, valida todo (varios minutos), pushea a ${MAIN_BRANCH} y publica en npm.`);
   if (!proceed) {
     print(`${ICON.warning} ${paint("yellow", "Release cancelado. No se tocó nada.")}`);
     throw new ReleaseCancelledError();
   }
-  const { prepareReleaseGit, commitAndPushRelease } = await import("./release-git.js");
+  const { prepareReleaseGit, commitRelease, pushRelease } = await import("./release-git.js");
   const { createAndPublishRelease } = await import("./release-workflow.js");
   const { prepareRelease } = await import("./prepare-release.js");
   try {
-    // Capture the checkout before the version changes so concurrent edits are detected before pushing.
+    // Capture the checkout before the version changes so concurrent edits are detected.
     const gitState = prepareReleaseGit(root);
     createAndPublishRelease(root, version, notes, {
+      commit: (releasedVersion, metadata) => {
+        const commit = commitRelease(root, gitState, releasedVersion, metadata);
+        print(`${ICON.success} Commit local de ${releasedVersion} con package.json y CHANGELOG.md.`);
+        return commit;
+      },
       prepare: prepareRelease,
-      commitAndPush: (releasedVersion, metadata) => commitAndPushRelease(root, gitState, releasedVersion, metadata),
+      push: (commit) => pushRelease(root, gitState, commit),
       /** Publishes the exact checked artifact, preserving interactive npm authentication. */
       publish: (archive) => execFileSync(process.execPath, [join(root, "scripts", "publish-release.js"), archive], { cwd: root, stdio: "inherit" }),
     });
@@ -295,10 +298,6 @@ async function createVersionStep(context) {
  */
 async function prepareArtifactStep(context) {
   const { versions, packageName } = context.state;
-  const { prepareReleaseGit, readReleaseMetadata } = await import("./release-git.js");
-  // Capture the checkout before validations so commitAndPushRelease detects concurrent edits.
-  context.gitState = prepareReleaseGit(root);
-  context.expectedMetadata = readReleaseMetadata(root);
   const existing = findPreparedArchive(root, packageName, versions.workingTree);
   if (existing) {
     const choice = await select({
@@ -323,22 +322,23 @@ async function prepareArtifactStep(context) {
 }
 
 /**
- * Commits and pushes the release metadata left uncommitted.
+ * Commits the release metadata left uncommitted by an interrupted release, before any validation.
  * @param {ReleaseContext} context - Release context.
  * @returns {Promise<void>}
  */
-async function commitAndPushMetadataStep(context) {
-  const { commitAndPushRelease } = await import("./release-git.js");
+async function commitMetadataStep(context) {
+  const { prepareReleaseGit, readReleaseMetadata, commitRelease } = await import("./release-git.js");
   const version = context.state.versions.workingTree;
   try {
-    commitAndPushRelease(root, /** @type {NonNullable<ReleaseContext["gitState"]>} */ (context.gitState), version, /** @type {Record<string, string>} */ (context.expectedMetadata));
+    commitRelease(root, prepareReleaseGit(root), version, readReleaseMetadata(root));
   } catch (error) {
     throw new ReleaseStepError(
-      `No se pudo commitear o pushear la metadata de ${version}: ${error instanceof Error ? error.message : String(error)}`,
-      "Resolvé el estado de Git y corré pnpm create-version: si el commit quedó en local, solo lo pushea.",
+      `No se pudo commitear la metadata de ${version}: ${error instanceof Error ? error.message : String(error)}`,
+      "Resolvé el estado de Git y corré pnpm create-version: retoma desde el commit.",
       error,
     );
   }
+  print(`${ICON.success} Commit local de ${version} con package.json y CHANGELOG.md.`);
 }
 
 /**
@@ -379,7 +379,7 @@ const STEP_EXECUTORS = {
   [RELEASE_STEP.syncMain]: syncMainStep,
   [RELEASE_STEP.createVersion]: createVersionStep,
   [RELEASE_STEP.prepareArtifact]: prepareArtifactStep,
-  [RELEASE_STEP.commitAndPushMetadata]: commitAndPushMetadataStep,
+  [RELEASE_STEP.commitMetadata]: commitMetadataStep,
   [RELEASE_STEP.pushReleaseCommit]: pushReleaseCommitStep,
   [RELEASE_STEP.publishArtifact]: publishArtifactStep,
 };
@@ -462,7 +462,7 @@ async function main() {
   }
 
   /** @type {ReleaseContext} */
-  const context = { state, options, archive: null, gitState: null, expectedMetadata: null, publishedVersion: null };
+  const context = { state, options, archive: null, publishedVersion: null };
   for (const [index, step] of plan.steps.entries()) {
     print(renderStepHeader(index + 1, plan.steps.length, step.title));
     try {

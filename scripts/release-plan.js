@@ -30,7 +30,7 @@ export const RELEASE_STEP = {
   syncMain: "sync-main",
   createVersion: "create-version",
   prepareArtifact: "prepare-artifact",
-  commitAndPushMetadata: "commit-and-push-metadata",
+  commitMetadata: "commit-metadata",
   pushReleaseCommit: "push-release-commit",
   publishArtifact: "publish-artifact",
 };
@@ -240,14 +240,16 @@ export function buildReleasePlan(state) {
 
   if (isResume) {
     plan.mode = RELEASE_MODE.resume;
+    // Commit the written metadata first, so nothing stays uncommitted if a later stage fails.
+    if (metadataUncommitted) {
+      plan.steps.push({ id: RELEASE_STEP.commitMetadata, title: `Commitear package.json y CHANGELOG.md de ${version}`, detail: "Commit local; se pushea después de validar." });
+    }
     plan.steps.push({
       id: RELEASE_STEP.prepareArtifact,
       title: `Preparar el artefacto de ${version}`,
       detail: state.preparedArchive ? "Ya hay uno preparado: se ofrece reusarlo." : "Validaciones completas + tarball verificado.",
     });
-    if (metadataUncommitted) {
-      plan.steps.push({ id: RELEASE_STEP.commitAndPushMetadata, title: "Commitear y pushear package.json y CHANGELOG.md" });
-    } else if (versions.upstream !== version) {
+    if (metadataUncommitted || versions.upstream !== version) {
       plan.steps.push({ id: RELEASE_STEP.pushReleaseCommit, title: `Pushear el commit de ${version} a origin` });
     }
     plan.steps.push({ id: RELEASE_STEP.publishArtifact, title: `Publicar beez-ui@${version} en npm`, detail: "Pide confirmación; puede abrir la verificación 2FA de npm." });
@@ -266,7 +268,7 @@ export function buildReleasePlan(state) {
   plan.steps.push({
     id: RELEASE_STEP.createVersion,
     title: "Crear y publicar la nueva versión",
-    detail: "Elegís versión y notas; después valida, empaqueta, commitea, pushea y publica.",
+    detail: "Elegís versión y notas; después commitea package.json y CHANGELOG.md, valida, empaqueta, pushea y publica.",
   });
   return plan;
 }
