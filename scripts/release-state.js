@@ -10,6 +10,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { readUnreleased } from "./changelog.js";
 
 /** Separates fields and records in `git log --format` output. */
 const FIELD_SEPARATOR = "\x1f";
@@ -158,6 +159,18 @@ export async function lookupNpm(name, version, root) {
 }
 
 /**
+ * Reads the `[Unreleased]` block of the working-tree CHANGELOG.md.
+ * @param {string} root - Repository directory.
+ * @returns {{ exists: boolean, entryCount: number, unknownSections: string[] }} Unreleased state.
+ */
+export function readChangelogState(root) {
+  const path = join(root, "CHANGELOG.md");
+  if (!existsSync(path)) return { exists: false, entryCount: 0, unknownSections: [] };
+  const { exists, entryCount, unknownSections } = readUnreleased(readFileSync(path, "utf8"));
+  return { exists, entryCount, unknownSections };
+}
+
+/**
  * Reads the complete release snapshot.
  * @param {{ root: string, onProgress?: (label: string) => void, npmLookup?: typeof lookupNpm }} options - Inputs; `npmLookup` selects the registry adapter.
  * @returns {Promise<import("./release-plan.js").ReleaseState & { packageName: string, lastReleaseSha: string | null }>} Snapshot.
@@ -206,5 +219,6 @@ export async function collectReleaseState({ root, onProgress = () => {}, npmLook
     lastReleaseSha: lastReleaseSha || null,
     unreleasedCommits,
     preparedArchive: findPreparedArchive(root, manifest.name, manifest.version),
+    changelog: readChangelogState(root),
   };
 }

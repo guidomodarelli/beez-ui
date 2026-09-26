@@ -26,6 +26,29 @@ const BOX_PADDING = 1;
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 const SPINNER_INTERVAL_MS = 80;
 
+/** Time spent waiting for answers, excluded from the reported total. */
+let promptWaitMs = 0;
+
+/**
+ * Returns how long the command has waited for the user's answers.
+ *
+ * @returns {number} Milliseconds spent with a prompt open.
+ */
+export function getPromptWaitMs() {
+  return promptWaitMs;
+}
+
+/**
+ * Measures the elapsed time since a start, without the time spent waiting for answers.
+ *
+ * @param {number} startedAt - `Date.now()` when the measured work started.
+ * @param {number} promptWaitAtStart - {@link getPromptWaitMs} at that moment.
+ * @returns {number} Active milliseconds.
+ */
+export function measureActiveMs(startedAt, promptWaitAtStart = 0) {
+  return Date.now() - startedAt - (promptWaitMs - promptWaitAtStart);
+}
+
 /** Exit code conventionally used after Ctrl+C. */
 export const INTERRUPTED_EXIT_CODE = 130;
 
@@ -91,6 +114,9 @@ export function visibleWidth(text) {
   return [...stripVTControlCharacters(text)].length;
 }
 
+/** Label/value rows (`renderRow`): the value starts after a gap of two or more spaces. */
+const VALUE_COLUMN_PATTERN = /^\s*\S(?:.*?\S)?\s{2,}(?=\S)/u;
+
 /** Leading marker (icon, arrow, bullet or `1.`, never a word) followed by a space, used as hanging indent. */
 const HANGING_MARKER_PATTERN = /^(\s*)((?:[^\p{L}\p{N}\s]{1,2}|\d{1,2}\.)\s+)?/u;
 
@@ -145,8 +171,11 @@ export function wrapStyledLine(text, width) {
     return [text];
   }
 
-  const plainMarker = HANGING_MARKER_PATTERN.exec(stripVTControlCharacters(text))?.[0] ?? "";
-  const hangingIndent = plainMarker.length < width / 2 ? " ".repeat(plainMarker.length) : "";
+  // Continuation lines align with the value column of a row, or after a leading marker.
+  const plainText = stripVTControlCharacters(text);
+  const indentPrefix = VALUE_COLUMN_PATTERN.exec(plainText)?.[0] ?? HANGING_MARKER_PATTERN.exec(plainText)?.[0] ?? "";
+  const indentWidth = [...indentPrefix].length;
+  const hangingIndent = indentWidth < width / 2 ? " ".repeat(indentWidth) : "";
   const lines = [];
   let current = "";
   let currentWidth = 0;
@@ -171,7 +200,9 @@ export function wrapStyledLine(text, width) {
       continue;
     }
 
-    if (currentWidth + segment.width > width && currentWidth > hangingIndent.length) {
+    // Move the word to the next line only when it fits there; a longer word is split right here.
+    const fitsOnFreshLine = hangingIndent.length + segment.width <= width;
+    if (currentWidth + segment.width > width && currentWidth > hangingIndent.length && fitsOnFreshLine) {
       breakLine();
     }
 
@@ -382,6 +413,7 @@ export function select({ message, options, defaultIndex = 0 }) {
   }
 
   return new Promise((resolve) => {
+    const promptStartedAt = Date.now();
     let selectedIndex = defaultIndex;
     let renderedLineCount = 0;
 
@@ -408,6 +440,7 @@ export function select({ message, options, defaultIndex = 0 }) {
       const chosen = options[selectedIndex];
       process.stdout.write(`${ANSI.cursorUp(renderedLineCount)}\r${ANSI.clearBelow}${ANSI.showCursor}`);
       print(`${question} ${paint("magentaBright", chosen.label)}`);
+      promptWaitMs += Date.now() - promptStartedAt;
       resolve(chosen.value);
     };
 
@@ -467,6 +500,7 @@ export async function input(message, defaultValue = "") {
     return defaultValue;
   }
 
+  const promptStartedAt = Date.now();
   const readline = createInterface({ input: process.stdin, output: process.stdout });
   readline.on("SIGINT", () => {
     readline.close();
@@ -477,6 +511,7 @@ export async function input(message, defaultValue = "") {
     const answer = (await readline.question(question)).trim();
     return answer || defaultValue;
   } finally {
+    promptWaitMs += Date.now() - promptStartedAt;
     readline.close();
     process.stdin.pause();
   }

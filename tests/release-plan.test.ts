@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
   RELEASE_MODE,
   RELEASE_STEP,
-  buildNotesFromCommits,
   buildReleasePlan,
   listNextVersions,
   normalizeReleaseOptions,
@@ -12,6 +11,7 @@ import {
   suggestReleaseType,
   type ReleaseState,
 } from "../scripts/release-plan.js";
+import { buildChangelogPrompt } from "../scripts/changelog-ai.js";
 
 /** Builds a clean `main` snapshot whose version is already on npm. */
 function createState(overrides: Partial<ReleaseState> = {}): ReleaseState {
@@ -25,6 +25,7 @@ function createState(overrides: Partial<ReleaseState> = {}): ReleaseState {
     sync: { aheadCommits: [], behindCount: 0 },
     unreleasedCommits: [{ subject: "feat: agrega glide slots" }],
     preparedArchive: null,
+    changelog: { exists: true, entryCount: 3, unknownSections: [] },
     ...overrides,
   };
 }
@@ -60,16 +61,14 @@ describe("versions and options", () => {
   });
 
   it("should validate the command-line options", () => {
-    expect(normalizeReleaseOptions({ "set-version": "v0.7.0", notes: ["Agrega glide"], "dry-run": true })).toEqual({
+    expect(normalizeReleaseOptions({ "set-version": "v0.7.0", "dry-run": true })).toEqual({
       bump: null,
       setVersion: "0.7.0",
-      notes: ["Agrega glide"],
       dryRun: true,
       help: false,
     });
     expect(() => normalizeReleaseOptions({ bump: "huge" })).toThrow(/--bump espera/u);
     expect(() => normalizeReleaseOptions({ bump: "patch", "set-version": "0.6.1" })).toThrow(/no los dos/u);
-    expect(() => normalizeReleaseOptions({ notes: [" "] })).toThrow(/--notes/u);
   });
 
   it("should suggest the increment from conventional and legacy subjects", () => {
@@ -77,16 +76,6 @@ describe("versions and options", () => {
     expect(suggestReleaseType([{ subject: "add glide slots and surface animations" }]).releaseType).toBe("minor");
     expect(suggestReleaseType([{ subject: "feat!: elimina el provider legado" }]).releaseType).toBe("major");
     expect(suggestReleaseType([{ subject: "chore(release): prepara la versión 0.6.0" }]).releaseType).toBe("patch");
-  });
-
-  it("should turn commit subjects into CHANGELOG notes, oldest first", () => {
-    expect(
-      buildNotesFromCommits([
-        { subject: "fix: corrige salidas interrumpidas" },
-        { subject: "chore(release): prepara la versión 0.6.0" },
-        { subject: "add glide slots" },
-      ]),
-    ).toEqual(["Add glide slots", "Corrige salidas interrumpidas"]);
   });
 });
 
@@ -100,6 +89,23 @@ describe("release plan", () => {
   it("should update main before creating the version and warn about local commits pushed with it", () => {
     expect(stepIds(createState({ sync: { aheadCommits: [], behindCount: 2 } }))).toEqual([RELEASE_STEP.syncMain, RELEASE_STEP.createVersion]);
     expect(buildReleasePlan(createState({ sync: { aheadCommits: [{ subject: "fix: local" }], behindCount: 0 } })).warnings).toHaveLength(1);
+  });
+
+  it("should ask Codex to fill an empty [Unreleased] block before creating the version", () => {
+    const state = createState({ changelog: { exists: true, entryCount: 0, unknownSections: [] } });
+    expect(stepIds(state)).toEqual([RELEASE_STEP.generateChangelog, RELEASE_STEP.createVersion]);
+  });
+
+  it("should block [Unreleased] sections outside the Keep a Changelog change types", () => {
+    const plan = buildReleasePlan(createState({ changelog: { exists: true, entryCount: 2, unknownSections: ["Mejoras"] } }));
+    expect(plan.steps).toEqual([]);
+    expect(plan.blockers[0].title).toContain("Mejoras");
+  });
+
+  it("should accept an uncommitted CHANGELOG.md in a new release, since it travels in the release commit", () => {
+    const state = createState({ workingTreeChanges: [" M CHANGELOG.md"], changedPaths: ["CHANGELOG.md"] });
+    expect(stepIds(state)).toEqual([RELEASE_STEP.createVersion]);
+    expect(buildReleasePlan(createState({ workingTreeChanges: [" M src/button.tsx"], changedPaths: ["src/button.tsx"] })).blockers).toHaveLength(1);
   });
 
   it("should report that everything is published", () => {
@@ -165,5 +171,15 @@ describe("release plan", () => {
   it("should block a local version lower than the one already on npm", () => {
     const plan = buildReleasePlan(createResumeState({ npm: { status: "ok", latest: "0.8.0", workingTreeVersionPublished: false, reason: null } }));
     expect(plan.blockers[0].title).toContain("npm ya publicó 0.8.0");
+  });
+});
+
+describe("Codex changelog prompt", () => {
+  it("should ask for Keep a Changelog sections from the unreleased commits and forbid other edits", () => {
+    const prompt = buildChangelogPrompt([{ sha: "4fc8b3d1234", subject: "fix: corrige el glide" }], "quien consume el paquete");
+    expect(prompt).toContain("## [Unreleased]");
+    expect(prompt).toContain("### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed`, `### Security");
+    expect(prompt).toContain("- 4fc8b3d fix: corrige el glide");
+    expect(prompt).toContain("Modificá únicamente CHANGELOG.md");
   });
 });

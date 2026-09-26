@@ -35,7 +35,7 @@ beforeEach(() => {
   git("config", "commit.gpgSign", "false");
   git("config", "core.hooksPath", join(directory, "hooks"));
   writeFileSync(join(repository, "package.json"), JSON.stringify({ name: "beez-ui", version: "0.4.0" }));
-  writeFileSync(join(repository, "CHANGELOG.md"), "# Cambios\n\n## 0.4.0\n\n- Anterior.\n");
+  writeFileSync(join(repository, "CHANGELOG.md"), "# Cambios\n\n## [Unreleased]\n\n### Fixed\n\n- Corrige el filtro.\n\n## 0.4.0\n\n- Anterior.\n");
   writeFileSync(join(repository, "other.txt"), "original");
   git("add", ".");
   git("commit", "-m", "Initial fixture");

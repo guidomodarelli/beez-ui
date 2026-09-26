@@ -1,4 +1,5 @@
 /** @module release-checks Validates metadata and the public package artifact contract. */
+import { readLatestRelease } from "./changelog.js";
 
 /** Stable and prerelease semantic versions, without a tag prefix. */
 const RELEASE_VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
@@ -12,9 +13,10 @@ const RELEASE_VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]
  */
 export function validateReleaseMetadata(metadata, changelog) {
   if (!RELEASE_VERSION.test(metadata.version)) throw new Error("release: package.version must be a semantic version");
-  const first = /^## (\S+)[^\n]*\n([\s\S]*?)(?=^## |$(?![\s\S]))/mu.exec(changelog);
-  if (!first || first[1] !== metadata.version) throw new Error(`release: first changelog version must be ${metadata.version}`);
-  if (!/^\s*- \S/mu.test(first[2])) throw new Error("release: current changelog entry must describe at least one change");
+  // The `[Unreleased]` block collects future changes; the first released block must match the manifest.
+  const latest = readLatestRelease(changelog);
+  if (!latest || latest.version !== metadata.version) throw new Error(`release: first released changelog version must be ${metadata.version}`);
+  if (latest.entryCount === 0) throw new Error("release: current changelog entry must describe at least one change");
 }
 
 /**

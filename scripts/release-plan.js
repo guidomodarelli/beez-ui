@@ -15,6 +15,7 @@
  * after a failure resumes from the first missing stage.
  */
 import semver from "semver";
+import { CHANGE_TYPES, UNRELEASED_HEADING } from "./changelog.js";
 
 /** Branch that receives releases. */
 export const MAIN_BRANCH = "main";
@@ -28,6 +29,7 @@ export const RELEASE_TYPE = { patch: "patch", minor: "minor", major: "major" };
 /** Stable identifiers of every step the orchestrator can run. */
 export const RELEASE_STEP = {
   syncMain: "sync-main",
+  generateChangelog: "generate-changelog",
   createVersion: "create-version",
   prepareArtifact: "prepare-artifact",
   commitMetadata: "commit-metadata",
@@ -60,6 +62,7 @@ const RELEASE_COMMIT_SUBJECT = /^(chore\(release\):|update version to )/iu;
  *   sync: { aheadCommits: ReleaseCommit[], behindCount: number },
  *   unreleasedCommits: ReleaseCommit[],
  *   preparedArchive: string | null,
+ *   changelog: { exists: boolean, entryCount: number, unknownSections: string[] },
  * }} ReleaseState
  * @typedef {{ id: string, title: string, detail?: string }} ReleasePlanStep
  * @typedef {{ title: string, details: string[] }} ReleaseBlocker
@@ -106,27 +109,24 @@ export const RELEASE_USAGE = [
   "",
   "  --bump patch|minor|major   Elige el tipo de versión sin preguntar.",
   "  --set-version X.Y.Z        Fija la versión exacta (solo el siguiente patch, minor o major).",
-  '  --notes "Texto"            Nota del CHANGELOG; se puede repetir. Sin notas, se pregunta.',
   "  --dry-run                  Diagnostica y muestra el plan sin cambiar nada.",
   "  --help                     Muestra esta ayuda.",
 ].join("\n");
 
 /**
  * Validates the parsed command-line options.
- * @param {{ bump?: string, "set-version"?: string, notes?: string[], "dry-run"?: boolean, help?: boolean }} values - `util.parseArgs` values.
- * @returns {{ bump: string | null, setVersion: string | null, notes: string[], dryRun: boolean, help: boolean }} Options.
+ * @param {{ bump?: string, "set-version"?: string, "dry-run"?: boolean, help?: boolean }} values - `util.parseArgs` values.
+ * @returns {{ bump: string | null, setVersion: string | null, dryRun: boolean, help: boolean }} Options.
  * @throws {Error} With a Spanish message when an option is invalid.
  */
 export function normalizeReleaseOptions(values) {
   const bump = values.bump ?? null;
   const setVersion = values["set-version"]?.replace(/^v/u, "") ?? null;
-  const notes = values.notes ?? [];
   if (bump && !Object.values(RELEASE_TYPE).includes(bump)) {
     throw new Error(`--bump espera ${Object.values(RELEASE_TYPE).join("|")} y recibió "${bump}".`);
   }
   if (bump && setVersion) throw new Error("Usá --bump o --set-version, no los dos a la vez.");
-  if (notes.some((note) => !note.trim())) throw new Error("--notes no puede estar vacío.");
-  return { bump, setVersion, notes, dryRun: Boolean(values["dry-run"]), help: Boolean(values.help) };
+  return { bump, setVersion, dryRun: Boolean(values["dry-run"]), help: Boolean(values.help) };
 }
 
 /**
@@ -155,20 +155,6 @@ export function suggestReleaseType(commits) {
   return hasFeature
     ? { releaseType: RELEASE_TYPE.minor, reason: "hay funcionalidades nuevas" }
     : { releaseType: RELEASE_TYPE.patch, reason: "solo hay arreglos y mantenimiento" };
-}
-
-/**
- * Builds CHANGELOG notes from commit subjects, dropping conventional prefixes and release commits.
- * @param {ReleaseCommit[]} commits - Commits since the last release, newest first.
- * @returns {string[]} Notes, oldest first, with the first letter capitalized.
- */
-export function buildNotesFromCommits(commits) {
-  return commits
-    .filter((commit) => !isReleaseCommitSubject(commit.subject))
-    .map((commit) => commit.subject.replace(CONVENTIONAL_HEADER, "").trim())
-    .filter(Boolean)
-    .map((note) => `${note[0].toUpperCase()}${note.slice(1)}`)
-    .reverse();
 }
 
 /**
@@ -224,7 +210,9 @@ export function buildReleasePlan(state) {
       details: ["Actualizá main (git pull) o corregí la versión de package.json."],
     });
   }
-  const allowedChanges = isResume && metadataUncommitted && onlyMetadataChanged;
+  // A new release may carry an uncommitted CHANGELOG.md: it travels in the release commit.
+  const onlyChangelogChanged = state.changedPaths.length > 0 && state.changedPaths.every((file) => file === "CHANGELOG.md");
+  const allowedChanges = isResume ? metadataUncommitted && onlyMetadataChanged : onlyChangelogChanged;
   if (state.workingTreeChanges.length > 0 && !allowedChanges) {
     plan.blockers.push({
       title: `Hay ${state.workingTreeChanges.length} archivo(s) sin commitear`,
@@ -252,7 +240,7 @@ export function buildReleasePlan(state) {
     if (metadataUncommitted || versions.upstream !== version) {
       plan.steps.push({ id: RELEASE_STEP.pushReleaseCommit, title: `Pushear el commit de ${version} a origin` });
     }
-    plan.steps.push({ id: RELEASE_STEP.publishArtifact, title: `Publicar beez-ui@${version} en npm`, detail: "Pide confirmación; puede abrir la verificación 2FA de npm." });
+    plan.steps.push({ id: RELEASE_STEP.publishArtifact, title: `Publicar beez-ui@${version} en npm`, detail: "Puede abrir la verificación 2FA de npm." });
     return plan;
   }
 
@@ -261,14 +249,29 @@ export function buildReleasePlan(state) {
     return plan;
   }
 
+  if (state.changelog.unknownSections.length > 0) {
+    plan.blockers.push({
+      title: `CHANGELOG.md ${UNRELEASED_HEADING} usa secciones no válidas: ${state.changelog.unknownSections.join(", ")}`,
+      details: [`Usá solo ${CHANGE_TYPES.map((type) => `### ${type}`).join(", ")} y volvé a correr pnpm create-version.`],
+    });
+    return plan;
+  }
+
   plan.mode = RELEASE_MODE.newRelease;
   if (state.sync.aheadCommits.length > 0) {
     plan.warnings.push(`${state.sync.aheadCommits.length} commit(s) locales de ${MAIN_BRANCH} se suben junto con el commit de release.`);
   }
+  if (state.changelog.entryCount === 0) {
+    plan.steps.push({
+      id: RELEASE_STEP.generateChangelog,
+      title: `Completar ${UNRELEASED_HEADING} del CHANGELOG con Codex`,
+      detail: "Está vacío: Codex lo arma desde los commits sin publicar. Si no puede, el release se corta.",
+    });
+  }
   plan.steps.push({
     id: RELEASE_STEP.createVersion,
     title: "Crear y publicar la nueva versión",
-    detail: "Elegís versión y notas; después commitea package.json y CHANGELOG.md, valida, empaqueta, pushea y publica.",
+    detail: `Elegís la versión; ${UNRELEASED_HEADING} pasa a esa versión con la fecha de hoy, se commitea con package.json y después valida, empaqueta, pushea y publica.`,
   });
   return plan;
 }

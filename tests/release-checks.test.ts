@@ -16,6 +16,12 @@ describe("release contracts", () => {
     expect(() => validateReleaseMetadata(PACKAGE, "# Cambios\n\n## 0.1.1 - 2026-09-08\n\n- Publicación con tipos.\n")).not.toThrow();
   });
 
+  it("should skip the [Unreleased] block and accept bracketed release headings", () => {
+    const changelog = "# Cambios\n\n## [Unreleased]\n\n### Added\n\n- Próximo cambio.\n\n## [0.1.1] - 2026-09-08\n\n### Fixed\n\n- Publicación con tipos.\n";
+    expect(() => validateReleaseMetadata(PACKAGE, changelog)).not.toThrow();
+    expect(() => validateReleaseMetadata(PACKAGE, "## [Unreleased]\n\n- Próximo.\n\n## [0.1.0] - 2026-09-01\n\n- Anterior.\n")).toThrow(/0\.1\.1/);
+  });
+
   it("should reject missing notes, mismatched versions and malformed versions", () => {
     expect(() => validateReleaseMetadata(PACKAGE, "## 0.1.0\n- Anterior\n")).toThrow(/changelog/i);
     expect(() => validateReleaseMetadata(PACKAGE, "## 0.1.1\n")).toThrow(/change/i);

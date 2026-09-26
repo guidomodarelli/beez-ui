@@ -6,13 +6,12 @@ import { readReleaseMetadata } from "./release-git.js";
 const RESUME_COMMAND = "pnpm create-version";
 
 /**
- * Creates the version, commits package.json and CHANGELOG.md right away, then
+ * Creates the version (releasing the CHANGELOG `[Unreleased]` block), commits package.json and CHANGELOG.md right away, then
  * validates, pushes and publishes exactly the prepared artifact. Committing
  * before the long validation means an interruption always leaves a local
  * release commit that `pnpm create-version` resumes without a new version.
  * @param {string} root - Repository owning the version metadata.
  * @param {string} target - Requested version increment or stable version.
- * @param {string[]} notes - Optional release notes.
  * @param {{
  *   commit: (version: string, metadata: Record<string, string>) => string,
  *   prepare: () => string,
@@ -22,8 +21,8 @@ const RESUME_COMMAND = "pnpm create-version";
  * @returns {{version: string, commit: string, archive: string}} Successfully published release.
  * @throws {Error} When a stage fails; preserves its cause and explains how to resume.
  */
-export function createAndPublishRelease(root, target, notes, operations) {
-  const version = createReleaseVersion(root, target, notes);
+export function createAndPublishRelease(root, target, operations) {
+  const version = createReleaseVersion(root, target);
   const metadata = readReleaseMetadata(root);
   let commit;
   try {

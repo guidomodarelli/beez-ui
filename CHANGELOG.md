@@ -1,5 +1,19 @@
 # Cambios
 
+Todos los cambios relevantes de beez-ui se documentan en este archivo con el formato de [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versionado [SemVer](https://semver.org/lang/es/). Cada cambio agrega sus entradas en `[Unreleased]`; `pnpm create-version` las pasa a la versión publicada con su fecha.
+
+## [Unreleased]
+
+### Changed
+
+- El comando de release (`pnpm create-version`, alias `pnpm cv`) toma las notas del bloque `[Unreleased]` del CHANGELOG, les asigna la versión y la fecha, y pide a Codex que lo complete cuando está vacío.
+- Las cajas del comando de release ajustan el texto largo en varias líneas en lugar de cortarlo.
+- Un release interrumpido reusa automáticamente el artefacto ya preparado cuando es posterior al último cambio de código.
+
+### Removed
+
+- La opción `--notes` y las preguntas sobre las notas del CHANGELOG y sobre reusar el artefacto preparado.
+
 ## 0.6.1 - 2026-09-26
 
 - Actualiza pnpm a 12.6.0 y next a 16.3.6

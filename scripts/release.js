@@ -2,8 +2,9 @@
  * @file `pnpm create-version`: diagnoses the repository, shows what is still missing
  * and publishes beez-ui from `main` in one command.
  *
- * A new release asks for the version and the CHANGELOG notes (or takes
- * `--bump`, `--set-version` and `--notes`) and runs the validated release
+ * A new release takes its notes from the CHANGELOG `[Unreleased]` block (Codex
+ * fills it when empty), asks for the version (or takes `--bump` or
+ * `--set-version`) and runs the validated release
  * workflow (`createAndPublishRelease`): metadata, full checks,
  * checksum-addressed tarball, metadata commit and push, and `npm publish`.
  * An interrupted release resumes only the missing stages with the same
@@ -12,17 +13,18 @@
  * first missing stage.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { CHANGE_TYPES, UNRELEASED_HEADING, readUnreleased } from "./changelog.js";
+import { CODEX_NOT_FOUND_EXIT_CODE, buildChangelogPrompt, runCodex } from "./changelog-ai.js";
 import {
   MAIN_BRANCH,
   RELEASE_MODE,
   RELEASE_STEP,
   RELEASE_USAGE,
-  buildNotesFromCommits,
   buildReleasePlan,
   listNextVersions,
   normalizeReleaseOptions,
@@ -35,7 +37,7 @@ import {
   ICON,
   confirm,
   formatDuration,
-  input,
+  measureActiveMs,
   paint,
   print,
   renderBanner,
@@ -52,10 +54,8 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const MAX_LISTED_ITEMS = 12;
 /** Length of abbreviated commit ids. */
 const SHORT_SHA_LENGTH = 7;
-/** Answers of the notes prompt. */
-const NOTES_SOURCE = { commits: "commits", write: "write", basic: "basic" };
-/** Answers of the prepared-artifact prompt. */
-const ARTIFACT_CHOICE = { reuse: "reuse", prepare: "prepare" };
+/** Converts file modification times (ms) to Git commit timestamps (s). */
+const MILLISECONDS_PER_SECOND = 1000;
 /** Exit code of a blocked or failed release. */
 const FAILURE_EXIT_CODE = 1;
 
@@ -86,6 +86,24 @@ function renderList(title, items, tone = BOX_TONE.accent) {
   const lines = items.slice(0, MAX_LISTED_ITEMS).map((item) => `${ICON.bullet} ${item}`);
   if (items.length > MAX_LISTED_ITEMS) lines.push(paint("gray", `… y ${items.length - MAX_LISTED_ITEMS} más`));
   return renderBox({ title, lines, tone });
+}
+
+/**
+ * Renders the diagnosis row of the CHANGELOG `[Unreleased]` block.
+ *
+ * @param {{ exists: boolean, entryCount: number, unknownSections: string[] }} changelog - Unreleased state.
+ * @returns {string} Row.
+ */
+function renderChangelogRow(changelog) {
+  if (changelog.unknownSections.length > 0) {
+    return renderRow(ICON.failure, "CHANGELOG", paint("red", `secciones no válidas: ${changelog.unknownSections.join(", ")}`));
+  }
+
+  if (changelog.entryCount === 0) {
+    return renderRow(ICON.warning, "CHANGELOG", paint("yellow", "[Unreleased] vacío: lo completa Codex al versionar"));
+  }
+
+  return renderRow(ICON.success, "CHANGELOG", `${changelog.entryCount} entrada(s) en [Unreleased]`);
 }
 
 /**
@@ -121,6 +139,7 @@ function renderDiagnosis(state) {
         ? paint("yellow", `${state.unreleasedCommits.length} commit(s) desde ${state.lastReleaseSha?.slice(0, SHORT_SHA_LENGTH) ?? "el inicio"}`)
         : "nada nuevo desde el último cambio de versión",
     ),
+    renderChangelogRow(state.changelog),
     renderRow(state.preparedArchive ? ICON.info : ICON.pending, "Artefacto", state.preparedArchive ?? paint("gray", `ninguno preparado para ${versions.workingTree}`)),
   ];
   return renderBox({ title: "Diagnóstico", lines: rows, tone: BOX_TONE.info });
@@ -211,31 +230,32 @@ async function chooseVersion(context) {
 }
 
 /**
- * Chooses the CHANGELOG notes: flags, commit subjects, typed lines or the basic entry.
- * @param {ReleaseContext} context - Release context.
- * @param {string} version - Next version.
- * @returns {Promise<string[]>} Notes; empty means the basic entry of `create-version`.
+ * Reads the `[Unreleased]` block of the working-tree CHANGELOG.md.
+ * @returns {ReturnType<typeof readUnreleased>} Unreleased state.
  */
-async function chooseNotes(context, version) {
-  if (context.options.notes.length > 0) return context.options.notes;
-  const commitNotes = buildNotesFromCommits(context.state.unreleasedCommits);
-  const source = await select({
-    message: "¿Qué notas va a tener el CHANGELOG?",
-    options: [
-      ...(commitNotes.length > 0 ? [{ label: `Usar los commits (${commitNotes.length})`, hint: "sin prefijos convencionales", value: NOTES_SOURCE.commits }] : []),
-      { label: "Escribirlas ahora", hint: "una por línea, Enter vacío para terminar", value: NOTES_SOURCE.write },
-      { label: "Nota básica", hint: `"Actualiza el paquete a la versión ${version}."`, value: NOTES_SOURCE.basic },
-    ],
-  });
-  if (source === NOTES_SOURCE.commits) return commitNotes;
-  if (source === NOTES_SOURCE.basic) return [];
-  const notes = [];
-  for (;;) {
-    const note = await input(`Nota ${notes.length + 1}:`);
-    if (!note) break;
-    notes.push(note);
+function readWorkingUnreleased() {
+  return readUnreleased(readFileSync(join(root, "CHANGELOG.md"), "utf8"));
+}
+
+/**
+ * Asks Codex to fill an empty `[Unreleased]` block from the unreleased commits and shows the result.
+ * @param {ReleaseContext} context - Release context.
+ * @returns {Promise<void>}
+ * @throws {ReleaseStepError} When Codex is missing, fails or leaves the block empty.
+ */
+async function generateChangelogStep(context) {
+  const prompt = buildChangelogPrompt(context.state.unreleasedCommits, "quien consume el paquete beez-ui");
+  print(paint("gray", "Codex está escribiendo el CHANGELOG a partir de los commits sin publicar…"));
+  const exitCode = await runCodex(root, prompt);
+  const unreleased = readWorkingUnreleased();
+  if (exitCode !== 0 || unreleased.entryCount === 0 || unreleased.unknownSections.length > 0) {
+    const reason = exitCode === CODEX_NOT_FOUND_EXIT_CODE ? "no se encontró la CLI de Codex" : exitCode !== 0 ? `Codex terminó con código ${exitCode}` : "el bloque sigue vacío o con secciones no válidas";
+    throw new ReleaseStepError(
+      `No se pudo completar ${UNRELEASED_HEADING} del CHANGELOG: ${reason}.`,
+      `Completalo (con la IA o a mano) usando ${CHANGE_TYPES.map((type) => `### ${type}`).join(", ")} y volvé a correr pnpm create-version.`,
+    );
   }
-  return notes;
+  print(renderBox({ title: `CHANGELOG · ${UNRELEASED_HEADING} (generado por Codex)`, lines: unreleased.body.split("\n"), tone: BOX_TONE.info }));
 }
 
 /**
@@ -250,15 +270,14 @@ async function syncMainStep(context) {
 }
 
 /**
- * Asks version and notes, then runs the whole `create-version` flow.
+ * Asks the version, then runs the whole `create-version` flow with the `[Unreleased]` changes.
  * @param {ReleaseContext} context - Release context.
  * @returns {Promise<void>}
  */
 async function createVersionStep(context) {
   print(renderList(`Qué se publica (${context.state.unreleasedCommits.length} commit(s))`, context.state.unreleasedCommits.map((commit) => commit.subject)));
   const version = await chooseVersion(context);
-  const notes = await chooseNotes(context, version);
-  print(renderList(`CHANGELOG · ${version}`, notes.length > 0 ? notes : [`Actualiza el paquete a la versión ${version}.`], BOX_TONE.info));
+  print(renderBox({ title: `CHANGELOG · ${UNRELEASED_HEADING} → [${version}]`, lines: readWorkingUnreleased().body.split("\n"), tone: BOX_TONE.info }));
   const proceed = await confirm(`¿Publicar beez-ui@${version}? Commitea package.json y CHANGELOG.md, valida todo (varios minutos), pushea a ${MAIN_BRANCH} y publica en npm.`);
   if (!proceed) {
     print(`${ICON.warning} ${paint("yellow", "Release cancelado. No se tocó nada.")}`);
@@ -270,7 +289,7 @@ async function createVersionStep(context) {
   try {
     // Capture the checkout before the version changes so concurrent edits are detected.
     const gitState = prepareReleaseGit(root);
-    createAndPublishRelease(root, version, notes, {
+    createAndPublishRelease(root, version, {
       commit: (releasedVersion, metadata) => {
         const commit = commitRelease(root, gitState, releasedVersion, metadata);
         print(`${ICON.success} Commit local de ${releasedVersion} con package.json y CHANGELOG.md.`);
@@ -299,20 +318,14 @@ async function createVersionStep(context) {
 async function prepareArtifactStep(context) {
   const { versions, packageName } = context.state;
   const existing = findPreparedArchive(root, packageName, versions.workingTree);
-  if (existing) {
-    const choice = await select({
-      message: `Ya hay un artefacto preparado para ${versions.workingTree}. ¿Qué hacemos?`,
-      options: [
-        { label: "Reusarlo", hint: "release:publish vuelve a verificar checksum y contenido", value: ARTIFACT_CHOICE.reuse },
-        { label: "Preparar de nuevo", hint: "corre todas las validaciones otra vez", value: ARTIFACT_CHOICE.prepare },
-      ],
-    });
-    if (choice === ARTIFACT_CHOICE.reuse) {
-      context.archive = existing;
-      print(`${ICON.success} Se reusa ${existing}.`);
-      return;
-    }
+  // Reuse an artifact only when it is newer than the last code change; release metadata commits do not count.
+  const lastCodeChange = await createGitReader(root).tryGit(["log", "-1", "--format=%ct", "--", ".", ":(exclude)package.json", ":(exclude)CHANGELOG.md"]);
+  if (existing && statSync(join(root, existing)).mtimeMs / MILLISECONDS_PER_SECOND > Number(lastCodeChange ?? 0)) {
+    context.archive = existing;
+    print(`${ICON.success} Se reusa ${existing}: es posterior al último cambio de código (release:publish vuelve a verificar checksum y contenido).`);
+    return;
   }
+  if (existing) print(`${ICON.info} El artefacto ${existing} es anterior al último cambio de código: se prepara de nuevo.`);
   const { prepareRelease } = await import("./prepare-release.js");
   try {
     context.archive = prepareRelease();
@@ -363,10 +376,8 @@ async function pushReleaseCommitStep(context) {
 async function publishArtifactStep(context) {
   const version = context.state.versions.workingTree;
   const archive = /** @type {string} */ (context.archive);
-  if (!(await confirm(`¿Publicar ${archive} como beez-ui@${version} (latest) en npm?`))) {
-    print(`${ICON.warning} ${paint("yellow", "Publicación cancelada. Corré pnpm create-version cuando quieras publicarla.")}`);
-    throw new ReleaseCancelledError();
-  }
+  // The resume confirmation at the start already covers publishing; no second prompt here.
+  print(`${ICON.info} Publicando ${archive} como beez-ui@${version} (latest).`);
   const exitCode = await runInherited(process.execPath, [join(root, "scripts", "publish-release.js"), archive], { cwd: root });
   if (exitCode !== 0) {
     throw new ReleaseStepError(`npm publish terminó con código ${exitCode}.`, `Comprobá en npm si ${version} llegó; si no, corré pnpm create-version para reintentar solo la publicación.`);
@@ -377,6 +388,7 @@ async function publishArtifactStep(context) {
 /** Executors of each plan step. */
 const STEP_EXECUTORS = {
   [RELEASE_STEP.syncMain]: syncMainStep,
+  [RELEASE_STEP.generateChangelog]: generateChangelogStep,
   [RELEASE_STEP.createVersion]: createVersionStep,
   [RELEASE_STEP.prepareArtifact]: prepareArtifactStep,
   [RELEASE_STEP.commitMetadata]: commitMetadataStep,
@@ -396,7 +408,6 @@ async function main() {
       options: {
         bump: { type: "string" },
         "set-version": { type: "string" },
-        notes: { type: "string", multiple: true, short: "n" },
         "dry-run": { type: "boolean" },
         help: { type: "boolean", short: "h" },
       },
@@ -448,8 +459,8 @@ async function main() {
       print(`${ICON.failure} ${paint("red", error instanceof Error ? error.message : String(error))}`);
       return FAILURE_EXIT_CODE;
     }
-  } else if (options.bump || options.setVersion || options.notes.length > 0) {
-    print(`${ICON.warning} ${paint("yellow", `Se ignoran --bump, --set-version y --notes: se retoma ${state.versions.workingTree}, que ya tiene versión y notas.`)}`);
+  } else if (options.bump || options.setVersion) {
+    print(`${ICON.warning} ${paint("yellow", `Se ignoran --bump y --set-version: se retoma ${state.versions.workingTree}, que ya tiene versión y CHANGELOG.`)}`);
   }
 
   if (options.dryRun) {
@@ -487,9 +498,9 @@ async function main() {
           `${ICON.success} ${paint("bold", "Git")}        commit de release en ${MAIN_BRANCH}`,
           `${ICON.info} ${paint("bold", "Consumidores")} pnpm add beez-ui@^${version}`,
           "",
-          paint("gray", `Tiempo total: ${formatDuration(Date.now() - startedAt)}`),
+          paint("gray", `Tiempo total: ${formatDuration(measureActiveMs(startedAt))} (sin contar la espera de tus respuestas)`),
         ]
-      : [`${ICON.success} Plan completado en ${formatDuration(Date.now() - startedAt)}.`],
+      : [`${ICON.success} Plan completado en ${formatDuration(measureActiveMs(startedAt))} (sin contar la espera de tus respuestas).`],
     tone: BOX_TONE.success,
   }));
   return 0;
