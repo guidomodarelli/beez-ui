@@ -24,6 +24,7 @@ import {
   MAIN_BRANCH,
   RELEASE_MODE,
   RELEASE_STEP,
+  RELEASE_TYPE_DESCRIPTION,
   RELEASE_USAGE,
   buildReleasePlan,
   listNextVersions,
@@ -223,6 +224,7 @@ async function chooseVersion(context) {
     options: candidates.map((candidate) => ({
       label: `${candidate.releaseType.padEnd(5)}  ${current} → ${candidate.version}`,
       hint: candidate.releaseType === suggestion.releaseType ? `${ICON.star} sugerida: ${suggestion.reason}` : undefined,
+      description: RELEASE_TYPE_DESCRIPTION[candidate.releaseType],
       value: candidate.version,
     })),
     defaultIndex: candidates.findIndex((candidate) => candidate.releaseType === suggestion.releaseType),

@@ -4,12 +4,12 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ownedPath } from "../scripts/owned-path.js";
 import { buildReleasePlan, RELEASE_MODE } from "../scripts/release-plan.js";
 import { collectReleaseState, findPreparedArchive } from "../scripts/release-state.js";
 import { stripVTControlCharacters } from "node:util";
-import { renderBox, visibleWidth } from "../scripts/terminal-ui.js";
+import { renderBox, resolveNumberKey, visibleWidth } from "../scripts/terminal-ui.js";
 
 /** Real Git processes need an integration timeout under parallel CI load. */
 const GIT_TEST_TIMEOUT_MS = 30_000;
@@ -130,4 +130,15 @@ it("should move a title that does not fit in the border inside the box", () => {
   const box = renderBox({ title: "Falló el paso 1: Crear y publicar la nueva versión", lines: ["detalle"], width: 30 });
   expect(stripVTControlCharacters(box.split("\n")[0])).toBe(`╭${"─".repeat(28)}╮`);
   expect(stripVTControlCharacters(box)).toContain("Falló el paso 1:");
+});
+
+describe("numbered prompt options", () => {
+  it("should pick an option with its number key and ignore keys outside the listed options", () => {
+    expect(resolveNumberKey("1", 3)).toBe(0);
+    expect(resolveNumberKey("3", 3)).toBe(2);
+    expect(resolveNumberKey("4", 3)).toBe(-1);
+    expect(resolveNumberKey("0", 3)).toBe(-1);
+    expect(resolveNumberKey("a", 3)).toBe(-1);
+    expect(resolveNumberKey(undefined, 3)).toBe(-1);
+  });
 });

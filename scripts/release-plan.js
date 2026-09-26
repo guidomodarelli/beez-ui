@@ -26,6 +26,13 @@ export const RELEASE_METADATA_FILES = ["package.json", "CHANGELOG.md"];
 /** Stable semver increments offered when creating a version. */
 export const RELEASE_TYPE = { patch: "patch", minor: "minor", major: "major" };
 
+/** What each release type means for package consumers, shown under each version option. */
+export const RELEASE_TYPE_DESCRIPTION = {
+  patch: "Solo arreglos o cambios internos; nada nuevo para quien consume el paquete.",
+  minor: "Funcionalidades nuevas compatibles; lo existente sigue funcionando igual.",
+  major: "Cambios incompatibles: quien consume el paquete tiene que adaptar su código.",
+};
+
 /** Stable identifiers of every step the orchestrator can run. */
 export const RELEASE_STEP = {
   syncMain: "sync-main",
