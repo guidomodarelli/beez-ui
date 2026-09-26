@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-26
+
 ### Added
 
 - Los tokens de movimiento (`MOTION_TIMING`, `MOTION_EASE`, springs y distancias) se exportan desde la raíz y desde `beez-ui/motion-tokens`, con los nuevos `SPRING_POP`, `MOTION_ITEM_ENTER_SCALE` y las duraciones `pop` y `collapse`, para animar superficies propias igual que la biblioteca.
