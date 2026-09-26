@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-09-26
+
 ### Changed
 
 - El comando de release (`pnpm create-version`, alias `pnpm cv`) toma las notas del bloque `[Unreleased]` del CHANGELOG, les asigna la versión y la fecha, y pide a Codex que lo complete cuando está vacío.
