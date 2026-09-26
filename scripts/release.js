@@ -1,16 +1,17 @@
 /**
- * @file `pnpm release`: diagnoses the repository, shows what is still missing
+ * @file `pnpm create-version`: diagnoses the repository, shows what is still missing
  * and publishes beez-ui from `main` in one command.
  *
  * A new release asks for the version and the CHANGELOG notes (or takes
- * `--bump`, `--set-version` and `--notes`) and delegates to
- * `create-version.js`, which keeps its validated flow: metadata, full checks,
+ * `--bump`, `--set-version` and `--notes`) and runs the validated release
+ * workflow (`createAndPublishRelease`): metadata, full checks,
  * checksum-addressed tarball, metadata commit and push, and `npm publish`.
  * An interrupted release resumes only the missing stages with the same
  * building blocks (`prepareRelease`, `commitAndPushRelease`,
  * `publish-release.js`). Running the command again always resumes from the
  * first missing stage.
  */
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import process from "node:process";
@@ -265,12 +266,23 @@ async function createVersionStep(context) {
     print(`${ICON.warning} ${paint("yellow", "Release cancelado. No se tocó nada.")}`);
     throw new ReleaseCancelledError();
   }
-  const noteArguments = notes.flatMap((note) => ["--notes", note]);
-  const exitCode = await runInherited(process.execPath, [join(root, "scripts", "create-version.js"), version, ...noteArguments], { cwd: root });
-  if (exitCode !== 0) {
+  const { prepareReleaseGit, commitAndPushRelease } = await import("./release-git.js");
+  const { createAndPublishRelease } = await import("./release-workflow.js");
+  const { prepareRelease } = await import("./prepare-release.js");
+  try {
+    // Capture the checkout before the version changes so concurrent edits are detected before pushing.
+    const gitState = prepareReleaseGit(root);
+    createAndPublishRelease(root, version, notes, {
+      prepare: prepareRelease,
+      commitAndPush: (releasedVersion, metadata) => commitAndPushRelease(root, gitState, releasedVersion, metadata),
+      /** Publishes the exact checked artifact, preserving interactive npm authentication. */
+      publish: (archive) => execFileSync(process.execPath, [join(root, "scripts", "publish-release.js"), archive], { cwd: root, stdio: "inherit" }),
+    });
+  } catch (error) {
     throw new ReleaseStepError(
-      `create-version terminó con código ${exitCode}.`,
-      `Corregí el error de arriba y corré pnpm release: detecta que ${version} no está en npm y retoma solo lo que falte (sin volver a subir la versión).`,
+      `No se pudo completar ${version}: ${error instanceof Error ? error.message : String(error)}`,
+      `Corregí el error y corré pnpm create-version: detecta que ${version} no está en npm y retoma solo lo que falte (sin volver a subir la versión).`,
+      error,
     );
   }
   await verifyPublished(context, version);
@@ -306,7 +318,7 @@ async function prepareArtifactStep(context) {
   try {
     context.archive = prepareRelease();
   } catch (error) {
-    throw new ReleaseStepError(`La preparación de ${versions.workingTree} falló.`, "Corregí el error de arriba y corré pnpm release: retoma desde la preparación.", error);
+    throw new ReleaseStepError(`La preparación de ${versions.workingTree} falló.`, "Corregí el error de arriba y corré pnpm create-version: retoma desde la preparación.", error);
   }
 }
 
@@ -323,7 +335,7 @@ async function commitAndPushMetadataStep(context) {
   } catch (error) {
     throw new ReleaseStepError(
       `No se pudo commitear o pushear la metadata de ${version}: ${error instanceof Error ? error.message : String(error)}`,
-      "Resolvé el estado de Git y corré pnpm release: si el commit quedó en local, solo lo pushea.",
+      "Resolvé el estado de Git y corré pnpm create-version: si el commit quedó en local, solo lo pushea.",
       error,
     );
   }
@@ -339,7 +351,7 @@ async function pushReleaseCommitStep(context) {
   await runGitStep(
     ["push", "--no-follow-tags", "--", upstream.remote, `HEAD:${upstream.mergeRef}`],
     "El push del commit de release falló",
-    "Resolvé el problema (¿main avanzó en origin?) y corré pnpm release.",
+    "Resolvé el problema (¿main avanzó en origin?) y corré pnpm create-version.",
   );
 }
 
@@ -352,12 +364,12 @@ async function publishArtifactStep(context) {
   const version = context.state.versions.workingTree;
   const archive = /** @type {string} */ (context.archive);
   if (!(await confirm(`¿Publicar ${archive} como beez-ui@${version} (latest) en npm?`))) {
-    print(`${ICON.warning} ${paint("yellow", "Publicación cancelada. Corré pnpm release cuando quieras publicarla.")}`);
+    print(`${ICON.warning} ${paint("yellow", "Publicación cancelada. Corré pnpm create-version cuando quieras publicarla.")}`);
     throw new ReleaseCancelledError();
   }
   const exitCode = await runInherited(process.execPath, [join(root, "scripts", "publish-release.js"), archive], { cwd: root });
   if (exitCode !== 0) {
-    throw new ReleaseStepError(`npm publish terminó con código ${exitCode}.`, `Comprobá en npm si ${version} llegó; si no, corré pnpm release para reintentar solo la publicación.`);
+    throw new ReleaseStepError(`npm publish terminó con código ${exitCode}.`, `Comprobá en npm si ${version} llegó; si no, corré pnpm create-version para reintentar solo la publicación.`);
   }
   await verifyPublished(context, version);
 }
@@ -441,7 +453,7 @@ async function main() {
   }
 
   if (options.dryRun) {
-    print(`${ICON.info} ${paint("cyan", "--dry-run: no se cambió nada. Corré pnpm release para ejecutar el plan.")}`);
+    print(`${ICON.info} ${paint("cyan", "--dry-run: no se cambió nada. Corré pnpm create-version para ejecutar el plan.")}`);
     return 0;
   }
   if (plan.mode === RELEASE_MODE.resume && !(await confirm("¿Retomamos el release pendiente?"))) {
@@ -459,7 +471,7 @@ async function main() {
       if (error instanceof ReleaseCancelledError) return 0;
       const lines = [`${ICON.failure} ${error instanceof Error ? error.message : String(error)}`];
       if (error instanceof ReleaseStepError) lines.push("", `${paint("bold", "Qué hacer:")} ${error.hint}`);
-      lines.push("", paint("gray", "pnpm release retoma desde el primer paso que falte."));
+      lines.push("", paint("gray", "pnpm create-version retoma desde el primer paso que falte."));
       print(renderBox({ title: `Falló el paso ${index + 1}: ${step.title}`, lines, tone: BOX_TONE.danger }));
       return FAILURE_EXIT_CODE;
     }

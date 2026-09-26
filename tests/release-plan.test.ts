@@ -1,5 +1,5 @@
 // @vitest-environment node
-/** Covers the pure decisions of `pnpm release`: flags, allowed versions, suggestions and plans. */
+/** Covers the pure decisions of `pnpm create-version`: flags, allowed versions, suggestions and plans. */
 import { describe, expect, it } from "vitest";
 import {
   RELEASE_MODE,

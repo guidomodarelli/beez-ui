@@ -1,5 +1,5 @@
 /**
- * @module terminal-ui Dependency-free terminal UI for `pnpm release`: colors, gradient banner,
+ * @module terminal-ui Dependency-free terminal UI for `pnpm create-version`: colors, gradient banner,
  * rounded boxes, step headers, spinners and interactive prompts (arrow-key
  * select and yes/no confirm).
  *

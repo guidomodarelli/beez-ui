@@ -1,12 +1,12 @@
 /**
- * @module release-plan Pure planning for `pnpm release`.
+ * @module release-plan Pure planning for `pnpm create-version`.
  *
  * Turns the snapshot read by `release-state.js` into the steps still missing
  * to publish beez-ui from `main`, or into blockers that explain what to fix.
  * Two situations are recognized:
  *
  * - a new release: commits exist after the last version change, so a version
- *   is chosen and `create-version` runs the whole validated flow;
+ *   is chosen and the validated workflow (`createAndPublishRelease`) runs;
  * - an interrupted release: `package.json` holds a version npm does not have
  *   yet, so only the missing stages run (prepare, commit and push the
  *   metadata, push the release commit, publish the prepared artifact).
@@ -100,9 +100,9 @@ export function resolveRequestedVersion(currentVersion, { bump, setVersion }) {
   return match;
 }
 
-/** Usage printed by `pnpm release --help`. */
+/** Usage printed by `pnpm create-version --help`. */
 export const RELEASE_USAGE = [
-  "Uso: pnpm release [opciones]",
+  "Uso: pnpm create-version [opciones]",
   "",
   "  --bump patch|minor|major   Elige el tipo de versión sin preguntar.",
   "  --set-version X.Y.Z        Fija la versión exacta (solo el siguiente patch, minor o major).",
@@ -179,25 +179,25 @@ export function buildNotesFromCommits(commits) {
  */
 function collectCommonBlockers(state, blockers) {
   if (!state.currentBranch) {
-    blockers.push({ title: "HEAD está desacoplado (detached)", details: [`Hacé git switch ${MAIN_BRANCH} y volvé a correr pnpm release.`] });
+    blockers.push({ title: "HEAD está desacoplado (detached)", details: [`Hacé git switch ${MAIN_BRANCH} y volvé a correr pnpm create-version.`] });
     return;
   }
   if (state.currentBranch !== MAIN_BRANCH) {
     blockers.push({
       title: `Estás en ${state.currentBranch}: los releases salen solo desde ${MAIN_BRANCH}`,
-      details: [`Integrá la rama en ${MAIN_BRANCH}, hacé git switch ${MAIN_BRANCH} y volvé a correr pnpm release.`],
+      details: [`Integrá la rama en ${MAIN_BRANCH}, hacé git switch ${MAIN_BRANCH} y volvé a correr pnpm create-version.`],
     });
   }
   if (!state.upstream) {
     blockers.push({ title: "La rama no tiene upstream configurado", details: [`Configuralo con git branch --set-upstream-to=origin/${MAIN_BRANCH}.`] });
   }
   if (state.npm.status !== "ok") {
-    blockers.push({ title: "No se pudo consultar npm", details: [state.npm.reason ?? "npm no respondió", "Revisá la conexión y volvé a correr pnpm release."] });
+    blockers.push({ title: "No se pudo consultar npm", details: [state.npm.reason ?? "npm no respondió", "Revisá la conexión y volvé a correr pnpm create-version."] });
   }
   if (state.sync.aheadCommits.length > 0 && state.sync.behindCount > 0) {
     blockers.push({
       title: `${MAIN_BRANCH} divergió de origin (${state.sync.aheadCommits.length} adelante, ${state.sync.behindCount} atrás)`,
-      details: [`Integrá los cambios con git pull --rebase y volvé a correr pnpm release.`],
+      details: [`Integrá los cambios con git pull --rebase y volvé a correr pnpm create-version.`],
     });
   }
 }
@@ -228,7 +228,7 @@ export function buildReleasePlan(state) {
   if (state.workingTreeChanges.length > 0 && !allowedChanges) {
     plan.blockers.push({
       title: `Hay ${state.workingTreeChanges.length} archivo(s) sin commitear`,
-      details: [...state.workingTreeChanges.slice(0, 5), "El tarball se arma desde el working tree: commitealos (o git stash) y volvé a correr pnpm release."],
+      details: [...state.workingTreeChanges.slice(0, 5), "El tarball se arma desde el working tree: commitealos (o git stash) y volvé a correr pnpm create-version."],
     });
   }
   if (plan.blockers.length > 0) return plan;
@@ -266,7 +266,7 @@ export function buildReleasePlan(state) {
   plan.steps.push({
     id: RELEASE_STEP.createVersion,
     title: "Crear y publicar la nueva versión",
-    detail: "Elegís versión y notas; después create-version valida, empaqueta, commitea, pushea y publica.",
+    detail: "Elegís versión y notas; después valida, empaqueta, commitea, pushea y publica.",
   });
   return plan;
 }

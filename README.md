@@ -203,41 +203,30 @@ El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [A
 
 Desde el repositorio de beez-ui, configurar `NPM_TOKEN` con permiso de publicación en el entorno o en `.env`, tomando `.env.example` como referencia. Mantener el archivo local existente si ya está configurado.
 
-### Un solo comando: `pnpm release`
+### Un solo comando: `pnpm create-version` (alias `pnpm cv`)
 
 ```sh
-pnpm release                         # diagnóstico, plan y release interactivo
-pnpm release --bump minor            # patch | minor | major sin preguntar
-pnpm release --set-version 0.7.0     # versión exacta
-pnpm release --notes "Agrega glide"  # notas del CHANGELOG; se puede repetir
-pnpm release --dry-run               # solo muestra el diagnóstico y el plan
+pnpm create-version                         # diagnóstico, plan y release interactivo
+pnpm create-version --bump minor            # patch | minor | major sin preguntar
+pnpm create-version --set-version 0.7.0     # versión exacta
+pnpm create-version --notes "Agrega glide"  # notas del CHANGELOG; se puede repetir
+pnpm create-version --dry-run               # solo muestra el diagnóstico y el plan
+pnpm cv                                     # alias de pnpm create-version
 ```
 
 El comando hace `git fetch`, consulta npm y muestra un panel con la rama, el upstream, el working tree, `main` frente a origin, la versión local, la última versión publicada, los commits posteriores al último cambio de versión y el artefacto ya preparado. Después decide qué falta:
 
-- **Release nuevo**: si hay commits sin publicar, sugiere `patch`, `minor` o `major` según los commits (breaking change, funcionalidades o solo arreglos) y pregunta con las flechas; las notas del CHANGELOG pueden salir de los commits (sin prefijos convencionales), escribirse en el momento o ser la nota básica. Tras confirmar ejecuta `create-version` con esa versión y esas notas.
+- **Release nuevo**: si hay commits sin publicar, sugiere `patch`, `minor` o `major` según los commits (breaking change, funcionalidades o solo arreglos) y pregunta con las flechas; las notas del CHANGELOG pueden salir de los commits (sin prefijos convencionales), escribirse en el momento o ser la nota básica. Tras confirmar ejecuta el flujo validado completo (ver abajo).
 - **Release a medio terminar**: si `package.json` tiene una versión que npm todavía no tiene, completa solo lo que falta: prepara el artefacto (u ofrece reusar el ya preparado, que `release:publish` vuelve a verificar), commitea y pushea la metadata si quedó sin commitear, pushea el commit de release si quedó sólo en local y publica pidiendo confirmación. Nunca vuelve a subir la versión.
 - **Todo al día**: si la versión está publicada y no hay commits nuevos, no hace nada.
 
-`--set-version` sólo acepta el siguiente patch, minor o major de la versión actual (desde `0.6.0`: `0.6.1`, `0.7.0` o `1.0.0`); rechaza versiones menores, iguales, prerelease o que salteen versiones. Los releases salen sólo desde `main` con upstream configurado. Se detiene y explica qué hacer ante otra rama, `HEAD` desacoplado, cambios sin commitear (salvo `package.json` y `CHANGELOG.md` de un release a medio terminar), `main` divergida o npm sin respuesta. Si `main` está atrás, la actualiza con fast-forward antes de versionar. Si algo falla, basta con volver a ejecutar `pnpm release`: retoma desde el primer paso pendiente. Sin terminal interactiva cada pregunta toma su opción por defecto.
+`--set-version` sólo acepta el siguiente patch, minor o major de la versión actual (desde `0.6.0`: `0.6.1`, `0.7.0` o `1.0.0`); rechaza versiones menores, iguales, prerelease o que salteen versiones. Los releases salen sólo desde `main` con upstream configurado. Se detiene y explica qué hacer ante otra rama, `HEAD` desacoplado, cambios sin commitear (salvo `package.json` y `CHANGELOG.md` de un release a medio terminar), `main` divergida o npm sin respuesta; un bloqueo termina con código 0 porque ya está explicado en pantalla, y un paso fallido termina con código 1. Si `main` está atrás, la actualiza con fast-forward antes de versionar. Si algo falla, basta con volver a ejecutar `pnpm create-version`: retoma desde el primer paso pendiente. Sin terminal interactiva cada pregunta toma su opción por defecto.
 
-La lógica pura vive en `scripts/release-plan.js`, la lectura de Git y npm en `scripts/release-state.js` y la UI de terminal (cajas, colores, spinner y selector) en `scripts/terminal-ui.js`, sin dependencias nuevas.
+La lógica pura vive en `scripts/release-plan.js`, la lectura de Git y npm en `scripts/release-state.js`, la UI de terminal (cajas, colores, íconos Nerd Font, spinner y selector) en `scripts/terminal-ui.js` y el orquestador en `scripts/release.js`, sin dependencias nuevas. Los íconos requieren una Nerd Font en la terminal.
 
-### Pasos individuales
+### Flujo validado de un release nuevo
 
-`pnpm release` usa por debajo los mismos comandos, que siguen disponibles:
-
-```sh
-pnpm run create-version patch
-pnpm run create-version minor --notes "Agrega un componente" --notes "Amplía sus opciones"
-pnpm run create-version 0.5.0 --notes "Describe los cambios de esta versión"
-```
-
-Acepta `patch`, `minor`, `major` o una versión estable explícita mayor que la actual. Las notas son opcionales y pueden repetirse. Sin `--notes`, se agrega una entrada básica que indica la nueva versión; las notas explícitas no pueden estar vacías. `pnpm run create-version --help` muestra la sintaxis.
-
-El comando ejecuta el flujo completo:
-
-1. Actualiza `package.json` y agrega la entrada del changelog con fecha UTC, conservando el historial.
+1. Actualiza `package.json` y agrega la entrada del changelog con fecha UTC, conservando el historial (`scripts/release-version.js`).
 2. Prepara la release: instalación congelada, tests sin React Compiler, build optimizado de JavaScript, tipos y CSS, lint, typechecks, tests unitarios y pruebas de navegador.
 3. Genera el tarball en `releases/<version>-<sha256>/beez-ui-<version>.tgz` y valida su contenido, exports e integridad.
 4. Crea un commit con el contenido validado de `package.json` y `CHANGELOG.md`, conservando otros archivos staged, y pushea ese commit a la rama upstream configurada.
@@ -245,7 +234,7 @@ El comando ejecuta el flujo completo:
 
 La publicación usa el cliente oficial de npm para admitir su flujo interactivo de verificación en el navegador/2FA. Instalación, build y checks siguen usando pnpm 12. Ejecutar desde una terminal interactiva cuando la cuenta requiera autenticación adicional. El token se carga sólo al publicar, no se imprime y se referencia mediante `${NPM_TOKEN}` en `.npmrc`.
 
-El comando requiere una rama Git con upstream configurado. El commit se limita a los dos archivos de metadatos, incluidos sus cambios previos; revisar el código antes de ejecutar la release. No crea tags ni hace force push. Si cambian el checkout, el upstream o los metadatos durante las validaciones, se detiene. También comprueba que los hooks de Git no hayan agregado archivos ni alterado los metadatos validados antes de pushear. Si falla una validación, el commit o el push, no publica. Los metadatos de la nueva versión quedan disponibles: corregir el error, ejecutar `pnpm release:prepare`, commitear y pushear los metadatos y publicar el artefacto resultante. Si falla el push después del commit, resolver el problema y pushear ese commit antes de publicar el tarball preparado. Si falla la publicación, comprobar primero si npm recibió la versión y reintentar sólo la publicación del mismo tarball. No ejecutar nuevamente `create-version` para reintentar la misma release.
+El commit se limita a los dos archivos de metadatos, incluidos sus cambios previos; revisar el código antes de ejecutar la release. No crea tags ni hace force push. Si cambian el checkout, el upstream o los metadatos durante las validaciones, se detiene. También comprueba que los hooks de Git no hayan agregado archivos ni alterado los metadatos validados antes de pushear. Si falla una validación, el commit o el push, no publica y la nueva versión queda en los metadatos locales: `pnpm create-version` la detecta y retoma sólo lo que falte, sin volver a subir la versión. Si falla la publicación, comprobar primero si npm recibió la versión; si no, `pnpm create-version` reintenta sólo la publicación del mismo tarball.
 
 Los pasos individuales siguen disponibles:
 
