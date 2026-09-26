@@ -204,7 +204,7 @@ async function chooseVersion(context) {
     message: `¿Qué versión publicamos? (actual ${current})`,
     options: candidates.map((candidate) => ({
       label: `${candidate.releaseType.padEnd(5)}  ${current} → ${candidate.version}`,
-      hint: candidate.releaseType === suggestion.releaseType ? `★ sugerida: ${suggestion.reason}` : undefined,
+      hint: candidate.releaseType === suggestion.releaseType ? `${ICON.star} sugerida: ${suggestion.reason}` : undefined,
       value: candidate.version,
     })),
     defaultIndex: candidates.findIndex((candidate) => candidate.releaseType === suggestion.releaseType),
@@ -400,11 +400,9 @@ async function main() {
     return 0;
   }
 
-  print(renderBanner({ projectName: "beez-ui", version: await (async () => {
-    const reader = createGitReader(root);
-    const manifest = await reader.tryGit(["show", "HEAD:package.json"]);
-    return manifest ? JSON.parse(manifest).version : null;
-  })() }));
+  const headManifest = await createGitReader(root).tryGit(["show", "HEAD:package.json"]);
+  const headVersion = headManifest ? JSON.parse(headManifest).version : null;
+  print(renderBanner({ projectName: "beez-ui", publishedLabel: headVersion ? `v${headVersion} en npm` : null }));
 
   const spinner = startSpinner("Diagnosticando el repositorio");
   let state;
@@ -427,7 +425,9 @@ async function main() {
     return 0;
   }
   print(renderPlan(plan));
-  if (plan.blockers.length > 0) return FAILURE_EXIT_CODE;
+  // A blocker is an expected outcome already explained in the box, not a
+  // command failure: exiting 0 keeps pnpm from appending ELIFECYCLE noise.
+  if (plan.blockers.length > 0) return 0;
 
   if (plan.mode === RELEASE_MODE.newRelease) {
     try {
@@ -468,7 +468,7 @@ async function main() {
   const version = context.publishedVersion;
   print("");
   print(renderBox({
-    title: version ? `▲ beez-ui@${version} publicado` : "Listo",
+    title: version ? `${ICON.rocket} beez-ui@${version} publicado` : "Listo",
     lines: version
       ? [
           `${ICON.success} ${paint("bold", "npm")}        https://www.npmjs.com/package/beez-ui/v/${version}`,
