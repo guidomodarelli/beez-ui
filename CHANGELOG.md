@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-26
+
 ### Added
 
 - `PaginationContent` desliza el resaltado de la página actual hacia la página elegida cuando la lista permanece montada (paginación en el cliente).
