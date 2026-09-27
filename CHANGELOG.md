@@ -4,6 +4,10 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- `FilterPresetsBar` y `FilterPresetSaveButton` para guardar, aplicar, editar y borrar consultas con nombre de `FilterQueryBar`, con `parseFilterPresets` para validar las que la app restaura de su almacenamiento.
+
 ### Removed
 
 - Se retiran componentes atados a un solo producto que llegaron en 0.8.0: `ExternalBrowserHandoff`, `OpenInBrowserCta`, `detectInAppBrowser`, `buildExternalBrowserUrl`, `NotificationBell`, `NotificationPanel`, `MonthGrid`, `MonthCalendarHeader`, `PwaUpdateControl` y `ConfirmDeleteButton`. Quien los use debe mantener su propia versión.

@@ -58,5 +58,18 @@ if (typeof HTMLElement !== "undefined") {
   }
 }
 
+/**
+ * jsdom does not implement `ResizeObserver`, which Radix floating content (tooltips) creates
+ * while mounting. This inert shim only lets that content mount: it never reports a size, so no
+ * test can assert on resizing through it. Real sizing is verified with Playwright.
+ */
+if (typeof window !== "undefined" && typeof window.ResizeObserver !== "function") {
+  window.ResizeObserver = class ResizeObserverMountShim {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  };
+}
+
 // Release DOM trees and subscriptions between real component tests.
 afterEach(cleanup);

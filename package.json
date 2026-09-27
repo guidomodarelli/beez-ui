@@ -194,6 +194,11 @@
       "import": "./dist/components/filter-query-grammar.js",
       "default": "./dist/components/filter-query-grammar.js"
     },
+    "./filter-presets-bar": {
+      "types": "./dist/components/filter-presets-bar.d.ts",
+      "import": "./dist/components/filter-presets-bar.js",
+      "default": "./dist/components/filter-presets-bar.js"
+    },
     "./form": {
       "types": "./dist/components/form.d.ts",
       "import": "./dist/components/form.js",

@@ -179,6 +179,7 @@ Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron des
 - Feedback: `BouncingDotsLoader`, `ProgressRing`, `EmptyState`, `ErrorState`, `InfoPopover` y `ReactionButton`. El loader usa keyframes CSS porque se renderiza en el servidor; el fallback de movimiento reducido los detiene.
 - Cuenta: `AccountMenu`, con inicio de sesión mediante `signInHref` o `onSignIn`.
 - Contenido: `RichTextContent`, `RichMarkdownContent`, `RichLinkEditor` y `useRichLinkEditor`. Solo interpretan links en markdown, URLs sueltas, listas y negrita; el HTML del contenido nunca se renderiza como markup.
+- Filtros guardados: `FilterPresetsBar` y `FilterPresetSaveButton` guardan, aplican, editan y borran consultas con nombre de `FilterQueryBar`. La app decide dónde persistirlas; `parseFilterPresets` valida lo que vuelve del almacenamiento.
 - Archivos: `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem` validan tipo y tamaño, pero no suben archivos: el progreso y los errores los informa la app.
 - Hooks y utilidades: `useIsHydrated`, `useViewerTimeZone`, `useHorizontalSwipe`, `usePrefersReducedMotion`, `formatFileSize`, `copyTextToClipboard`, `getNameInitials` y búsqueda difusa.
 
