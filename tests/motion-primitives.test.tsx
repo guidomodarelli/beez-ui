@@ -1,10 +1,10 @@
 /** Verifies the public motion primitives through real Motion rendering and user interaction. */
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AnimatedCollapse, AnimatedCount, AnimatedListItem, PresenceSwap } from "beez-ui";
+import { AnimatedCollapse, AnimatedCount, AnimatedListItem, BeezUIProvider, Dialog, DialogContent, DialogDescription, DialogTitle, PresenceSwap } from "beez-ui";
 
 function CollapseHarness() {
   const [isOpen, setIsOpen] = useState(false);
@@ -172,6 +172,80 @@ describe("motion primitives with reduced motion", () => {
     await user.click(screen.getByRole("button", { name: "Sumar" }));
 
     expect(screen.getByRole("status", { name: "Total" })).toHaveTextContent(/^4 me gusta$/);
+  });
+
+  it("settles on the latest state when a swapped region changes several times in a row", async () => {
+    preferReducedMotion();
+    /** Moves through error, loading and loaded like a retried request. */
+    function RetryHarness() {
+      const [status, setStatus] = useState("error");
+      return (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setStatus("loading");
+              setTimeout(() => setStatus("loaded"), 0);
+            }}
+          >
+            Reintentar
+          </button>
+          <PresenceSwap presenceKey={status}>
+            <p>{status === "error" ? "No pudimos cargar" : status === "loading" ? "Cargando" : "Listo"}</p>
+          </PresenceSwap>
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    render(<RetryHarness />);
+
+    await user.click(screen.getByRole("button", { name: "Reintentar" }));
+
+    expect(await screen.findByText("Listo")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("No pudimos cargar")).not.toBeInTheDocument();
+      expect(screen.queryByText("Cargando")).not.toBeInTheDocument();
+    });
+  });
+
+  it("settles nested swaps inside a dialog after a retried load", async () => {
+    preferReducedMotion();
+    /** Loads, fails, retries and shows nested swapped regions, like a subscription dialog. */
+    function DialogRetryHarness() {
+      const [status, setStatus] = useState<"loading" | "error" | "loaded">("loading");
+      useEffect(() => {
+        if (status !== "loading") return;
+        const timeoutId = setTimeout(() => setStatus((current) => (current === "loading" && !hasRetried.current ? "error" : "loaded")), 0);
+        return () => clearTimeout(timeoutId);
+      }, [status]);
+      const hasRetried = useRef(false);
+      return (
+        <Dialog open>
+          <DialogContent>
+            <DialogTitle>Suscripción</DialogTitle>
+            <DialogDescription>Estado del link</DialogDescription>
+            <PresenceSwap presenceKey={status}>
+              {status === "error" ? (
+                <button type="button" onClick={() => { hasRetried.current = true; setStatus("loading"); }}>Reintentar</button>
+              ) : status === "loading" ? (
+                <p>Cargando</p>
+              ) : (
+                <>
+                  <PresenceSwap presenceKey="status"><p>Sin link activo</p></PresenceSwap>
+                  <PresenceSwap presenceKey="actions"><button type="button">Generar link</button></PresenceSwap>
+                </>
+              )}
+            </PresenceSwap>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+    const user = userEvent.setup();
+    render(<BeezUIProvider><DialogRetryHarness /></BeezUIProvider>);
+
+    await user.click(await screen.findByRole("button", { name: "Reintentar" }));
+
+    expect(await screen.findByRole("button", { name: "Generar link" })).toBeInTheDocument();
   });
 
   it("removes a collapsed region as soon as it closes", async () => {

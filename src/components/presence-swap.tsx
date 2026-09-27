@@ -13,8 +13,6 @@ const PRESENCE_SWAP_ELEMENTS = {
   span: motion.span,
 } as const;
 
-const INSTANT_TRANSITION = { duration: 0 } as const;
-
 export interface PresenceSwapProps {
   /** Changing the key plays the exit of the previous content and the entry of the new one. */
   presenceKey: string;
@@ -41,6 +39,10 @@ function PresenceSwapItem({ as, className, children }: PresenceSwapItemProps) {
   const MotionElement = PRESENCE_SWAP_ELEMENTS[as];
   const isPresent = useIsPresent();
   const shouldReduceMotion = usePrefersReducedMotion();
+  /**
+   * Reduced motion drops the travel but keeps the short fade: a zero-duration exit can stall a
+   * `wait` swap whose key changes again before the previous exit settles.
+   */
   const distance = shouldReduceMotion ? 0 : MOTION_CONTENT_DISTANCE;
 
   return (
@@ -53,12 +55,12 @@ function PresenceSwapItem({ as, className, children }: PresenceSwapItemProps) {
       animate={{
         opacity: 1,
         y: 0,
-        transition: shouldReduceMotion ? INSTANT_TRANSITION : { duration: MOTION_TIMING.enter, ease: MOTION_EASE },
+        transition: { duration: MOTION_TIMING.enter, ease: MOTION_EASE },
       }}
       exit={{
         opacity: 0,
         y: -distance,
-        transition: shouldReduceMotion ? INSTANT_TRANSITION : { duration: MOTION_TIMING.exit, ease: MOTION_EASE },
+        transition: { duration: MOTION_TIMING.exit, ease: MOTION_EASE },
       }}
     >
       {children}

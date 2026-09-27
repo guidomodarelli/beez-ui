@@ -22,8 +22,6 @@ const ANIMATED_LIST_ITEM_ELEMENTS = {
 
 const LIST_ITEM_TRANSITION = { duration: MOTION_TIMING.panel, ease: MOTION_EASE, layout: SPRING_LAYOUT } as const;
 const LIST_ITEM_EXIT_TRANSITION = { duration: MOTION_TIMING.exit, ease: MOTION_EASE } as const;
-/** Reduced motion keeps enter/exit semantics (inert while leaving) but without travel or delay. */
-const INSTANT_TRANSITION = { duration: 0 } as const;
 
 /** Native handlers whose names collide with Motion's animation and drag callbacks. */
 type MotionConflictingHandlers =
@@ -53,6 +51,9 @@ export function AnimatedListItem({ children, as = "li", layout = true, className
   const MotionElement = ANIMATED_LIST_ITEM_ELEMENTS[as];
   const isPresent = useIsPresent();
   const shouldReduceMotion = usePrefersReducedMotion();
+  /** Reduced motion keeps a short fade but drops travel, scale and layout reflow. */
+  const distance = shouldReduceMotion ? 0 : MOTION_LIST_ITEM_DISTANCE;
+  const enterScale = shouldReduceMotion ? 1 : MOTION_ITEM_ENTER_SCALE;
 
   return (
     <MotionElement
@@ -62,14 +63,14 @@ export function AnimatedListItem({ children, as = "li", layout = true, className
       inert={!isPresent || undefined}
       className={cn("min-w-0", className)}
       layout={layout && !shouldReduceMotion ? "position" : false}
-      initial={{ opacity: 0, y: MOTION_LIST_ITEM_DISTANCE, scale: MOTION_ITEM_ENTER_SCALE }}
+      initial={{ opacity: 0, y: distance, scale: enterScale }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{
         opacity: 0,
-        scale: MOTION_ITEM_ENTER_SCALE,
-        transition: shouldReduceMotion ? INSTANT_TRANSITION : LIST_ITEM_EXIT_TRANSITION,
+        scale: enterScale,
+        transition: LIST_ITEM_EXIT_TRANSITION,
       }}
-      transition={shouldReduceMotion ? INSTANT_TRANSITION : LIST_ITEM_TRANSITION}
+      transition={LIST_ITEM_TRANSITION}
     >
       {children}
     </MotionElement>

@@ -12,8 +12,11 @@ const COLLAPSE_TRANSITION = {
   height: { duration: MOTION_TIMING.collapse, ease: MOTION_EASE_IN_OUT },
   opacity: { duration: MOTION_TIMING.panel, ease: MOTION_EASE },
 } as const;
-/** Reduced motion keeps the open/closed contract but applies it instantly. */
-const INSTANT_TRANSITION = { duration: 0 } as const;
+/** Reduced motion applies the height at once but keeps the short fade, so exits always settle. */
+const REDUCED_MOTION_COLLAPSE_TRANSITION = {
+  height: { duration: 0 },
+  opacity: { duration: MOTION_TIMING.panel, ease: MOTION_EASE },
+} as const;
 
 export interface AnimatedCollapseProps {
   /** Whether the region is rendered and expanded. */
@@ -47,7 +50,7 @@ export function AnimatedCollapse({ isOpen, children, className, id, animateOnMou
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={shouldReduceMotion ? INSTANT_TRANSITION : COLLAPSE_TRANSITION}
+          transition={shouldReduceMotion ? REDUCED_MOTION_COLLAPSE_TRANSITION : COLLAPSE_TRANSITION}
           onAnimationStart={() => setIsSettled(false)}
           onAnimationComplete={() => setIsSettled(true)}
         >
