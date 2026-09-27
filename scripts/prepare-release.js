@@ -27,9 +27,10 @@ export function prepareRelease() {
   const staging = mkdtempSync(join(releases, "prepare-"));
   try {
     // The only interpolation is an owned, generated alphanumeric directory name.
-    execSync(`pnpm --ignore-scripts pack --pack-destination releases/${basename(staging)}`, { cwd: root, stdio: "inherit" });
+    // npm packs reproducibly, so beez-rp can compare this archive with `npm pack --dry-run` byte for byte.
+    execSync(`npm pack --ignore-scripts --pack-destination releases/${basename(staging)}`, { cwd: root, stdio: "inherit" });
     const archive = readdirSync(staging).find(file => file.endsWith(".tgz"));
-    if (!archive) throw new Error("release: pnpm pack did not produce an archive");
+    if (!archive) throw new Error("release: npm pack did not produce an archive");
     const archivePath = join(staging, archive);
     const entries = execFileSync("tar", ["-tf", archivePath], { encoding: "utf8" }).trim().split(/\r?\n/u);
     validatePackageContents(metadata, entries);

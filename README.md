@@ -240,7 +240,7 @@ pnpm create-version --dry-run               # solo muestra el diagnóstico y el 
 pnpm cv                                     # alias de pnpm create-version
 ```
 
-El comando es el motor compartido de los proyectos Beez, `beez-rp create-version` (devDependency `beez-rp`). Su funcionamiento general (diagnóstico, bloqueos, reanudación, Codex, versiones permitidas) está documentado en el README de [beez-rp](https://github.com/guidomodarelli/beez-rp#create-version). Lo propio de beez-ui vive en `beez-rp.config.js`: la audiencia del CHANGELOG, la descripción de cada tipo de versión, `registry: "npm"` y los hooks `prepare` y `publish` de `scripts/release-hooks.js`.
+El comando es el motor compartido de los proyectos Beez, `beez-rp create-version` (devDependency `beez-rp`). Su funcionamiento general (diagnóstico, bloqueos, reanudación, Codex, versiones permitidas) está documentado en el README de [beez-rp](https://github.com/guidomodarelli/beez-rp#create-version). Lo propio de beez-ui vive en `beez-rp.config.js`: la audiencia del CHANGELOG, la descripción de cada tipo de versión, el hook `prepare` de `scripts/release-hooks.js` y la publicación en npm del tarball preparado (`publish: "npm"` + `artifact`).
 
 Los releases salen sólo desde `main`, limpio y al día con origin (sólo `CHANGELOG.md` puede quedar sin commitear). En otra rama explica qué falta: pushear, abrir o mergear el PR. El último release es el último commit de `origin/main` que cambió el `version` de `package.json`, así que reconoce tanto los commits `X.Y.Z` como los anteriores `chore(release): prepara la versión X.Y.Z`.
 
@@ -249,29 +249,25 @@ Los releases salen sólo desde `main`, limpio y al día con origin (sólo `CHANG
 1. Actualiza `main` con fast-forward si está atrás.
 2. Si `## [Unreleased]` está vacío, Codex lo completa desde los commits sin publicar; si no puede, el release se corta.
 3. Pide la versión (sugiere `patch`, `minor` o `major` según los commits), renombra `## [Unreleased]` a `## [X.Y.Z] - AAAA-MM-DD` dejando un `[Unreleased]` vacío arriba y crea el commit `X.Y.Z` con `package.json` y `CHANGELOG.md` y el tag anotado `vX.Y.Z`, antes de las validaciones largas.
-4. `prepare` (`scripts/release-hooks.js`): reusa el tarball ya preparado para esa versión si es posterior al último cambio de código (el commit de versión no cuenta); si no, ejecuta `pnpm release:prepare` sobre el commit de versión: instalación congelada, tests sin React Compiler, build optimizado, lint, typechecks, tests unitarios y pruebas de navegador, y genera el tarball verificado en `releases/<version>-<sha256>/beez-ui-<version>.tgz`.
+4. `prepare` (`scripts/release-hooks.js`): reusa el tarball ya preparado para esa versión si es posterior al último cambio de código (el commit de versión no cuenta); si no, ejecuta `pnpm release:prepare` sobre el commit de versión: instalación congelada, tests sin React Compiler, build optimizado, lint, typechecks, tests unitarios y pruebas de navegador, y genera el tarball verificado con `npm pack --ignore-scripts` (npm y no pnpm, para que sea reproducible) en `releases/<version>-<sha256>/beez-ui-<version>.tgz`.
 5. Sube `main` y el tag `vX.Y.Z` a origin con un único `git push --atomic`.
-6. `publish`: ejecuta `pnpm release:publish` con el tarball de esa versión, que vuelve a verificar checksum, contenido y metadatos y publica con acceso público y etiqueta `latest`.
+6. Publicación: beez-rp exige que el commit de versión siga sin cambios, toma `releases/<version>-<sha256>/beez-ui-<version>.tgz`, verifica el SHA-256 de su ruta y compara su SHA-512 con el `integrity` de `npm pack --dry-run` sobre ese commit (`npm pack` es reproducible, así que coincidir prueba que es byte a byte lo que npm empaqueta) y recién ahí lo publica con acceso público y etiqueta `latest`. Además, `prepublishOnly` ejecuta `beez-rp guard-publish`, que corta un `pnpm publish` manual (o yarn/bun): se publica sólo con `pnpm create-version`, que usa npm.
 
 Si algo falla después del commit de versión, basta con volver a ejecutar `pnpm create-version`: si `HEAD` es el commit `X.Y.Z` y npm todavía no tiene esa versión, retoma sólo la preparación (reusando el tarball si sigue vigente), el push si falta y la publicación. Nunca vuelve a subir la versión.
 
-La publicación usa el cliente oficial de npm para admitir su flujo interactivo de verificación en el navegador/2FA: `release:publish` hereda la terminal, así que hay que ejecutar el release desde una terminal interactiva cuando la cuenta requiera autenticación adicional. Instalación, build y checks siguen usando pnpm 12. El token se carga sólo al publicar y no se imprime. `release:publish` crea un config temporal de npm fuera del repositorio que sólo referencia `${NPM_TOKEN}` (npm lo expande desde el entorno; el token no se escribe en disco ni en la línea de comandos), lo pasa con `--userconfig` y lo borra al terminar, también si la publicación falla (`scripts/npm-auth.js`).
+La publicación usa el cliente oficial de npm y hereda la terminal, así que admite su verificación interactiva en el navegador/2FA: hay que ejecutar el release desde una terminal interactiva cuando la cuenta la requiera. Instalación, build y checks siguen usando pnpm 12. `NPM_TOKEN` se toma del entorno o del `.env` ignorado y no se imprime; el repositorio no tiene `.npmrc`: beez-rp crea un config temporal de npm fuera del repositorio que sólo referencia `${NPM_TOKEN}` (npm lo expande desde el entorno; el token no se escribe en disco ni en la línea de comandos), lo pasa con `--userconfig` y lo borra al terminar, también si la publicación falla.
 
 ### CHANGELOG
 
 `CHANGELOG.md` sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Cada cambio agrega sus entradas en el bloque `## [Unreleased]`, agrupadas en `### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed` y `### Security` (solo las que apliquen). Nunca se escriben la versión ni la fecha a mano: `pnpm create-version` las agrega al publicar. Las versiones anteriores a este formato (`## 0.6.1 - 2026-09-26`) siguen siendo válidas. La regla completa está en `AGENTS.md`.
 
-Los pasos individuales siguen disponibles:
+Para validar y empaquetar la versión actual sin publicarla:
 
 ```sh
-# Sólo validar y empaquetar la versión actual, sin publicarla.
 pnpm release:prepare
-
-# Publicar un artefacto ya preparado.
-pnpm release:publish releases/<version>-<sha256>/beez-ui-<version>.tgz
 ```
 
-`release:publish` vuelve a verificar nombre, versión, contenido y checksum antes de invocar `npm publish`. El paquete excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`; incluye JavaScript, declaraciones, CSS, fuentes tipográficas y licencias. Conserva releases anteriores.
+El paquete excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`; incluye JavaScript, declaraciones, CSS, fuentes tipográficas y licencias. Conserva releases anteriores.
 
 `prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows; no publica automáticamente.
 

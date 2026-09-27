@@ -7,6 +7,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 ### Changed
 
 - Cada versión publicada queda en un commit `X.Y.Z` con el tag `vX.Y.Z` en GitHub (antes era un commit `chore(release): prepara la versión X.Y.Z` sin tag), para ubicar el código exacto de cada versión.
+- La publicación en npm la hace el comando compartido de beez-rp, que vuelve a verificar el SHA-256 y el contenido del tarball antes de subirlo; se retira `pnpm release:publish`.
+- Publicar con `pnpm publish` queda bloqueado por `beez-rp guard-publish`: cada versión sale sólo desde `pnpm create-version`, que publica con npm el tarball verificado.
 
 ## [0.8.0] - 2026-09-26
 

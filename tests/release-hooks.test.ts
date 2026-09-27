@@ -1,10 +1,10 @@
 // @vitest-environment node
 /**
- * Verifies the `prepare` and `publish` hooks that `beez-rp create-version` calls
+ * Verifies the `prepare` hook that `beez-rp create-version` calls
  * for beez-ui, against disposable Git repositories and real `releases/` folders.
  * The hook context is the engine's plain input contract: Git reads are real,
  * and `run` records the command line instead of launching the multi-minute
- * `release:prepare` or a real `npm publish`.
+ * `release:prepare`.
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ownedPath } from "../scripts/owned-path.js";
-import { findPreparedArchive, prepareReleaseArtifact, publishReleaseArtifact } from "../scripts/release-hooks.js";
+import { findPreparedArchive, prepareReleaseArtifact } from "../scripts/release-hooks.js";
 
 /** Real Git processes need an integration timeout under parallel CI load. */
 const GIT_TEST_TIMEOUT_MS = 30_000;
@@ -150,29 +150,4 @@ describe("prepareReleaseArtifact", () => {
     const silent = createContext();
     await expect(prepareReleaseArtifact(silent.context)).rejects.toThrow(/sin dejar releases\/0\.9\.0-<sha256>\/beez-ui-0\.9\.0\.tgz/u);
   }, GIT_TEST_TIMEOUT_MS);
-});
-
-describe("publishReleaseArtifact", () => {
-  it("should publish the tarball prepared for the version", async () => {
-    const { relativePath } = writeArchive(NEWER_DIGEST);
-    const { context, commands } = createContext();
-    await publishReleaseArtifact(context);
-    expect(commands).toEqual([`pnpm release:publish ${relativePath}`]);
-  });
-
-  it("should fail without a prepared tarball and report a failed publication", async () => {
-    const missing = createContext();
-    await expect(publishReleaseArtifact(missing.context)).rejects.toThrow(/No hay un tarball preparado para beez-ui@0\.9\.0/u);
-    expect(missing.commands).toEqual([]);
-    writeArchive(NEWER_DIGEST);
-    const rejected = createContext({ exitCode: 1 });
-    await expect(publishReleaseArtifact(rejected.context)).rejects.toMatchObject({ hint: expect.stringContaining("reintentar solo la publicación") });
-  });
-
-  it("should fail when the engine gives no version", async () => {
-    const { context, commands } = createContext();
-    context.version = null;
-    await expect(publishReleaseArtifact(context)).rejects.toThrow(/no se recibió la versión/u);
-    expect(commands).toEqual([]);
-  });
 });

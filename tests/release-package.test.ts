@@ -17,7 +17,7 @@ it("should render and filter from the installed archive without Next or a TypeSc
   const packing = mkdtempSync(join(root, ".package-test-"));
   const consumer = mkdtempSync(join(tmpdir(), "beez-consumer-"));
   try {
-    execSync(`pnpm --ignore-scripts pack --pack-destination ${basename(packing)}`, { cwd: root, stdio: "pipe" });
+    execSync(`npm pack --ignore-scripts --pack-destination ${basename(packing)}`, { cwd: root, stdio: "pipe" });
     const archive = readdirSync(packing).find(file => file.endsWith(".tgz"));
     expect(archive).toBeDefined();
     const archivePath = join(packing, archive!);
