@@ -37,7 +37,17 @@ export interface AccountMenuLabels {
 export interface AccountMenuClassNames {
   trigger?: string;
   triggerAvatar?: string;
+  /** Name and email block of the `sidebar` trigger, for example to hide it in a collapsed sidebar. */
+  triggerText?: string;
+  triggerName?: string;
+  triggerEmail?: string;
+  triggerChevron?: string;
   content?: string;
+  /** Identity header at the top of the menu. */
+  header?: string;
+  headerAvatar?: string;
+  /** Sign-in and sign-out item. */
+  item?: string;
   /** Badge shown while authenticated, when `showStatusBadge` is enabled. */
   connectedBadge?: string;
   /** Badge shown while signed out, when `showStatusBadge` is enabled. */
@@ -158,11 +168,11 @@ export function AccountMenu({
       <AccountAvatar {...avatarProps} className={classNames?.triggerAvatar} />
       {triggerVariant === "sidebar" ? (
         <>
-          <span className="grid min-w-0 flex-1">
-            <span className="truncate text-sm font-semibold">{name}</span>
-            <span className="truncate text-xs text-muted-foreground">{email}</span>
+          <span className={cn("grid min-w-0 flex-1", classNames?.triggerText)}>
+            <span className={cn("truncate text-sm font-semibold", classNames?.triggerName)}>{name}</span>
+            <span className={cn("truncate text-xs text-muted-foreground", classNames?.triggerEmail)}>{email}</span>
           </span>
-          <ChevronDownIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          <ChevronDownIcon aria-hidden="true" className={cn("size-4 shrink-0 text-muted-foreground", classNames?.triggerChevron)} />
         </>
       ) : null}
     </button>
@@ -179,8 +189,8 @@ export function AccountMenu({
         sideOffset={sideOffset}
         className={cn("min-w-56", classNames?.content)}
       >
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 px-2 py-1.5">
-          <AccountAvatar {...avatarProps} isDecorative />
+        <div className={cn("grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 px-2 py-1.5", classNames?.header)}>
+          <AccountAvatar {...avatarProps} isDecorative className={classNames?.headerAvatar} />
           <span className="grid min-w-0 gap-px">
             <span className="truncate text-sm leading-tight font-semibold">{name}</span>
             <span className="truncate text-xs leading-tight text-muted-foreground">{email}</span>
@@ -189,19 +199,19 @@ export function AccountMenu({
         <DropdownMenuSeparator />
         {children}
         {isAuthenticated ? (
-          <DropdownMenuItem disabled={signOutDisabled} onSelect={() => void onSignOut()}>
+          <DropdownMenuItem className={classNames?.item} disabled={signOutDisabled} onSelect={() => void onSignOut()}>
             <LogOutIcon aria-hidden="true" />
             {resolvedLabels.signOut}
           </DropdownMenuItem>
         ) : signInHref ? (
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className={classNames?.item}>
             <Link href={signInHref}>
               <LogInIcon aria-hidden="true" />
               {resolvedLabels.signIn}
             </Link>
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem onSelect={() => onSignIn?.()}>
+          <DropdownMenuItem className={classNames?.item} onSelect={() => onSignIn?.()}>
             <LogInIcon aria-hidden="true" />
             {resolvedLabels.signIn}
           </DropdownMenuItem>

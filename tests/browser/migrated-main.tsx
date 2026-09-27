@@ -1,7 +1,7 @@
 /** Mounts product helpers that depend on real browser APIs in a plain React consumer. */
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BeezUIProvider, Button, copyTextToClipboard } from "beez-ui";
+import { BeezUIProvider, Button, FileUploadItem, FileUploadList, copyTextToClipboard } from "beez-ui";
 import "./styles.css";
 
 const CLIPBOARD_TEXT = "https://example.com/invitacion";
@@ -18,6 +18,11 @@ function MigratedExample() {
           Copiar invitación
         </Button>
         <output aria-label="Resultado de copia">{copyResult}</output>
+      </section>
+      <section aria-label="Archivos">
+        <FileUploadList>
+          <FileUploadItem name="recibo.pdf" size={1024} progress={50} progressVariant="fill" />
+        </FileUploadList>
       </section>
     </main>
   );

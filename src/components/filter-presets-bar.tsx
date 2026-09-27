@@ -107,6 +107,8 @@ export interface FilterPresetSaveButtonProps {
   /** Saves the current query under the given name. Returns `false` when there is no query to save. */
   onSaveCurrentQuery: (presetName: string) => boolean;
   labels?: Partial<FilterPresetLabels>;
+  /** Classes of the icon button, for example to adapt it to the action slot of an input. */
+  className?: string;
 }
 
 /**
@@ -115,7 +117,7 @@ export interface FilterPresetSaveButtonProps {
  * @param props - Save availability, save callback and optional labels.
  * @returns The button and its naming popover.
  */
-export function FilterPresetSaveButton({ canSaveCurrentQuery, onSaveCurrentQuery, labels }: FilterPresetSaveButtonProps) {
+export function FilterPresetSaveButton({ canSaveCurrentQuery, onSaveCurrentQuery, labels, className }: FilterPresetSaveButtonProps) {
   const resolvedLabels = { ...FILTER_PRESET_DEFAULT_LABELS, ...labels };
   const nameInputId = useId();
   const [isOpen, setIsOpen] = useState(false);
@@ -151,6 +153,7 @@ export function FilterPresetSaveButton({ canSaveCurrentQuery, onSaveCurrentQuery
             <Button
               data-slot="filter-preset-save-button"
               aria-label={resolvedLabels.saveAction}
+              className={className}
               disabled={!canSaveCurrentQuery}
               size="icon-xs"
               type="button"

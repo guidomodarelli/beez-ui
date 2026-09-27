@@ -4,7 +4,7 @@
  * File upload building blocks: a drop zone that validates picked or dropped files, and a list of
  * files with upload progress, failure and retry. Uploading itself stays with the application.
  */
-import { useId, useRef, useState, type ChangeEvent, type ComponentProps, type DragEvent } from "react";
+import { useId, useRef, useState, type ChangeEvent, type ComponentProps, type DragEvent, type ReactNode } from "react";
 import { AnimatePresence } from "motion/react";
 import { CheckCircle2Icon, FileIcon, Trash2Icon, UploadCloudIcon, XCircleIcon } from "lucide-react";
 
@@ -18,6 +18,8 @@ const COMPLETE_PROGRESS = 100;
 
 export interface FileUploadDropZoneLabels {
   uploadAction: string;
+  /** Appended to the action on narrow screens, where drag and drop is not offered. Empty by default. */
+  uploadActionMobileSuffix: string;
   /** Shown next to the action on wide screens. */
   dragAndDrop: string;
   /** Accessible name of the hidden file input. */
@@ -26,6 +28,7 @@ export interface FileUploadDropZoneLabels {
 
 const FILE_UPLOAD_DROP_ZONE_DEFAULT_LABELS: FileUploadDropZoneLabels = {
   uploadAction: "Elegí un archivo",
+  uploadActionMobileSuffix: "",
   dragAndDrop: "o arrastralo acá",
   input: "Subir archivos",
 };
@@ -147,6 +150,12 @@ export function FileUploadDropZone({
             }}
           >
             {resolvedLabels.uploadAction}
+            {resolvedLabels.uploadActionMobileSuffix ? (
+              <>
+                {" "}
+                <span className="md:hidden">{resolvedLabels.uploadActionMobileSuffix}</span>
+              </>
+            ) : null}
           </Button>
           <span className="text-sm max-md:hidden">{resolvedLabels.dragAndDrop}</span>
         </div>
@@ -192,12 +201,21 @@ export interface FileUploadItemProps {
   onRetry?: () => void;
   locale?: string;
   labels?: Partial<FileUploadItemLabels>;
+  /** File illustration, such as an icon for its type. Defaults to a generic file icon. */
+  icon?: ReactNode;
+  /**
+   * `bar` shows a progress bar with the percentage under the name; `fill` tints the item
+   * background from left to right and shows the percentage next to the status.
+   */
+  progressVariant?: FileUploadProgressVariant;
   className?: string;
 }
 
+export type FileUploadProgressVariant = "bar" | "fill";
+
 /**
- * Renders one file with its size, status, progress bar, delete action and, after a failure, a
- * retry action. Place it inside `FileUploadList` so additions and removals animate.
+ * Renders one file with its size, status, progress (a bar or a background fill), delete action
+ * and, after a failure, a retry action. Place it inside `FileUploadList` so additions and removals animate.
  * @param props - File metadata, progress, callbacks and optional copy.
  * @returns The list item.
  */
@@ -211,20 +229,47 @@ export function FileUploadItem({
   onRetry,
   locale,
   labels,
+  icon,
+  progressVariant = "bar",
   className,
 }: FileUploadItemProps) {
   const resolvedLabels = { ...FILE_UPLOAD_ITEM_DEFAULT_LABELS, ...labels };
   const clampedProgress = Math.min(Math.max(progress, 0), COMPLETE_PROGRESS);
   const isComplete = clampedProgress === COMPLETE_PROGRESS && !failed;
+  const isFillVariant = progressVariant === "fill";
+  const progressBarProps = {
+    "aria-label": resolvedLabels.progress,
+    "aria-valuemax": COMPLETE_PROGRESS,
+    "aria-valuemin": 0,
+    "aria-valuenow": clampedProgress,
+    role: "progressbar",
+  } as const;
 
   return (
     <AnimatedListItem
       data-slot="file-upload-item"
       data-failed={failed || undefined}
-      className={cn("relative flex w-full min-w-0 gap-3 rounded-xl bg-background p-4 ring-1 ring-border ring-inset data-failed:ring-2 data-failed:ring-destructive", className)}
+      data-progress-variant={progressVariant}
+      className={cn(
+        "group/file-item relative flex w-full min-w-0 gap-3 overflow-hidden rounded-xl bg-background p-4",
+        className,
+      )}
     >
-      <FileIcon aria-hidden className="size-10 shrink-0 stroke-[1.25] text-muted-foreground" />
-      <div className="flex min-w-0 flex-1 flex-col items-start">
+      {isFillVariant && !failed ? (
+        <div
+          {...progressBarProps}
+          className={cn("absolute inset-0 bg-muted transition-[translate,opacity] duration-150", isComplete && "opacity-0")}
+          style={{ translate: `${clampedProgress - COMPLETE_PROGRESS}% 0` }}
+        />
+      ) : null}
+      {/* The outline sits above the progress fill, so the fill never hides it. */}
+      <span
+        data-slot="file-upload-item-outline"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[1] rounded-[inherit] ring-1 ring-border ring-inset group-data-failed/file-item:ring-2 group-data-failed/file-item:ring-destructive"
+      />
+      <span className="relative flex shrink-0">{icon ?? <FileIcon aria-hidden className="size-10 shrink-0 stroke-[1.25] text-muted-foreground" />}</span>
+      <div className="relative flex min-w-0 flex-1 flex-col items-start">
         <div className="flex w-full min-w-0 flex-1">
           <div className="min-w-0 flex-1">
             <p className="m-0 max-w-full text-sm font-medium break-words text-foreground">{name}</p>
@@ -248,6 +293,7 @@ export function FileUploadItem({
                     <span className="text-muted-foreground">{resolvedLabels.uploading}</span>
                   </>
                 )}
+                {isFillVariant && !failed ? <span className="font-normal text-muted-foreground tabular-nums">{clampedProgress}%</span> : null}
               </span>
             </div>
           </div>
@@ -271,16 +317,9 @@ export function FileUploadItem({
               {resolvedLabels.retry}
             </Button>
           ) : null
-        ) : (
+        ) : isFillVariant ? null : (
           <div className="mt-1 flex w-full items-center gap-3">
-            <div
-              aria-label={resolvedLabels.progress}
-              aria-valuemax={COMPLETE_PROGRESS}
-              aria-valuemin={0}
-              aria-valuenow={clampedProgress}
-              className="h-2 flex-1 overflow-hidden rounded-full bg-muted"
-              role="progressbar"
-            >
+            <div {...progressBarProps} className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
               <div className="h-full rounded-full bg-primary transition-[width] duration-150" style={{ width: `${clampedProgress}%` }} />
             </div>
             <span className="text-sm font-medium text-foreground tabular-nums">{clampedProgress}%</span>

@@ -4,6 +4,13 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- `FileUploadDropZone` acepta `labels.uploadActionMobileSuffix`, un texto que completa la acción de subir en pantallas chicas.
+- `FileUploadItem` acepta `icon` para mostrar un ícono propio por tipo de archivo y `progressVariant="fill"` para indicar el progreso rellenando el fondo del ítem.
+- `AccountMenu` acepta clases para el texto, nombre, email y chevron del disparador, el encabezado, su avatar y el ítem de sesión, por ejemplo para ocultar la identidad en un sidebar colapsado.
+- `FilterPresetSaveButton` acepta `className` para adaptar el botón al slot de acción de un input.
+
 ## [0.9.0] - 2026-09-27
 
 ### Added

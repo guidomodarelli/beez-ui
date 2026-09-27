@@ -54,6 +54,16 @@ describe("FilterPresetSaveButton", () => {
     expect(screen.getByRole("button", { name: "Guardar filtro" })).toBeDisabled();
   });
 
+  it("forwards classes to the save button", () => {
+    render(
+      <TooltipProvider>
+        <FilterPresetSaveButton canSaveCurrentQuery onSaveCurrentQuery={() => true} className="input-slot-button" />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByRole("button", { name: "Guardar filtro" })).toHaveClass("input-slot-button");
+  });
+
   it("saves the current query as a named preset chip", async () => {
     const user = userEvent.setup();
     render(<PresetsHarness />);

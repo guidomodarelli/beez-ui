@@ -77,6 +77,27 @@ describe("AccountMenu", () => {
     expect(screen.getAllByText("AL", { ignore: "[aria-hidden=true]" })).toHaveLength(1);
   });
 
+  it("applies the class names of every trigger and menu part", async () => {
+    const user = userEvent.setup();
+    render(
+      <AccountMenu
+        {...ACCOUNT}
+        status="authenticated"
+        triggerVariant="sidebar"
+        classNames={{ triggerText: "text-part", triggerName: "name-part", triggerEmail: "email-part", header: "header-part", item: "item-part" }}
+        onSignOut={vi.fn()}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Menú de cuenta" });
+    expect(trigger.querySelector(".text-part")).toHaveTextContent("Ana López");
+    expect(trigger.querySelector(".name-part")).toHaveTextContent("Ana López");
+    expect(trigger.querySelector(".email-part")).toHaveTextContent("ana@example.com");
+    await user.click(trigger);
+    expect(await screen.findByRole("menuitem", { name: "Cerrar sesión" })).toHaveClass("item-part");
+    expect(screen.getByRole("menu").querySelector(".header-part")).toHaveTextContent("ana@example.com");
+  });
+
   it("renders the sidebar trigger with identity, custom labels and extra items", async () => {
     const onOpenSettings = vi.fn();
     const user = userEvent.setup();

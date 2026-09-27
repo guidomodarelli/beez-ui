@@ -180,7 +180,7 @@ Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron des
 - Cuenta: `AccountMenu`, con inicio de sesión mediante `signInHref` o `onSignIn`.
 - Contenido: `RichTextContent`, `RichMarkdownContent`, `RichLinkEditor` y `useRichLinkEditor`. Solo interpretan links en markdown, URLs sueltas, listas y negrita; el HTML del contenido nunca se renderiza como markup.
 - Filtros guardados: `FilterPresetsBar` y `FilterPresetSaveButton` guardan, aplican, editan y borran consultas con nombre de `FilterQueryBar`. La app decide dónde persistirlas; `parseFilterPresets` valida lo que vuelve del almacenamiento.
-- Archivos: `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem` validan tipo y tamaño, pero no suben archivos: el progreso y los errores los informa la app.
+- Archivos: `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem` validan tipo y tamaño, pero no suben archivos: el progreso y los errores los informa la app. Cada ítem acepta un ícono propio y un progreso en barra (`bar`) o de relleno (`fill`).
 - Utilidades: `formatFileSize`, `copyTextToClipboard` y búsqueda difusa.
 
 Los hooks de uso general se importan desde `beez-ui/hooks`: `useIsMobile`, `useIsHydrated`, `useViewerTimeZone`, `usePrefersReducedMotion` y `useHorizontalSwipe` (con `resolveHorizontalSwipe`). `useIsMobile` también sigue disponible desde la raíz.

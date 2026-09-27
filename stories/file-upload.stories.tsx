@@ -58,3 +58,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Playground: Story = {};
+export const FillProgress: Story = {
+  render: () => (
+    <FileUploadList className="max-w-md">
+      <FileUploadItem name="recibo-mayo.pdf" size={240_000} progress={45} progressVariant="fill" />
+      <FileUploadItem name="factura.png" size={1_200_000} progress={100} progressVariant="fill" />
+    </FileUploadList>
+  ),
+};

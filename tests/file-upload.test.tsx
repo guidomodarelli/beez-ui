@@ -69,6 +69,12 @@ describe("FileUploadDropZone", () => {
     expect(onDropFiles).toHaveBeenCalledWith([firstFile]);
   });
 
+  it("adds the mobile suffix to the upload action when configured", () => {
+    render(<FileUploadDropZone labels={{ uploadAction: "Hacé click para subir", uploadActionMobileSuffix: "desde tu equipo" }} />);
+
+    expect(screen.getByRole("button", { name: "Hacé click para subir desde tu equipo" })).toBeInTheDocument();
+  });
+
   it("prevents the native drop and ignores files while disabled", () => {
     const onDropFiles = vi.fn();
     render(<FileUploadDropZone isDisabled onDropFiles={onDropFiles} labels={{ uploadAction: "Adjuntar" }} />);
@@ -103,6 +109,19 @@ describe("FileUploadItem", () => {
     );
 
     expect(screen.getByRole("status")).toHaveTextContent("Completado");
+  });
+
+  it("shows a custom icon and fills the item background as progress", () => {
+    render(
+      <FileUploadList>
+        <FileUploadItem name="recibo.pdf" size={10} progress={60} progressVariant="fill" icon={<span data-testid="pdf-icon">PDF</span>} />
+      </FileUploadList>,
+    );
+
+    expect(screen.getByTestId("pdf-icon")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: "Progreso de subida" })).toHaveAttribute("aria-valuenow", "60");
+    expect(screen.getByRole("status")).toHaveTextContent("Subiendo...60%");
+    expect(screen.getByRole("listitem")).toHaveAttribute("data-progress-variant", "fill");
   });
 
   it("offers retry after a failure and deletes the file", async () => {
