@@ -15,3 +15,8 @@
 - Una línea `- ` por cambio, en español, escrita para quien consume el paquete (qué cambia para él), sin detalles internos de implementación.
 - Cambios que no afectan a quien consume el paquete (tests, refactors internos sin efecto visible, tooling local) no necesitan entrada.
 - Si al publicar `[Unreleased]` está vacío, `pnpm create-version` invoca a Codex para completarlo desde los commits sin publicar; si no puede, el release se corta.
+
+## Release
+
+- `pnpm create-version` (alias `pnpm cv`) es el comando compartido `beez-rp create-version`. Lo propio de beez-ui se configura en `beez-rp.config.js` y en los hooks de `scripts/release-hooks.js`; no reimplementar el orquestador en este repositorio.
+- Cada versión queda en un commit cuyo asunto es exactamente `X.Y.Z`, con el tag anotado `vX.Y.Z`. No crear commits de release ni tags a mano.
