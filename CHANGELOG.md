@@ -4,6 +4,12 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Removed
+
+- Se retiran componentes atados a un solo producto que llegaron en 0.8.0: `ExternalBrowserHandoff`, `OpenInBrowserCta`, `detectInAppBrowser`, `buildExternalBrowserUrl`, `NotificationBell`, `NotificationPanel`, `MonthGrid`, `MonthCalendarHeader`, `PwaUpdateControl` y `ConfirmDeleteButton`. Quien los use debe mantener su propia versión.
+- Se retiran los helpers `createMonthGridDays`, `splitCalendarWeeks`, `groupItemsByDateKey`, `shiftMonthKey`, `useMonthTransitionDirection`, `useMinuteClock`, `advanceMinuteClockTo`, `navigateToUrl`, `reloadCurrentPage`, `replaceCurrentUrlSearchParams` y `replaceCurrentUrlSearchParamValues`.
+- Se retira el entrypoint opcional `beez-ui/emoji-picker` y la dependencia opcional `emoji-picker-react`.
+
 ## [0.8.2] - 2026-09-27
 
 ### Fixed

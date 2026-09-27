@@ -1,13 +1,11 @@
 /** Verifies loaders, progress, empty and error states, popovers and toggles through their public contracts. */
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   BeezUIProvider,
   BouncingDotsLoader,
-  ConfirmDeleteButton,
-  DropdownMenuItem,
   EmptyState,
   ErrorState,
   InfoPopover,
@@ -139,47 +137,6 @@ describe("InfoPopover", () => {
 
     await waitFor(() => expect(screen.queryByText("Ayuda")).not.toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Más información" })).toHaveFocus();
-  });
-});
-
-describe("ConfirmDeleteButton", () => {
-  it("runs the deletion only after confirming", async () => {
-    const onConfirm = vi.fn();
-    const user = userEvent.setup();
-    render(<ConfirmDeleteButton message="¿Eliminar el gasto Luz?" onConfirm={onConfirm} />);
-
-    await user.click(screen.getByRole("button", { name: "Abrir acciones" }));
-    await user.click(await screen.findByRole("menuitem", { name: "Eliminar" }));
-    const confirmation = await screen.findByRole("dialog", { name: "¿Eliminar el gasto Luz?" });
-    expect(onConfirm).not.toHaveBeenCalled();
-
-    await user.click(within(confirmation).getByRole("button", { name: "Confirmar" }));
-
-    expect(onConfirm).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-  });
-
-  it("cancels without side effects and keeps extra menu items first", async () => {
-    const onConfirm = vi.fn();
-    const onEdit = vi.fn();
-    const user = userEvent.setup();
-    render(
-      <ConfirmDeleteButton
-        message="¿Eliminar?"
-        onConfirm={onConfirm}
-        extraMenuItems={<DropdownMenuItem onSelect={onEdit}>Editar</DropdownMenuItem>}
-        labels={{ menu: "Acciones del gasto", delete: "Borrar", cancel: "Volver" }}
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Acciones del gasto" }));
-    const menuItems = await screen.findAllByRole("menuitem");
-    expect(menuItems.map((menuItem) => menuItem.textContent)).toEqual(["Editar", "Borrar"]);
-    await user.click(menuItems[1]);
-    await user.click(within(await screen.findByRole("dialog", { name: "¿Eliminar?" })).getByRole("button", { name: "Volver" }));
-
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    expect(onConfirm).not.toHaveBeenCalled();
   });
 });
 

@@ -1,14 +1,11 @@
-/** Verifies hydration-safe hooks and gesture and month-transition hooks through real renders. */
+/** Verifies hydration-safe hooks and the swipe gesture hook through real renders. */
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import {
   HORIZONTAL_SWIPE_DIRECTION,
-  MONTH_TRANSITION_DIRECTION,
-  resolveMonthTransitionDirection,
   useHorizontalSwipe,
   useIsHydrated,
-  useMonthTransitionDirection,
   useViewerTimeZone,
   type HorizontalSwipeDirection,
 } from "beez-ui";
@@ -30,11 +27,6 @@ function SwipeProbe({ onSwipe }: { onSwipe: (direction: HorizontalSwipeDirection
       Mayo
     </div>
   );
-}
-
-/** Shows the direction computed for the visible month. */
-function MonthDirectionProbe({ month, scopeKey = "calendario" }: { month: string; scopeKey?: string }) {
-  return <output aria-label="Dirección">{useMonthTransitionDirection(scopeKey, month)}</output>;
 }
 
 /**
@@ -91,34 +83,5 @@ describe("useHorizontalSwipe", () => {
     fireEvent.touchEnd(surface, { changedTouches: [{ identifier: 1, clientX: 50, clientY: 100 }], touches: [] });
 
     expect(onSwipe).not.toHaveBeenCalled();
-  });
-});
-
-describe("month transition direction", () => {
-  it("compares month keys chronologically", () => {
-    expect(resolveMonthTransitionDirection(null, "2026-05")).toBe(MONTH_TRANSITION_DIRECTION.none);
-    expect(resolveMonthTransitionDirection("2026-05", "2026-06")).toBe(MONTH_TRANSITION_DIRECTION.next);
-    expect(resolveMonthTransitionDirection("2026-01", "2025-12")).toBe(MONTH_TRANSITION_DIRECTION.previous);
-  });
-
-  it("follows month changes of the same calendar and a remount right after one", () => {
-    const { rerender, unmount } = render(<MonthDirectionProbe month="2026-05" scopeKey="remonta" />);
-    expect(screen.getByRole("status", { name: "Dirección" })).toHaveTextContent("none");
-
-    rerender(<MonthDirectionProbe month="2026-04" scopeKey="remonta" />);
-    expect(screen.getByRole("status", { name: "Dirección" })).toHaveTextContent("previous");
-
-    unmount();
-    render(<MonthDirectionProbe month="2026-05" scopeKey="remonta" />);
-    expect(screen.getByRole("status", { name: "Dirección" })).toHaveTextContent("next");
-  });
-
-  it("does not orient a different calendar", () => {
-    const { unmount } = render(<MonthDirectionProbe month="2026-05" scopeKey="primero" />);
-    unmount();
-
-    render(<MonthDirectionProbe month="2026-06" scopeKey="segundo" />);
-
-    expect(screen.getByRole("status", { name: "Dirección" })).toHaveTextContent("none");
   });
 });

@@ -6,8 +6,7 @@
     "types": ["node", "vite/client"],
     "paths": {
       "beez-ui": ["../dist/index"],
-      "beez-ui/tanstack": ["../dist/tanstack"],
-      "beez-ui/emoji-picker": ["../dist/emoji-picker"]
+      "beez-ui/tanstack": ["../dist/tanstack"]
     }
   },
   "include": [

@@ -271,11 +271,6 @@
       "import": "./dist/components/progress-ring.js",
       "default": "./dist/components/progress-ring.js"
     },
-    "./confirm-delete-button": {
-      "types": "./dist/components/confirm-delete-button.d.ts",
-      "import": "./dist/components/confirm-delete-button.js",
-      "default": "./dist/components/confirm-delete-button.js"
-    },
     "./info-popover": {
       "types": "./dist/components/info-popover.d.ts",
       "import": "./dist/components/info-popover.js",
@@ -311,45 +306,10 @@
       "import": "./dist/components/rich-link-editor.js",
       "default": "./dist/components/rich-link-editor.js"
     },
-    "./open-in-browser-cta": {
-      "types": "./dist/components/open-in-browser-cta.d.ts",
-      "import": "./dist/components/open-in-browser-cta.js",
-      "default": "./dist/components/open-in-browser-cta.js"
-    },
-    "./external-browser-handoff": {
-      "types": "./dist/components/external-browser-handoff.d.ts",
-      "import": "./dist/components/external-browser-handoff.js",
-      "default": "./dist/components/external-browser-handoff.js"
-    },
-    "./pwa-update-control": {
-      "types": "./dist/components/pwa-update-control.d.ts",
-      "import": "./dist/components/pwa-update-control.js",
-      "default": "./dist/components/pwa-update-control.js"
-    },
     "./reaction-button": {
       "types": "./dist/components/reaction-button.d.ts",
       "import": "./dist/components/reaction-button.js",
       "default": "./dist/components/reaction-button.js"
-    },
-    "./notification-panel": {
-      "types": "./dist/components/notification-panel.d.ts",
-      "import": "./dist/components/notification-panel.js",
-      "default": "./dist/components/notification-panel.js"
-    },
-    "./notification-bell": {
-      "types": "./dist/components/notification-bell.d.ts",
-      "import": "./dist/components/notification-bell.js",
-      "default": "./dist/components/notification-bell.js"
-    },
-    "./month-grid": {
-      "types": "./dist/components/month-grid.d.ts",
-      "import": "./dist/components/month-grid.js",
-      "default": "./dist/components/month-grid.js"
-    },
-    "./month-calendar-header": {
-      "types": "./dist/components/month-calendar-header.d.ts",
-      "import": "./dist/components/month-calendar-header.js",
-      "default": "./dist/components/month-calendar-header.js"
     },
     "./file-upload": {
       "types": "./dist/components/file-upload.d.ts",
@@ -361,20 +321,10 @@
       "import": "./dist/motion/tokens.js",
       "default": "./dist/motion/tokens.js"
     },
-    "./emoji-picker": {
-      "types": "./dist/emoji-picker.d.ts",
-      "import": "./dist/emoji-picker.js",
-      "default": "./dist/emoji-picker.js"
-    },
     "./use-is-hydrated": {
       "types": "./dist/hooks/use-is-hydrated.d.ts",
       "import": "./dist/hooks/use-is-hydrated.js",
       "default": "./dist/hooks/use-is-hydrated.js"
-    },
-    "./use-minute-clock": {
-      "types": "./dist/hooks/use-minute-clock.d.ts",
-      "import": "./dist/hooks/use-minute-clock.js",
-      "default": "./dist/hooks/use-minute-clock.js"
     },
     "./use-viewer-time-zone": {
       "types": "./dist/hooks/use-viewer-time-zone.d.ts",
@@ -391,11 +341,6 @@
       "import": "./dist/hooks/use-rich-link-editor.js",
       "default": "./dist/hooks/use-rich-link-editor.js"
     },
-    "./use-month-transition-direction": {
-      "types": "./dist/hooks/use-month-transition-direction.d.ts",
-      "import": "./dist/hooks/use-month-transition-direction.js",
-      "default": "./dist/hooks/use-month-transition-direction.js"
-    },
     "./use-prefers-reduced-motion": {
       "types": "./dist/hooks/use-prefers-reduced-motion.d.ts",
       "import": "./dist/hooks/use-prefers-reduced-motion.js",
@@ -405,11 +350,6 @@
       "types": "./dist/lib/browser-clipboard.d.ts",
       "import": "./dist/lib/browser-clipboard.js",
       "default": "./dist/lib/browser-clipboard.js"
-    },
-    "./browser-navigation": {
-      "types": "./dist/lib/browser-navigation.d.ts",
-      "import": "./dist/lib/browser-navigation.js",
-      "default": "./dist/lib/browser-navigation.js"
     },
     "./file-acceptance": {
       "types": "./dist/lib/file-acceptance.d.ts",
@@ -430,16 +370,6 @@
       "types": "./dist/lib/horizontal-swipe.d.ts",
       "import": "./dist/lib/horizontal-swipe.js",
       "default": "./dist/lib/horizontal-swipe.js"
-    },
-    "./in-app-browser": {
-      "types": "./dist/lib/in-app-browser.d.ts",
-      "import": "./dist/lib/in-app-browser.js",
-      "default": "./dist/lib/in-app-browser.js"
-    },
-    "./month-grid-utils": {
-      "types": "./dist/lib/month-grid.d.ts",
-      "import": "./dist/lib/month-grid.js",
-      "default": "./dist/lib/month-grid.js"
     },
     "./name-initials": {
       "types": "./dist/lib/name-initials.d.ts",
@@ -473,7 +403,6 @@
   },
   "peerDependencies": {
     "@tanstack/react-router": "^1.170.33",
-    "emoji-picker-react": "^4.19.1",
     "lucide-react": "^1.16.0",
     "next": "^16.3.4",
     "react": "^19.2.0",
@@ -511,7 +440,6 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.1.1",
     "beez-rp": "^0.3.0",
-    "emoji-picker-react": "^4.22.2",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^30.1.1",
@@ -548,9 +476,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependenciesMeta": {
-    "emoji-picker-react": {
-      "optional": true
-    },
     "next": {
       "optional": true
     },

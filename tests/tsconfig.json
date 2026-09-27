@@ -8,8 +8,7 @@
       "@/*": ["../src/*"],
       "beez-ui": ["../dist/index"],
       "beez-ui/next": ["../dist/next"],
-      "beez-ui/tanstack": ["../dist/tanstack"],
-      "beez-ui/emoji-picker": ["../dist/emoji-picker"]
+      "beez-ui/tanstack": ["../dist/tanstack"]
     },
     "types": ["node", "@testing-library/jest-dom/vitest", "vite/client"]
   },

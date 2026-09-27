@@ -173,19 +173,14 @@ Los componentes compartidos conservan el tema de LaTribu. Se incorporaron atribu
 
 ## Componentes de producto reutilizables
 
-Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron desacoplados de su dominio: reciben datos ya resueltos y textos por props, con valores por defecto en español.
+Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron desacoplados de su dominio: reciben datos ya resueltos y textos por props, con valores por defecto en español. Solo se incorporan piezas genéricas que no fijan decisiones de un producto; los flujos propios de una app (notificaciones, calendarios de eventos, handoff de navegadores internos, actualización de PWA) se mantienen en esa app.
 
 - Movimiento: `PresenceSwap`, `AnimatedCount`, `AnimatedCollapse` y `AnimatedListItem`. Los tokens que usa la biblioteca se exportan desde la raíz y desde `beez-ui/motion-tokens`, así las apps animan sus superficies con las mismas curvas y springs en lugar de copiarlos.
-- Feedback: `BouncingDotsLoader`, `ProgressRing`, `EmptyState`, `ErrorState`, `InfoPopover`, `ConfirmDeleteButton` y `ReactionButton`. El loader y la entrada del título de `MonthCalendarHeader` usan keyframes CSS porque se renderizan en el servidor; el fallback de movimiento reducido los detiene.
-- Cuenta y sesión: `AccountMenu` (inicio de sesión mediante `signInHref` o `onSignIn`), `OpenInBrowserCta`, `ExternalBrowserHandoff` y los helpers `detectInAppBrowser` y `buildExternalBrowserUrl`.
+- Feedback: `BouncingDotsLoader`, `ProgressRing`, `EmptyState`, `ErrorState`, `InfoPopover` y `ReactionButton`. El loader usa keyframes CSS porque se renderiza en el servidor; el fallback de movimiento reducido los detiene.
+- Cuenta: `AccountMenu`, con inicio de sesión mediante `signInHref` o `onSignIn`.
 - Contenido: `RichTextContent`, `RichMarkdownContent`, `RichLinkEditor` y `useRichLinkEditor`. Solo interpretan links en markdown, URLs sueltas, listas y negrita; el HTML del contenido nunca se renderiza como markup.
-- Notificaciones: `NotificationBell` y `NotificationPanel` reciben `NotificationPanelItem` (`id`, `title`, `detail`, `sentAtLabel`, `href`, `isUnread`); la app traduce sus notificaciones a ese formato. Con `surface="responsive"` se renderizan el popover y el sheet hasta hidratar, y después solo el que corresponde al viewport.
-- Calendario: `MonthGrid` y `MonthCalendarHeader` trabajan con claves `YYYY-MM` y `YYYY-MM-DD` sin zona horaria; la app decide en qué zona convierte cada instante en día. La navegación acepta `href` (link del router) o `onSelect`.
 - Archivos: `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem` validan tipo y tamaño, pero no suben archivos: el progreso y los errores los informa la app.
-- PWA: `PwaUpdateControl` aparece solo cuando hay un service worker en espera y le envía `{ type: "SKIP_WAITING" }` (configurable con `skipWaitingMessage`).
-- Hooks y utilidades: `useIsHydrated`, `useMinuteClock`, `useViewerTimeZone`, `useHorizontalSwipe`, `usePrefersReducedMotion`, `formatFileSize`, `copyTextToClipboard`, `getNameInitials`, búsqueda difusa y helpers de URL.
-
-`EmojiPicker` vive en el entrypoint opcional `beez-ui/emoji-picker` para no sumar `emoji-picker-react` a quien no lo usa. Hay que instalarlo como dependencia de la app (`pnpm add emoji-picker-react`); la librería se carga recién al abrir el selector, nunca durante el render del servidor.
+- Hooks y utilidades: `useIsHydrated`, `useViewerTimeZone`, `useHorizontalSwipe`, `usePrefersReducedMotion`, `formatFileSize`, `copyTextToClipboard`, `getNameInitials` y búsqueda difusa.
 
 ## React Compiler
 
@@ -222,7 +217,7 @@ pnpm release:prepare
 
 `pnpm build` genera las declaraciones con TypeScript 7, JavaScript con Oxc/React Compiler y CSS con el CLI de Tailwind. `pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Los consumidores de navegador no instalan plugins de Tailwind, y una prueba adicional sirve el tarball por HTTP sin procesadores CSS para verificar estilos computados y carga de fuentes. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
 
-Los tests resuelven `beez-ui`, `beez-ui/next`, `beez-ui/tanstack` y `beez-ui/emoji-picker` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
+Los tests resuelven `beez-ui`, `beez-ui/next` y `beez-ui/tanstack` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
 
 El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [API de compatibilidad oficial de TypeScript 6](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0) mediante un alias; no reemplaza el compilador de los typechecks.
 

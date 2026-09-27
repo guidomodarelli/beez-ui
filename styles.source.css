@@ -3,7 +3,6 @@
 @import "shadcn/tailwind.css";
 @import "./src/styles/motion.css";
 @import "./src/styles/keyframes.css";
-@import "./src/styles/emoji-picker.css";
 
 @source "./dist/**/*.js";
 

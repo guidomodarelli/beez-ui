@@ -20,12 +20,6 @@ const config: StorybookConfig = {
             ),
           },
           {
-            find: "beez-ui/emoji-picker",
-            replacement: fileURLToPath(
-              new URL("../dist/emoji-picker.js", import.meta.url),
-            ),
-          },
-          {
             find: "beez-ui/tanstack",
             replacement: fileURLToPath(
               new URL("../dist/tanstack.js", import.meta.url),
