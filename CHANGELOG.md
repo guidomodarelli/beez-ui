@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-27
+
 ### Fixed
 
 - Con movimiento reducido, `PresenceSwap`, `AnimatedListItem` y `AnimatedCollapse` conservan un fundido breve en lugar de cambiar sin transición; `PresenceSwap` ya no queda trabado en el estado anterior cuando su contenido cambia varias veces seguidas (por ejemplo, error → cargando → cargado).
