@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-27
+
 ### Added
 
 - `FileUploadDropZone` acepta `labels.uploadActionMobileSuffix`, un texto que completa la acción de subir en pantallas chicas.
