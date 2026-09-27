@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-27
+
 ### Added
 
 - `ReactionButton` acepta `activeColor` para elegir el color del ícono activo (por defecto, el color destructivo).
