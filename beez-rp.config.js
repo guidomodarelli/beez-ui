@@ -20,6 +20,8 @@ export default {
     minor: "Funcionalidades nuevas compatibles; lo existente sigue funcionando igual.",
     major: "Cambios incompatibles: quien consume el paquete tiene que adaptar su código.",
   },
+  // release:prepare already runs the full validation on the version commit, so it is not repeated before the bump.
+  checks: false,
   prepare: prepareReleaseArtifact,
   publish: "npm",
   artifact: "releases/{version}-{sha256}/{name}-{version}.tgz",
