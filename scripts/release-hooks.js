@@ -1,19 +1,16 @@
 /**
- * @module release-hooks `prepare` and `publish` hooks of `beez-rp create-version` for beez-ui.
+ * @module release-hooks `prepare` hook of `beez-rp create-version` for beez-ui.
  *
  * The shared command bumps the version (commit `X.Y.Z` + tag `vX.Y.Z`) and
- * then calls these hooks on that commit:
+ * then calls `prepareReleaseArtifact` on that commit: it reuses the tarball
+ * already prepared for the version when it is newer than the last code change,
+ * or runs `pnpm release:prepare` (full validation + checksum-addressed tarball)
+ * and locates the tarball it just produced. Publishing that exact tarball,
+ * with its checksum and contents verified again, is done by the engine
+ * (`publish: "npm"` + `artifact` in `beez-rp.config.js`).
  *
- * - `prepareReleaseArtifact` reuses the tarball already prepared for the
- *   version when it is newer than the last code change, or runs
- *   `pnpm release:prepare` (full validation + checksum-addressed tarball) and
- *   locates the tarball it just produced.
- * - `publishReleaseArtifact` publishes exactly that tarball with
- *   `pnpm release:publish <archive>`, which verifies it again and keeps npm's
- *   interactive browser/2FA flow (the command inherits the terminal).
- *
- * Hooks receive every helper through the engine context, so this module never
- * imports `beez-rp`.
+ * The hook receives every helper through the engine context, so this module
+ * never imports `beez-rp`.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -24,14 +21,10 @@ const RELEASES_DIRECTORY = "releases";
 const RELEASE_METADATA_FILES = ["package.json", "CHANGELOG.md"];
 /** Validates, builds and packs the current version into `releases/`. */
 const PREPARE_COMMAND = "pnpm release:prepare";
-/** Publishes one prepared tarball, verifying its checksum and contents again. */
-const PUBLISH_COMMAND = "pnpm release:publish";
 /** Converts file modification times (ms) to Git commit timestamps (s). */
 const MILLISECONDS_PER_SECOND = 1000;
 /** Prepared directory name: exact version plus the SHA-256 of its tarball. */
 const PREPARED_DIRECTORY_SUFFIX = /^-[0-9a-f]{64}$/u;
-/** Only these characters may reach the shell in the publish command line. */
-const SAFE_ARCHIVE_PATH = /^releases\/[0-9A-Za-z.+-]+\/[0-9A-Za-z.+-]+\.tgz$/u;
 
 /**
  * @typedef {{
@@ -119,7 +112,7 @@ export async function prepareReleaseArtifact(context) {
   const existing = findPreparedArchive(context.repositoryRoot, packageName, version);
 
   if (existing && (await isPreparedArchiveCurrent(context, existing))) {
-    context.print(`Se reusa ${existing}: es posterior al último cambio de código (release:publish vuelve a verificar checksum y contenido).`);
+    context.print(`Se reusa ${existing}: es posterior al último cambio de código (la publicación vuelve a verificar checksum y contenido).`);
     return;
   }
 
@@ -142,35 +135,4 @@ export async function prepareReleaseArtifact(context) {
   }
 
   context.print(`Artefacto listo: ${prepared}`);
-}
-
-/**
- * `publish` hook: publishes the tarball prepared for the version.
- * @param {ReleaseHookContext} context - Hook context.
- * @returns {Promise<void>}
- */
-export async function publishReleaseArtifact(context) {
-  const version = requireVersion(context);
-  const packageName = readPackageName(context.repositoryRoot);
-  const archive = findPreparedArchive(context.repositoryRoot, packageName, version);
-
-  if (!archive) {
-    context.fail(
-      `No hay un tarball preparado para ${packageName}@${version} en ${RELEASES_DIRECTORY}/.`,
-      "Corré pnpm create-version: vuelve a preparar la versión antes de publicarla.",
-    );
-  }
-
-  if (!SAFE_ARCHIVE_PATH.test(archive)) {
-    context.fail(`release-hooks: ruta de tarball inesperada: ${archive}.`, `Revisá el contenido de ${RELEASES_DIRECTORY}/ y corré pnpm create-version.`);
-  }
-
-  context.print(`Publicando ${archive} como ${packageName}@${version} (latest).`);
-  const exitCode = await context.run(`${PUBLISH_COMMAND} ${archive}`);
-  if (exitCode !== 0) {
-    context.fail(
-      `${PUBLISH_COMMAND} terminó con código ${exitCode} para ${packageName}@${version}.`,
-      `Comprobá en npm si ${version} llegó; si no, corré pnpm create-version para reintentar solo la publicación del mismo tarball.`,
-    );
-  }
 }

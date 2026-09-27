@@ -18,5 +18,5 @@
 
 ## Release
 
-- `pnpm create-version` (alias `pnpm cv`) es el comando compartido `beez-rp create-version`. Lo propio de beez-ui se configura en `beez-rp.config.js` y en los hooks de `scripts/release-hooks.js`; no reimplementar el orquestador en este repositorio.
+- `pnpm create-version` (alias `pnpm cv`) es el comando compartido `beez-rp create-version`. Lo propio de beez-ui se configura en `beez-rp.config.js` y en el hook `prepare` de `scripts/release-hooks.js`; la verificación y publicación del tarball y las credenciales de npm las resuelve beez-rp. No reimplementar el orquestador ni la publicación en este repositorio.
 - Cada versión queda en un commit cuyo asunto es exactamente `X.Y.Z`, con el tag anotado `vX.Y.Z`. No crear commits de release ni tags a mano.
