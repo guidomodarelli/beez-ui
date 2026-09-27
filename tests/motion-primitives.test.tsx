@@ -1,7 +1,7 @@
 /** Verifies the public motion primitives through real Motion rendering and user interaction. */
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionGlobalConfig } from "motion/react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AnimatedCollapse, AnimatedCount, AnimatedListItem, BeezUIProvider, Dialog, DialogContent, DialogDescription, DialogTitle, PresenceSwap } from "beez-ui";
@@ -144,6 +144,47 @@ describe("motion primitives", () => {
     await user.click(screen.getByRole("button", { name: "Guardar" }));
     expect(await screen.findByText("Cambios guardados")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Sin cambios")).not.toBeInTheDocument());
+  });
+
+  it("settles when a returning state changes again as the previous exit finishes", async () => {
+    /** Instant animations finish the exit in the same batch as the follow-up change, deterministically. */
+    MotionGlobalConfig.skipAnimations = true;
+    function RetryHarness() {
+      const [status, setStatus] = useState<"loading" | "error" | "loaded">("error");
+      return (
+        <>
+          <button type="button" onClick={() => setStatus("loading")}>Cargar</button>
+          <button type="button" onClick={() => setStatus("error")}>Fallar</button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatus("loading");
+              queueMicrotask(() => setStatus("loaded"));
+            }}
+          >
+            Reintentar
+          </button>
+          <PresenceSwap presenceKey={status}>
+            <p>{status === "error" ? "No pudimos cargar" : status === "loading" ? "Cargando" : "Listo"}</p>
+          </PresenceSwap>
+        </>
+      );
+    }
+    try {
+      const user = userEvent.setup();
+      render(<RetryHarness />);
+
+      await user.click(screen.getByRole("button", { name: "Cargar" }));
+      await waitFor(() => expect(screen.queryByText("No pudimos cargar")).not.toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: "Fallar" }));
+      await waitFor(() => expect(screen.queryByText("Cargando")).not.toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: "Reintentar" }));
+
+      expect(await screen.findByText("Listo")).toBeInTheDocument();
+      expect(screen.queryByText("Cargando")).not.toBeInTheDocument();
+    } finally {
+      MotionGlobalConfig.skipAnimations = false;
+    }
   });
 });
 

@@ -4,6 +4,10 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Fixed
+
+- `PresenceSwap` ya no queda trabado en el estado anterior cuando la clave vuelve a un valor previo y cambia otra vez justo cuando termina la salida (por ejemplo, cargando → error → cargando → listo en un reintento).
+
 ## [0.9.1] - 2026-09-27
 
 ### Added
