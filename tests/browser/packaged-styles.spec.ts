@@ -19,7 +19,7 @@ let origin: string;
 
 test.beforeAll(async () => {
   directory = mkdtempSync(join(tmpdir(), "beez-css-consumer-"));
-  execSync(`pnpm --ignore-scripts pack --pack-destination "${directory}"`, { cwd: root, stdio: "pipe" });
+  execSync(`npm pack --ignore-scripts --pack-destination "${directory}"`, { cwd: root, stdio: "pipe" });
   const archive = readdirSync(directory).find((entry) => entry.endsWith(".tgz"))!;
   execFileSync("tar", ["-xf", join(directory, archive), "-C", directory]);
   const content = renderToStaticMarkup(createElement("main", null,
