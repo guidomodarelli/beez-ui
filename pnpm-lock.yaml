@@ -252,8 +252,8 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(oxc-transform-react@0.149.0)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.2)(jiti@2.7.0))
       beez-rp:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
       emoji-picker-react:
         specifier: ^4.22.2
         version: 4.22.2(react@19.3.0)
@@ -3094,8 +3094,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  beez-rp@0.2.0:
-    resolution: {integrity: sha512-d50iKsbtrt/oliVJIzyDH3UqhCUg3rhGEiPbZlsHnKC6rIIFmX0o7YcPbXrP40jSxoh1/8uatQZSqS8bN9WtmQ==}
+  beez-rp@0.3.0:
+    resolution: {integrity: sha512-gxpIhuVbYC8oghuJuigGh27yjcOfvrciV30fGdeMC7n6jVJfna5Gicyuos7h6/uLz7NcfZZ8i6vk/DNJpTJaNQ==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -7597,7 +7597,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.21: {}
 
-  beez-rp@0.2.0: {}
+  beez-rp@0.3.0: {}
 
   bidi-js@1.1.0:
     dependencies:
