@@ -4,6 +4,8 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-27
+
 ### Changed
 
 - Cada versión publicada queda en un commit `X.Y.Z` con el tag `vX.Y.Z` en GitHub (antes era un commit `chore(release): prepara la versión X.Y.Z` sin tag), para ubicar el código exacto de cada versión.
