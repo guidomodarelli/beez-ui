@@ -4,7 +4,7 @@
  * Toggle for likes and similar reactions: the icon pops when the viewer reacts and the counter
  * rolls in the direction of the change. The (optimistic) reaction state is owned by the caller.
  */
-import type { ComponentType, MouseEvent, SVGProps } from "react";
+import type { ComponentType, CSSProperties, MouseEvent, SVGProps } from "react";
 import { HeartIcon } from "lucide-react";
 import { motion, type Variants } from "motion/react";
 
@@ -25,6 +25,9 @@ const REACTION_ICON_VARIANTS: Variants = {
   },
 };
 
+/** Exposes the active color to the icon classes. */
+type ReactionButtonStyle = CSSProperties & { "--beez-reaction-active-color"?: string };
+
 export interface ReactionButtonProps {
   /** Accessible name, including the current count (for example "Me gusta 3"). */
   ariaLabel: string;
@@ -32,8 +35,13 @@ export interface ReactionButtonProps {
   count: number;
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   isDisabled?: boolean;
-  /** Icon of the reaction. While active it is filled with the destructive color; override it with `[&_svg]:` classes. */
+  /** Icon of the reaction; it is filled with `activeColor` while active. */
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  /**
+   * CSS color of the active icon, such as `var(--primary)` or `currentColor` to follow the
+   * button text. Defaults to the destructive color, the usual tone of a like.
+   */
+  activeColor?: string;
   /** Formats the visible count, for example with a locale-aware compact format. */
   formatCount?: (count: number) => string;
   className?: string;
@@ -54,9 +62,11 @@ export function ReactionButton({
   isDisabled = false,
   icon: Icon = HeartIcon,
   formatCount,
+  activeColor,
   className,
 }: ReactionButtonProps) {
   const shouldReduceMotion = usePrefersReducedMotion();
+  const activeColorStyle: ReactionButtonStyle | undefined = activeColor ? { "--beez-reaction-active-color": activeColor } : undefined;
 
   return (
     <Button
@@ -67,6 +77,7 @@ export function ReactionButton({
       className={cn("group/reaction", className)}
       disabled={isDisabled}
       onClick={onClick}
+      style={activeColorStyle}
       type="button"
       variant="outline"
     >
@@ -77,7 +88,7 @@ export function ReactionButton({
         initial={false}
         variants={REACTION_ICON_VARIANTS}
       >
-        <Icon className="size-4 transition-[fill,color] group-data-active/reaction:fill-current group-data-active/reaction:text-destructive" />
+        <Icon className="size-4 transition-[fill,color] group-data-active/reaction:fill-current group-data-active/reaction:text-[var(--beez-reaction-active-color,var(--destructive))]" />
       </motion.span>
       <AnimatedCount className="min-w-[1ch]" value={count} format={formatCount} />
     </Button>

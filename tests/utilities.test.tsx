@@ -2,18 +2,16 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import {
-  HORIZONTAL_SWIPE_DIRECTION,
   classifyFiles,
   compareFuzzyMatchRank,
   formatFileSize,
   getExactMatchIndices,
   getFuzzyMatchIndices,
   getFuzzyMatchRank,
-  getNameInitials,
   isFileTypeAccepted,
   renderHighlightedText,
-  resolveHorizontalSwipe,
 } from "beez-ui";
+import { HORIZONTAL_SWIPE_DIRECTION, resolveHorizontalSwipe } from "beez-ui/hooks";
 
 const BYTES_PER_KILOBYTE = 1024;
 const BYTES_PER_MEGABYTE = 1024 * 1024;
@@ -51,14 +49,6 @@ describe("resolveHorizontalSwipe", () => {
     expect(resolveHorizontalSwipe({ deltaX: -30, deltaY: 0, durationMs: 200 })).toBeNull();
     expect(resolveHorizontalSwipe({ deltaX: -90, deltaY: 80, durationMs: 200 })).toBeNull();
     expect(resolveHorizontalSwipe({ deltaX: -90, deltaY: 0, durationMs: 2_000 })).toBeNull();
-  });
-});
-
-describe("getNameInitials", () => {
-  it("builds up to two uppercase initials ignoring repeated spaces", () => {
-    expect(getNameInitials("  ana   maría lópez ")).toBe("AM");
-    expect(getNameInitials("guido")).toBe("G");
-    expect(getNameInitials("   ")).toBe("");
   });
 });
 

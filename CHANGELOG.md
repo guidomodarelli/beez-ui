@@ -6,10 +6,18 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ### Added
 
+- `ReactionButton` acepta `activeColor` para elegir el color del ícono activo (por defecto, el color destructivo).
+- Entrypoint `beez-ui/hooks` con los hooks de uso general: `useIsMobile`, `useIsHydrated`, `useViewerTimeZone`, `usePrefersReducedMotion`, `useHorizontalSwipe` y `resolveHorizontalSwipe`.
 - `FilterPresetsBar` y `FilterPresetSaveButton` para guardar, aplicar, editar y borrar consultas con nombre de `FilterQueryBar`, con `parseFilterPresets` para validar las que la app restaura de su almacenamiento.
+
+### Changed
+
+- `useIsHydrated`, `useViewerTimeZone`, `usePrefersReducedMotion`, `useHorizontalSwipe`, `resolveHorizontalSwipe` y `HORIZONTAL_SWIPE_DIRECTION` se importan desde `beez-ui/hooks` en lugar de la raíz; `useIsMobile` sigue también en la raíz.
 
 ### Removed
 
+- Se retiran `EmptyState`, `ErrorState`, `BouncingDotsLoader` e `InfoPopover`: son envoltorios simples que cada app mantiene con su propio diseño.
+- `getNameInitials` deja de ser público.
 - Se retiran componentes atados a un solo producto que llegaron en 0.8.0: `ExternalBrowserHandoff`, `OpenInBrowserCta`, `detectInAppBrowser`, `buildExternalBrowserUrl`, `NotificationBell`, `NotificationPanel`, `MonthGrid`, `MonthCalendarHeader`, `PwaUpdateControl` y `ConfirmDeleteButton`. Quien los use debe mantener su propia versión.
 - Se retiran los helpers `createMonthGridDays`, `splitCalendarWeeks`, `groupItemsByDateKey`, `shiftMonthKey`, `useMonthTransitionDirection`, `useMinuteClock`, `advanceMinuteClockTo`, `navigateToUrl`, `reloadCurrentPage`, `replaceCurrentUrlSearchParams` y `replaceCurrentUrlSearchParamValues`.
 - Se retira el entrypoint opcional `beez-ui/emoji-picker` y la dependencia opcional `emoji-picker-react`.

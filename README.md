@@ -173,15 +173,21 @@ Los componentes compartidos conservan el tema de LaTribu. Se incorporaron atribu
 
 ## Componentes de producto reutilizables
 
-Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron desacoplados de su dominio: reciben datos ya resueltos y textos por props, con valores por defecto en español. Solo se incorporan piezas genéricas que no fijan decisiones de un producto; los flujos propios de una app (notificaciones, calendarios de eventos, handoff de navegadores internos, actualización de PWA) se mantienen en esa app.
+Provienen de las carpetas de producto de LaTribu y agenda-mensual y quedaron desacoplados de su dominio: reciben datos ya resueltos y textos por props, con valores por defecto en español. Solo se incorporan piezas genéricas que no fijan decisiones de un producto y que no son una composición trivial de primitivas existentes; los flujos propios de una app (notificaciones, calendarios de eventos, handoff de navegadores internos, actualización de PWA) y los envoltorios simples (estados vacío y de error, loaders, popovers de ayuda) se mantienen en esa app.
 
 - Movimiento: `PresenceSwap`, `AnimatedCount`, `AnimatedCollapse` y `AnimatedListItem`. Los tokens que usa la biblioteca se exportan desde la raíz y desde `beez-ui/motion-tokens`, así las apps animan sus superficies con las mismas curvas y springs en lugar de copiarlos.
-- Feedback: `BouncingDotsLoader`, `ProgressRing`, `EmptyState`, `ErrorState`, `InfoPopover` y `ReactionButton`. El loader usa keyframes CSS porque se renderiza en el servidor; el fallback de movimiento reducido los detiene.
+- Indicadores: `ProgressRing` y `ReactionButton`. El color del ícono activo de la reacción se configura con `activeColor`.
 - Cuenta: `AccountMenu`, con inicio de sesión mediante `signInHref` o `onSignIn`.
 - Contenido: `RichTextContent`, `RichMarkdownContent`, `RichLinkEditor` y `useRichLinkEditor`. Solo interpretan links en markdown, URLs sueltas, listas y negrita; el HTML del contenido nunca se renderiza como markup.
 - Filtros guardados: `FilterPresetsBar` y `FilterPresetSaveButton` guardan, aplican, editan y borran consultas con nombre de `FilterQueryBar`. La app decide dónde persistirlas; `parseFilterPresets` valida lo que vuelve del almacenamiento.
 - Archivos: `FileUpload`, `FileUploadDropZone`, `FileUploadList` y `FileUploadItem` validan tipo y tamaño, pero no suben archivos: el progreso y los errores los informa la app.
-- Hooks y utilidades: `useIsHydrated`, `useViewerTimeZone`, `useHorizontalSwipe`, `usePrefersReducedMotion`, `formatFileSize`, `copyTextToClipboard`, `getNameInitials` y búsqueda difusa.
+- Utilidades: `formatFileSize`, `copyTextToClipboard` y búsqueda difusa.
+
+Los hooks de uso general se importan desde `beez-ui/hooks`: `useIsMobile`, `useIsHydrated`, `useViewerTimeZone`, `usePrefersReducedMotion` y `useHorizontalSwipe` (con `resolveHorizontalSwipe`). `useIsMobile` también sigue disponible desde la raíz.
+
+```tsx
+import { useIsHydrated } from "beez-ui/hooks";
+```
 
 ## React Compiler
 
@@ -218,7 +224,7 @@ pnpm release:prepare
 
 `pnpm build` genera las declaraciones con TypeScript 7, JavaScript con Oxc/React Compiler y CSS con el CLI de Tailwind. `pnpm check` ejecuta ESLint 10, los typechecks separados de código y tests con TypeScript 7, y Vitest 5. `tests/tsconfig.json` incorpora los matchers de Testing Library y los tipos de Vite sin incluirlos en el código de producción. `test:browser` verifica una app React/Vite nativa y una app Next real en Chromium y WebKit, tanto en desktop como en móvil. Los tests unitarios importan los archivos compilados. Los consumidores de navegador no instalan plugins de Tailwind, y una prueba adicional sirve el tarball por HTTP sin procesadores CSS para verificar estilos computados y carga de fuentes. Una prueba adicional instala el tarball en un consumidor aislado sin Next y verifica render, filtrado y declaraciones públicas.
 
-Los tests resuelven `beez-ui`, `beez-ui/next` y `beez-ui/tanstack` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
+Los tests resuelven `beez-ui`, `beez-ui/next`, `beez-ui/tanstack` y `beez-ui/hooks` mediante rutas explícitas a las declaraciones compiladas en `tests/tsconfig.json`. Ejecutar `pnpm build` después de clonar o si falta `dist`; los comandos de validación completos ya lo hacen. Si el editor conserva diagnósticos anteriores después del build, reiniciar su servidor de TypeScript.
 
 El compilador `tsc` es TypeScript 7. Para `typescript-eslint`, se mantiene la [API de compatibilidad oficial de TypeScript 6](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0) mediante un alias; no reemplaza el compilador de los typechecks.
 

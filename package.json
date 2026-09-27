@@ -147,6 +147,11 @@
       "import": "./dist/hooks/use-mobile.js",
       "default": "./dist/hooks/use-mobile.js"
     },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.js",
+      "default": "./dist/hooks.js"
+    },
     "./sidebar-constants": {
       "types": "./dist/constants/sidebar.d.ts",
       "import": "./dist/constants/sidebar.js",
@@ -266,30 +271,10 @@
       "import": "./dist/components/presence-swap.js",
       "default": "./dist/components/presence-swap.js"
     },
-    "./bouncing-dots-loader": {
-      "types": "./dist/components/bouncing-dots-loader.d.ts",
-      "import": "./dist/components/bouncing-dots-loader.js",
-      "default": "./dist/components/bouncing-dots-loader.js"
-    },
     "./progress-ring": {
       "types": "./dist/components/progress-ring.d.ts",
       "import": "./dist/components/progress-ring.js",
       "default": "./dist/components/progress-ring.js"
-    },
-    "./info-popover": {
-      "types": "./dist/components/info-popover.d.ts",
-      "import": "./dist/components/info-popover.js",
-      "default": "./dist/components/info-popover.js"
-    },
-    "./empty-state": {
-      "types": "./dist/components/empty-state.d.ts",
-      "import": "./dist/components/empty-state.js",
-      "default": "./dist/components/empty-state.js"
-    },
-    "./error-state": {
-      "types": "./dist/components/error-state.d.ts",
-      "import": "./dist/components/error-state.js",
-      "default": "./dist/components/error-state.js"
     },
     "./account-menu": {
       "types": "./dist/components/account-menu.d.ts",
@@ -326,30 +311,10 @@
       "import": "./dist/motion/tokens.js",
       "default": "./dist/motion/tokens.js"
     },
-    "./use-is-hydrated": {
-      "types": "./dist/hooks/use-is-hydrated.d.ts",
-      "import": "./dist/hooks/use-is-hydrated.js",
-      "default": "./dist/hooks/use-is-hydrated.js"
-    },
-    "./use-viewer-time-zone": {
-      "types": "./dist/hooks/use-viewer-time-zone.d.ts",
-      "import": "./dist/hooks/use-viewer-time-zone.js",
-      "default": "./dist/hooks/use-viewer-time-zone.js"
-    },
-    "./use-horizontal-swipe": {
-      "types": "./dist/hooks/use-horizontal-swipe.d.ts",
-      "import": "./dist/hooks/use-horizontal-swipe.js",
-      "default": "./dist/hooks/use-horizontal-swipe.js"
-    },
     "./use-rich-link-editor": {
       "types": "./dist/hooks/use-rich-link-editor.d.ts",
       "import": "./dist/hooks/use-rich-link-editor.js",
       "default": "./dist/hooks/use-rich-link-editor.js"
-    },
-    "./use-prefers-reduced-motion": {
-      "types": "./dist/hooks/use-prefers-reduced-motion.d.ts",
-      "import": "./dist/hooks/use-prefers-reduced-motion.js",
-      "default": "./dist/hooks/use-prefers-reduced-motion.js"
     },
     "./browser-clipboard": {
       "types": "./dist/lib/browser-clipboard.d.ts",
@@ -370,16 +335,6 @@
       "types": "./dist/lib/fuzzy-search.d.ts",
       "import": "./dist/lib/fuzzy-search.js",
       "default": "./dist/lib/fuzzy-search.js"
-    },
-    "./horizontal-swipe": {
-      "types": "./dist/lib/horizontal-swipe.d.ts",
-      "import": "./dist/lib/horizontal-swipe.js",
-      "default": "./dist/lib/horizontal-swipe.js"
-    },
-    "./name-initials": {
-      "types": "./dist/lib/name-initials.d.ts",
-      "import": "./dist/lib/name-initials.js",
-      "default": "./dist/lib/name-initials.js"
     }
   },
   "repository": {
