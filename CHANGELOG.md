@@ -4,6 +4,10 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Changed
+
+- Las versiones se publican con beez-rp 0.6.0 (`pnpm create-version`); el paquete publicado y la forma de instalarlo no cambian.
+
 ### Fixed
 
 - `PresenceSwap` ya no queda trabado en el estado anterior cuando la clave vuelve a un valor previo y cambia otra vez justo cuando termina la salida (por ejemplo, cargando → error → cargando → listo en un reintento).
