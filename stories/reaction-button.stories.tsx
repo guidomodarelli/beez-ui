@@ -1,7 +1,7 @@
 /** Demonstrates ReactionButton through its public component contract. */
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ReactionButton } from "beez-ui";
+import { ReactionButton } from "@guidomodarelli/beez-ui";
 
 /** Owns the optimistic reaction state like a consumer would. */
 function ReactionExample({ initialCount, activeColor }: { initialCount: number; activeColor: string }) {

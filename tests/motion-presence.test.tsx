@@ -15,7 +15,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 
 it("should remove a closing dialog even when it contains an unopened select", async () => {
   const user = userEvent.setup();

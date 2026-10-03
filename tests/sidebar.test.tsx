@@ -27,7 +27,7 @@ import {
   SIDEBAR_COOKIE_COLLAPSED_VALUE,
   SIDEBAR_COOKIE_NAME,
   SIDEBAR_COOKIE_OPEN_VALUE,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 
 /** Represents an application routing adapter that marks the links it renders. */
 function ConsumerLink(props: ComponentProps<"a">) {

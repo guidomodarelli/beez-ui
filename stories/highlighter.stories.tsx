@@ -1,6 +1,6 @@
 /** Demonstrates Highlighter through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Highlighter } from "beez-ui";
+import { Highlighter } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = {

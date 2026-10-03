@@ -5,9 +5,9 @@
     "moduleResolution": "bundler",
     "types": ["node", "vite/client"],
     "paths": {
-      "beez-ui": ["../dist/index"],
-      "beez-ui/tanstack": ["../dist/tanstack"],
-      "beez-ui/hooks": ["../dist/hooks"]
+      "@guidomodarelli/beez-ui": ["../dist/index"],
+      "@guidomodarelli/beez-ui/tanstack": ["../dist/tanstack"],
+      "@guidomodarelli/beez-ui/hooks": ["../dist/hooks"]
     }
   },
   "include": [

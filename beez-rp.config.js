@@ -6,14 +6,14 @@
  * prepares, pushes `main` and the tag atomically and publishes. beez-ui
  * prepares a checksum-addressed tarball through `scripts/release-hooks.js`;
  * the engine verifies that exact tarball (SHA-256 and contents) and publishes
- * it to npm with `NPM_TOKEN`. There are no separate checks because
+ * it to GitHub Packages with `NPM_TOKEN`. There are no separate checks because
  * `release:prepare` already runs the full validation on the version commit.
  */
 import { prepareReleaseArtifact } from "./scripts/release-hooks.js";
 
 /** @type {import("beez-rp/create-version").CreateVersionConfig} */
 export default {
-  projectName: "beez-ui",
+  projectName: "@guidomodarelli/beez-ui",
   changelog: { audience: "quien consume el paquete beez-ui", language: "es" },
   releaseTypeDescriptions: {
     patch: "Solo arreglos o cambios internos; nada nuevo para quien consume el paquete.",
@@ -25,5 +25,5 @@ export default {
   prepare: prepareReleaseArtifact,
   publish: "npm",
   artifact: "releases/{version}-{sha256}/{name}-{version}.tgz",
-  summary: ["Consumidores: pnpm add beez-ui@^{version}"],
+  summary: ["Consumidores: pnpm add @guidomodarelli/beez-ui@^{version}"],
 };

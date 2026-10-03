@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SidebarProvider, SidebarTrigger, Button, useSidebar, SIDEBAR_COOKIE_NAME } from "beez-ui";
+import { SidebarProvider, SidebarTrigger, Button, useSidebar, SIDEBAR_COOKIE_NAME } from "@guidomodarelli/beez-ui";
 
 /** Displays the actual provider state used by consumers. */
 function SidebarState() {

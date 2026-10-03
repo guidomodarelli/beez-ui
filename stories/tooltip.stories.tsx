@@ -1,6 +1,6 @@
 /** Demonstrates Tooltip as a complete, interactive composition. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Button, Tooltip, TooltipTrigger, TooltipContent } from "beez-ui";
+import { Button, Tooltip, TooltipTrigger, TooltipContent } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = {

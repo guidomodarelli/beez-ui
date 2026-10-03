@@ -1,7 +1,7 @@
 /** Demonstrates saved filter presets next to FilterQueryBar, with the presets owned by the example. */
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FilterPresetSaveButton, FilterPresetsBar, FilterQueryBar, type FilterPreset, type FilterQualifierConfig } from "beez-ui";
+import { FilterPresetSaveButton, FilterPresetsBar, FilterQueryBar, type FilterPreset, type FilterQualifierConfig } from "@guidomodarelli/beez-ui";
 
 const QUERY_FILTER_CONFIGS: FilterQualifierConfig[] = [
   { key: "", kind: "text", label: "Descripción" },

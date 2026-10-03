@@ -1,6 +1,6 @@
 /** Demonstrates Alert through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Alert, AlertTitle, AlertDescription } from "beez-ui";
+import { Alert, AlertTitle, AlertDescription } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = {

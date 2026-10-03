@@ -3,8 +3,8 @@ import { createMemoryHistory, createRootRoute, createRoute, createRouter, Outlet
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { Avatar, AvatarImage, Link } from "beez-ui";
-import { BeezUIProvider } from "beez-ui/tanstack";
+import { Avatar, AvatarImage, Link } from "@guidomodarelli/beez-ui";
+import { BeezUIProvider } from "@guidomodarelli/beez-ui/tanstack";
 
 /** Builds consumer-owned routes without mocking routing internals. */
 function renderRouter(href = "/target?tab=summary#details", initialEntry = "/") {

@@ -1,8 +1,8 @@
 /** Shares the production theme, fonts and tooltip context across examples. */
 import { useEffect, useEffectEvent } from "react";
 import type { Preview } from "@storybook/react-vite";
-import { BeezUIProvider, TooltipProvider, useTheme } from "beez-ui";
-import "beez-ui/styles.css";
+import { BeezUIProvider, TooltipProvider, useTheme } from "@guidomodarelli/beez-ui";
+import "@guidomodarelli/beez-ui/styles.css";
 import "./preview.css";
 
 /** Applies toolbar changes without preventing the theme component's own interactions. */

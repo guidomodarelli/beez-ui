@@ -1,6 +1,6 @@
 /** Demonstrates Switch through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Switch, Label } from "beez-ui";
+import { Switch, Label } from "@guidomodarelli/beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */

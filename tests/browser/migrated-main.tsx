@@ -1,7 +1,7 @@
 /** Mounts product helpers that depend on real browser APIs in a plain React consumer. */
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BeezUIProvider, Button, FileUploadItem, FileUploadList, copyTextToClipboard } from "beez-ui";
+import { BeezUIProvider, Button, FileUploadItem, FileUploadList, copyTextToClipboard } from "@guidomodarelli/beez-ui";
 import "./styles.css";
 
 const CLIPBOARD_TEXT = "https://example.com/invitacion";

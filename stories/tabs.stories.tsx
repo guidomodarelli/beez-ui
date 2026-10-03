@@ -1,6 +1,6 @@
 /** Demonstrates Tabs as a complete, interactive composition. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "beez-ui";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@guidomodarelli/beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */

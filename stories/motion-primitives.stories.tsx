@@ -2,7 +2,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AnimatePresence } from "motion/react";
-import { AnimatedCollapse, AnimatedCount, AnimatedListItem, Button, PresenceSwap } from "beez-ui";
+import { AnimatedCollapse, AnimatedCount, AnimatedListItem, Button, PresenceSwap } from "@guidomodarelli/beez-ui";
 
 const MEMBER_NAMES = ["Ana", "Bruno", "Carla", "Diego", "Elena"];
 

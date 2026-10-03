@@ -6,7 +6,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = {

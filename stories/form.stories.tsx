@@ -10,7 +10,7 @@ import {
   FormMessage,
   Input,
   Button,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 /** Exercises validation and submission with the actual form provider. */

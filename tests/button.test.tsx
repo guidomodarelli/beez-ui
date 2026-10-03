@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { Button } from "beez-ui";
+import { Button } from "@guidomodarelli/beez-ui";
 
 describe("Button", () => {
   it("renders an accessible button label", () => {

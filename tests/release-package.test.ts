@@ -27,7 +27,13 @@ it("should render and filter from the installed archive without Next or a TypeSc
     execFileSync("tar", ["-xf", archivePath, "-C", consumer]);
     const modules = join(consumer, "node_modules");
     mkdirSync(modules);
-    symlinkSync(join(consumer, "package"), join(modules, "beez-ui"), "junction");
+    const packageLink = join(modules, metadata.name);
+    mkdirSync(dirname(packageLink), { recursive: true });
+    symlinkSync(join(consumer, "package"), packageLink, "junction");
+    const packedMetadata = JSON.parse(readFileSync(join(consumer, "package", "package.json"), "utf8"));
+    expect(packedMetadata.name).toBe("@guidomodarelli/beez-ui");
+    expect(packedMetadata.publishConfig.registry).toBe("https://npm.pkg.github.com");
+    expect(archive).toBe(`guidomodarelli-beez-ui-${metadata.version}.tgz`);
     const dependencies = new Set([
       ...Object.keys(metadata.dependencies),
       ...Object.keys(metadata.peerDependencies).filter(name => !metadata.peerDependenciesMeta?.[name]?.optional),
@@ -44,7 +50,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Button, parseFilterQuery, parseYearMonthFilterInput } from "beez-ui";
+import { Button, parseFilterQuery, parseYearMonthFilterInput } from "@guidomodarelli/beez-ui";
 assert.throws(() => createRequire(import.meta.url).resolve("next"));
 assert.throws(() => createRequire(import.meta.url).resolve("@tanstack/react-router"));
 const html = renderToStaticMarkup(createElement(Button, { disabled: true }, "Guardar"));
@@ -55,7 +61,7 @@ assert.equal(parseYearMonthFilterInput("09/2026"), 202609);
 `);
     execFileSync(process.execPath, [join(consumer, "consumer.mjs")], { cwd: consumer, env: { ...process.env, NODE_PATH: "" }, stdio: "pipe" });
     writeFileSync(join(consumer, "consumer.ts"), `
-import { Button, parseFilterQuery, type BeezUIComponents } from "beez-ui";
+import { Button, parseFilterQuery, type BeezUIComponents } from "@guidomodarelli/beez-ui";
 import type { ComponentProps } from "react";
 const button: ComponentProps<typeof Button> = { variant: "outline", children: "Guardar" };
 const components: BeezUIComponents = {};

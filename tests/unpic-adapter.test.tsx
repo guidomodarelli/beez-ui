@@ -1,7 +1,7 @@
 /** Verifies responsive image generation through the native provider without mocking Unpic. */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Avatar, AvatarImage, BeezUIProvider } from "beez-ui";
+import { Avatar, AvatarImage, BeezUIProvider } from "@guidomodarelli/beez-ui";
 
 describe("Unpic adapter", () => {
   it("should use the detected CDN's responsive URLs and preserve image load events", () => {

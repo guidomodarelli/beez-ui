@@ -8,7 +8,7 @@ import {
   useIsHydrated,
   useViewerTimeZone,
   type HorizontalSwipeDirection,
-} from "beez-ui/hooks";
+} from "@guidomodarelli/beez-ui/hooks";
 
 /** Renders what the hooks report, so tests read it like a user would. */
 function HydrationProbe() {

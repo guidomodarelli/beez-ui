@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 
-import { RichLinkEditor, useRichLinkEditor } from "beez-ui";
+import { RichLinkEditor, useRichLinkEditor } from "@guidomodarelli/beez-ui";
 
 const COPY = {
   editAction: "Editar",

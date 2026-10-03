@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { validatePackageContents, validateReleaseMetadata } from "../scripts/release-checks.js";
 
 const PACKAGE = {
-  name: "beez-ui",
+  name: "@guidomodarelli/beez-ui",
   version: "0.1.1",
   license: "MIT",
   files: ["dist", "styles.css", "theme.css", "fonts.css", "assets", "README.md", "LICENSE.md", "CHANGELOG.md"],

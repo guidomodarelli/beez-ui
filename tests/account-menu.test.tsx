@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AccountMenu, BeezUIProvider, DropdownMenuItem, Sidebar, SidebarProvider, SidebarTrigger } from "beez-ui";
+import { AccountMenu, BeezUIProvider, DropdownMenuItem, Sidebar, SidebarProvider, SidebarTrigger } from "@guidomodarelli/beez-ui";
 
 const ACCOUNT = { name: "Ana López", email: "ana@example.com" };
 

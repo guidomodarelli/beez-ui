@@ -3,7 +3,7 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ProgressRing, ReactionButton } from "beez-ui";
+import { ProgressRing, ReactionButton } from "@guidomodarelli/beez-ui";
 
 describe("ProgressRing", () => {
   it("stays decorative without a label", () => {

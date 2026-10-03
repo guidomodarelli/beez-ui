@@ -14,13 +14,13 @@ const config: StorybookConfig = {
       resolve: {
         alias: [
           {
-            find: /^beez-ui$/,
+            find: /^@guidomodarelli\/beez-ui$/,
             replacement: fileURLToPath(
               new URL("../dist/index.js", import.meta.url),
             ),
           },
           {
-            find: "beez-ui/tanstack",
+            find: "@guidomodarelli/beez-ui/tanstack",
             replacement: fileURLToPath(
               new URL("../dist/tanstack.js", import.meta.url),
             ),

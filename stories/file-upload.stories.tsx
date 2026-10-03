@@ -1,7 +1,7 @@
 /** Demonstrates FileUpload with uploads tracked by the consumer. */
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FileUpload, FileUploadDropZone, FileUploadItem, FileUploadList } from "beez-ui";
+import { FileUpload, FileUploadDropZone, FileUploadItem, FileUploadList } from "@guidomodarelli/beez-ui";
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const COMPLETE_PROGRESS = 100;

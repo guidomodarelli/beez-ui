@@ -35,9 +35,9 @@ function git(...gitArguments: string[]) {
 function writeArchive(digest: string, version = VERSION) {
   const directory = join(repository, "releases", `${version}-${digest}`);
   mkdirSync(directory, { recursive: true });
-  const archivePath = join(directory, `beez-ui-${version}.tgz`);
+  const archivePath = join(directory, `guidomodarelli-beez-ui-${version}.tgz`);
   writeFileSync(archivePath, "tarball");
-  return { archivePath, relativePath: `releases/${version}-${digest}/beez-ui-${version}.tgz` };
+  return { archivePath, relativePath: `releases/${version}-${digest}/guidomodarelli-beez-ui-${version}.tgz` };
 }
 
 /** Error thrown by the context `fail`, carrying the engine's next-action hint. */
@@ -86,7 +86,7 @@ beforeEach(() => {
   git("config", "commit.gpgSign", "false");
   git("config", "core.autocrlf", "false");
   git("config", "core.hooksPath", join(repository, ".no-hooks"));
-  writeFileSync(join(repository, "package.json"), `${JSON.stringify({ name: "beez-ui", version: VERSION })}\n`);
+  writeFileSync(join(repository, "package.json"), `${JSON.stringify({ name: "@guidomodarelli/beez-ui", version: VERSION })}\n`);
   writeFileSync(join(repository, "CHANGELOG.md"), `# Cambios\n\n## [Unreleased]\n\n## [${VERSION}] - 2026-09-26\n\n- Cambio.\n`);
   writeFileSync(join(repository, "index.js"), "export {};\n");
   git("add", ".");
@@ -96,21 +96,28 @@ beforeEach(() => {
 afterEach(() => rmSync(ownedPath(tmpdir(), repository), { recursive: true, force: true }));
 
 describe("findPreparedArchive", () => {
+  it("should keep finding unscoped package archives", () => {
+    const directory = join(repository, "releases", `${VERSION}-${OLDER_DIGEST}`);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(join(directory, `beez-ui-${VERSION}.tgz`), "tarball");
+    expect(findPreparedArchive(repository, "beez-ui", VERSION)).toBe(`releases/${VERSION}-${OLDER_DIGEST}/beez-ui-${VERSION}.tgz`);
+  });
+
   it("should return the newest tarball of the exact version", () => {
     const older = writeArchive(OLDER_DIGEST);
     const newer = writeArchive(NEWER_DIGEST);
     utimesSync(older.archivePath, STALE_TIMESTAMP_SECONDS + 1, STALE_TIMESTAMP_SECONDS + 1);
     utimesSync(newer.archivePath, STALE_TIMESTAMP_SECONDS + 2, STALE_TIMESTAMP_SECONDS + 2);
-    expect(findPreparedArchive(repository, "beez-ui", VERSION)).toBe(newer.relativePath);
+    expect(findPreparedArchive(repository, "@guidomodarelli/beez-ui", VERSION)).toBe(newer.relativePath);
   });
 
   it("should ignore other versions, unexpected directories and missing tarballs", () => {
     writeArchive(OLDER_DIGEST, "0.9.01");
     mkdirSync(join(repository, "releases", `${VERSION}-prepare-tmp`), { recursive: true });
     mkdirSync(join(repository, "releases", `${VERSION}-${NEWER_DIGEST}`), { recursive: true });
-    expect(findPreparedArchive(repository, "beez-ui", VERSION)).toBeNull();
+    expect(findPreparedArchive(repository, "@guidomodarelli/beez-ui", VERSION)).toBeNull();
     rmSync(join(repository, "releases"), { recursive: true });
-    expect(findPreparedArchive(repository, "beez-ui", VERSION)).toBeNull();
+    expect(findPreparedArchive(repository, "@guidomodarelli/beez-ui", VERSION)).toBeNull();
   });
 });
 
@@ -137,7 +144,7 @@ describe("prepareReleaseArtifact", () => {
     const { archivePath } = writeArchive(NEWER_DIGEST);
     const beforeVersionCommit = Number(git("log", "-1", "--format=%ct")) + 1;
     utimesSync(archivePath, beforeVersionCommit, beforeVersionCommit);
-    writeFileSync(join(repository, "package.json"), `${JSON.stringify({ name: "beez-ui", version: VERSION, description: "metadata" })}\n`);
+    writeFileSync(join(repository, "package.json"), `${JSON.stringify({ name: "@guidomodarelli/beez-ui", version: VERSION, description: "metadata" })}\n`);
     execFileSync("git", ["commit", "--quiet", "-am", VERSION, "--date", `@${beforeVersionCommit + 10}`], { cwd: repository, env: { ...process.env, GIT_COMMITTER_DATE: `@${beforeVersionCommit + 10}` } });
     const { context, commands } = createContext();
     await prepareReleaseArtifact(context);
@@ -148,6 +155,6 @@ describe("prepareReleaseArtifact", () => {
     const failing = createContext({ exitCode: 1 });
     await expect(prepareReleaseArtifact(failing.context)).rejects.toMatchObject({ message: expect.stringContaining("pnpm release:prepare falló con código 1"), hint: expect.stringContaining("pnpm create-version") });
     const silent = createContext();
-    await expect(prepareReleaseArtifact(silent.context)).rejects.toThrow(/sin dejar releases\/0\.9\.0-<sha256>\/beez-ui-0\.9\.0\.tgz/u);
+    await expect(prepareReleaseArtifact(silent.context)).rejects.toThrow(/sin dejar releases\/0\.9\.0-<sha256>\/guidomodarelli-beez-ui-0\.9\.0\.tgz/u);
   }, GIT_TEST_TIMEOUT_MS);
 });

@@ -1,6 +1,6 @@
 /** Demonstrates RadioGroup as a complete, interactive composition. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { RadioGroup, RadioGroupItem, Label } from "beez-ui";
+import { RadioGroup, RadioGroupItem, Label } from "@guidomodarelli/beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */

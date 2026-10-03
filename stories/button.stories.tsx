@@ -1,6 +1,6 @@
 /** Demonstrates Button through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Button } from "beez-ui";
+import { Button } from "@guidomodarelli/beez-ui";
 import { Save } from "lucide-react";
 import { fn } from "storybook/test";
 /** Editable inputs specific to this example. */

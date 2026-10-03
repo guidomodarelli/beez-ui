@@ -1,6 +1,6 @@
 /** Demonstrates ProgressRing through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ProgressRing } from "beez-ui";
+import { ProgressRing } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = { fraction: number; size: number };

@@ -1,6 +1,6 @@
 /** Demonstrates Avatar through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "beez-ui";
+import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = {

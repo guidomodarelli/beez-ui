@@ -7,9 +7,9 @@ export default defineConfig({
   root: fileURLToPath(new URL("./", import.meta.url)),
   plugins: [react()],
   resolve: { alias: [
-    { find: /^beez-ui$/, replacement: fileURLToPath(new URL("../../dist/index.js", import.meta.url)) },
-    { find: "beez-ui/next", replacement: fileURLToPath(new URL("../../dist/next.js", import.meta.url)) },
-    { find: "beez-ui/tanstack", replacement: fileURLToPath(new URL("../../dist/tanstack.js", import.meta.url)) },
+    { find: /^@guidomodarelli\/beez-ui$/, replacement: fileURLToPath(new URL("../../dist/index.js", import.meta.url)) },
+    { find: "@guidomodarelli/beez-ui/next", replacement: fileURLToPath(new URL("../../dist/next.js", import.meta.url)) },
+    { find: "@guidomodarelli/beez-ui/tanstack", replacement: fileURLToPath(new URL("../../dist/tanstack.js", import.meta.url)) },
   ] },
   server: { host: "127.0.0.1", port: 3108, strictPort: true },
 });

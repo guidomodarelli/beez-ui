@@ -39,16 +39,27 @@ const PREPARED_DIRECTORY_SUFFIX = /^-[0-9a-f]{64}$/u;
  */
 
 /**
+ * Builds the file name npm pack uses for scoped and unscoped packages.
+ * @param {string} packageName - npm package name, such as `@scope/package`.
+ * @param {string} version - Released version.
+ * @returns {string} Tarball basename without path separators.
+ */
+function archiveFileName(packageName, version) {
+  const packedName = packageName.replaceAll("@", "").replaceAll("/", "-");
+  return `${packedName}-${version}.tgz`;
+}
+
+/**
  * Finds the newest tarball `release:prepare` produced for a version.
  * @param {string} repositoryRoot - Repository root.
- * @param {string} packageName - Unscoped package name, used in the tarball file name.
+ * @param {string} packageName - Package name, optionally scoped.
  * @param {string} version - Released version.
  * @returns {string | null} Archive path relative to the root, with `/` separators, or `null` when none exists.
  */
 export function findPreparedArchive(repositoryRoot, packageName, version) {
   const releasesPath = join(repositoryRoot, RELEASES_DIRECTORY);
   if (!existsSync(releasesPath)) return null;
-  const archiveName = `${packageName}-${version}.tgz`;
+  const archiveName = archiveFileName(packageName, version);
   const candidates = readdirSync(releasesPath)
     .filter((directory) => directory.startsWith(version) && PREPARED_DIRECTORY_SUFFIX.test(directory.slice(version.length)))
     .map((directory) => join(releasesPath, directory, archiveName))
@@ -129,7 +140,7 @@ export async function prepareReleaseArtifact(context) {
   const prepared = findPreparedArchive(context.repositoryRoot, packageName, version);
   if (!prepared) {
     context.fail(
-      `${PREPARE_COMMAND} terminó sin dejar ${RELEASES_DIRECTORY}/${version}-<sha256>/${packageName}-${version}.tgz.`,
+      `${PREPARE_COMMAND} terminó sin dejar ${RELEASES_DIRECTORY}/${version}-<sha256>/${archiveFileName(packageName, version)}.`,
       "Revisá la salida de release:prepare y corré pnpm create-version, que retoma desde la preparación.",
     );
   }

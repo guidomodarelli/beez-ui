@@ -1,6 +1,6 @@
 /** Demonstrates WhatsappIcon through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { WhatsappIcon } from "beez-ui";
+import { WhatsappIcon } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = { label: string; size: number };

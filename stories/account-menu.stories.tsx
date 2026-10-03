@@ -1,7 +1,7 @@
 /** Demonstrates AccountMenu through its public component contract. */
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AccountMenu, type AccountMenuStatus } from "beez-ui";
+import { AccountMenu, type AccountMenuStatus } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = { name: string; email: string; triggerVariant: "avatar" | "sidebar"; showStatusBadge: boolean };

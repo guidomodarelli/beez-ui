@@ -1,6 +1,6 @@
 /** Demonstrates DataTable with editable content and real interactions. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { DataTable } from "beez-ui";
+import { DataTable } from "@guidomodarelli/beez-ui";
 import { COLUMNS, FILTER_CONFIGS, type ROWS } from "./table-data.js";
 /** Editable inputs specific to this example. */
 type Args = {

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { createRoot } from "react-dom/client";
-import { Alert, AlertTitle, AnimatedThemeToggler, Avatar, AvatarImage, BeezUIProvider, Button, Calendar, DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Highlighter, InputGroup, InputGroupInput, InputGroupAddon, RadioGroup, RadioGroupItem, Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, ThemedToaster, toast, TypingAnimation } from "beez-ui";
+import { Alert, AlertTitle, AnimatedThemeToggler, Avatar, AvatarImage, BeezUIProvider, Button, Calendar, DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Highlighter, InputGroup, InputGroupInput, InputGroupAddon, RadioGroup, RadioGroupItem, Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, ThemedToaster, toast, TypingAnimation } from "@guidomodarelli/beez-ui";
 import "./styles.css";
 
 const ROWS = [{ name: "Luz", amount: 20 }, { name: "Internet", amount: 40 }];

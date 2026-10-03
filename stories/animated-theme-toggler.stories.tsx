@@ -1,6 +1,6 @@
 /** Demonstrates AnimatedThemeToggler through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AnimatedThemeToggler, useTheme, type ThemeMode } from "beez-ui";
+import { AnimatedThemeToggler, useTheme, type ThemeMode } from "@guidomodarelli/beez-ui";
 import { useGlobals } from "storybook/preview-api";
 
 /** Editable inputs specific to this example. */

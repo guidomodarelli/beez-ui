@@ -9,7 +9,7 @@ import {
   TableBody,
   TableCell,
   TableFooter,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 import { ROWS } from "./table-data.js";
 /** Editable inputs specific to this example. */
 type Args = { caption: string; rowCount: number; showFooter: boolean };

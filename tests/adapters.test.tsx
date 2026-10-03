@@ -2,7 +2,7 @@
 import type { ComponentProps } from "react";
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Avatar, AvatarImage, BeezUIProvider, PaginationNext } from "beez-ui";
+import { Avatar, AvatarImage, BeezUIProvider, PaginationNext } from "@guidomodarelli/beez-ui";
 
 /** Models a consumer-owned router without mocking a library implementation. */
 function ConsumerLink(props: ComponentProps<"a">) {

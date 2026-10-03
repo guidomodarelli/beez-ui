@@ -39,7 +39,7 @@ import {
   SheetTrigger,
   Skeleton,
   TypingAnimation,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 import "./styles.css";
 
 const PAGES = [1, 2, 3] as const;

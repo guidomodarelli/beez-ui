@@ -2,7 +2,7 @@
 import type { ComponentProps } from "react";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { BeezUIProvider, Link } from "beez-ui";
+import { BeezUIProvider, Link } from "@guidomodarelli/beez-ui";
 
 /** Represents an application adapter that receives the navigation hints. */
 function ConsumerLink({ prefetch, ...props }: ComponentProps<"a"> & { prefetch?: boolean }) {

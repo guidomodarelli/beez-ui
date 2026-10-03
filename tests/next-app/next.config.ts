@@ -5,6 +5,6 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   turbopack: { root: fileURLToPath(new URL("../../", import.meta.url)) },
-  experimental: { optimizePackageImports: ["beez-ui"] },
+  experimental: { optimizePackageImports: ["@guidomodarelli/beez-ui"] },
 };
 export default config;

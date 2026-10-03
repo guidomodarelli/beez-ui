@@ -10,8 +10,8 @@ import {
   getFuzzyMatchRank,
   isFileTypeAccepted,
   renderHighlightedText,
-} from "beez-ui";
-import { HORIZONTAL_SWIPE_DIRECTION, resolveHorizontalSwipe } from "beez-ui/hooks";
+} from "@guidomodarelli/beez-ui";
+import { HORIZONTAL_SWIPE_DIRECTION, resolveHorizontalSwipe } from "@guidomodarelli/beez-ui/hooks";
 
 const BYTES_PER_KILOBYTE = 1024;
 const BYTES_PER_MEGABYTE = 1024 * 1024;

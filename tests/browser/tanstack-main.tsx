@@ -1,8 +1,8 @@
 /** Exercises the TanStack provider in a real browser router owned by the consumer. */
 import { createRoot } from "react-dom/client";
 import { createRootRoute, createRoute, createRouter, Outlet, RouterProvider } from "@tanstack/react-router";
-import { AnimatedThemeToggler, Avatar, AvatarImage, Link } from "beez-ui";
-import { BeezUIProvider } from "beez-ui/tanstack";
+import { AnimatedThemeToggler, Avatar, AvatarImage, Link } from "@guidomodarelli/beez-ui";
+import { BeezUIProvider } from "@guidomodarelli/beez-ui/tanstack";
 import "./styles.css";
 
 const root = createRootRoute({ component: () => <BeezUIProvider themeOptions={{ defaultTheme: "light", enableSystem: false }}><Outlet /></BeezUIProvider> });

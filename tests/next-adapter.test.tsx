@@ -1,8 +1,8 @@
 /** Verifies the optional entrypoint using real Next.js and Base UI components. */
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Avatar, AvatarFallback, AvatarImage, PaginationNext } from "beez-ui";
-import { BeezUIProvider } from "beez-ui/next";
+import { Avatar, AvatarFallback, AvatarImage, PaginationNext } from "@guidomodarelli/beez-ui";
+import { BeezUIProvider } from "@guidomodarelli/beez-ui/next";
 
 describe("BeezUIProvider", () => {
   it("should activate Next Image while preserving the avatar lifecycle", async () => {

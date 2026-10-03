@@ -1,6 +1,6 @@
 /** Exercises shared defaults with interactive menus, forms and viewport-bound panels. */
 import { createRoot } from "react-dom/client";
-import { BeezUIProvider, Button, Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogFooter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Popover, PopoverTrigger, PopoverContent, Tabs, TabsList, TabsTrigger, TabsContent, Textarea, Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "beez-ui";
+import { BeezUIProvider, Button, Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogFooter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Popover, PopoverTrigger, PopoverContent, Tabs, TabsList, TabsTrigger, TabsContent, Textarea, Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@guidomodarelli/beez-ui";
 import "./styles.css";
 
 /** Renders the public primitives without consumer size or spacing overrides. */

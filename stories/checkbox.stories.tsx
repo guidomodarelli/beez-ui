@@ -1,6 +1,6 @@
 /** Demonstrates Checkbox through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Checkbox, Label } from "beez-ui";
+import { Checkbox, Label } from "@guidomodarelli/beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
 /** Editable inputs specific to this example. */

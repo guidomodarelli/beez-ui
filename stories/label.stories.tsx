@@ -1,6 +1,6 @@
 /** Demonstrates Label through its public component contract. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Label, Input } from "beez-ui";
+import { Label, Input } from "@guidomodarelli/beez-ui";
 
 /** Editable inputs specific to this example. */
 type Args = { children: string; disabled: boolean };

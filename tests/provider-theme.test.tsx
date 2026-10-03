@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AnimatedThemeToggler, BeezUIProvider, ThemedToaster, toast } from "beez-ui";
+import { AnimatedThemeToggler, BeezUIProvider, ThemedToaster, toast } from "@guidomodarelli/beez-ui";
 
 const SCRIPT_TAG_WARNING = "Encountered a script tag";
 

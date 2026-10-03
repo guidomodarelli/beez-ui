@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "@playwright/test";
-import { Avatar, AvatarFallback, Button, PaginationEllipsis, SidebarProvider, SidebarTrigger } from "beez-ui";
+import { Avatar, AvatarFallback, Button, PaginationEllipsis, SidebarProvider, SidebarTrigger } from "@guidomodarelli/beez-ui";
 import { ownedPath } from "../../scripts/owned-path.js";
 
 /** Static fixture resources belong exclusively to this test worker. */

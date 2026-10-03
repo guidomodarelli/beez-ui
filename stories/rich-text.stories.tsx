@@ -1,6 +1,6 @@
 /** Demonstrates the rich text renderer, the block markdown content and the link editor. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { RichLinkEditor, RichMarkdownContent, RichTextContent, useRichLinkEditor } from "beez-ui";
+import { RichLinkEditor, RichMarkdownContent, RichTextContent, useRichLinkEditor } from "@guidomodarelli/beez-ui";
 
 const INITIAL_MARKDOWN = "Mirá [el programa](https://example.com/programa) o escribí a example.com";
 const LONG_FORM_MARKDOWN = [

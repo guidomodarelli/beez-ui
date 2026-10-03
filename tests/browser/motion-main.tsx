@@ -37,7 +37,7 @@ import {
   DropdownMenuCheckboxItem,
   AnimatedThemeToggler,
   DataTable,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 
 const GROUPED_ROWS = [
   { name: "Luz", currency: "ARS" },

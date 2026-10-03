@@ -61,7 +61,7 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
-} from "beez-ui";
+} from "@guidomodarelli/beez-ui";
 import "./styles.css";
 
 const SECTIONS = ["Inicio", "Reportes", "Ajustes"] as const;
