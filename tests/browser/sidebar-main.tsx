@@ -1,14 +1,19 @@
 /** Renders an application shell with the animated sidebar in its default icon-rail mode. */
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { FolderKanban, Home, Settings } from "lucide-react";
+import { ChevronsUpDown, FolderKanban, Home, Settings } from "lucide-react";
 import {
+  AccountMenu,
   BeezUIProvider,
   Sidebar,
+  SidebarBrandButton,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarInset,
+  SidebarLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -35,6 +40,11 @@ function SidebarShell() {
     <BeezUIProvider>
       <SidebarProvider>
         <Sidebar ariaLabel="Navegación principal">
+          <SidebarHeader>
+            <SidebarBrandButton icon={<span>BZ</span>} trailing={<ChevronsUpDown />}>
+              Beez
+            </SidebarBrandButton>
+          </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>Secciones</SidebarGroupLabel>
@@ -66,7 +76,19 @@ function SidebarShell() {
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroup>
+            <SidebarLabel asChild>
+              <p>Elegí una sección para empezar.</p>
+            </SidebarLabel>
           </SidebarContent>
+          <SidebarFooter>
+            <AccountMenu
+              name="Ana López"
+              email="ana@example.com"
+              status="authenticated"
+              triggerVariant="sidebar"
+              onSignOut={() => undefined}
+            />
+          </SidebarFooter>
           <SidebarRail aria-label="Borde de la navegación" />
         </Sidebar>
         <SidebarInset>

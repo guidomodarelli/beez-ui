@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu.js";
 import { Link } from "./link.js";
+import { useOptionalSidebarPanel } from "./sidebar-panel-context.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip.js";
 
 export type AccountMenuStatus = "authenticated" | "unauthenticated";
@@ -37,7 +38,7 @@ export interface AccountMenuLabels {
 export interface AccountMenuClassNames {
   trigger?: string;
   triggerAvatar?: string;
-  /** Name and email block of the `sidebar` trigger, for example to hide it in a collapsed sidebar. */
+  /** Name and email block of the `sidebar` trigger; it already leaves the icon rail of a collapsed `Sidebar`. */
   triggerText?: string;
   triggerName?: string;
   triggerEmail?: string;
@@ -68,7 +69,10 @@ export interface AccountMenuProps {
   onSignIn?: () => void;
   /** Navigates to a sign-in page through the configured router adapter instead of calling `onSignIn`. */
   signInHref?: string;
-  /** `avatar` shows only the avatar; `sidebar` also shows name, email and a chevron. */
+  /**
+   * `avatar` shows only the avatar; `sidebar` also shows name, email and a chevron, and inside the
+   * icon rail of a collapsed `Sidebar` shrinks to the centered avatar.
+   */
   triggerVariant?: "avatar" | "sidebar";
   /** Adds a connected/disconnected badge to the avatar and greys it out while signed out. */
   showStatusBadge?: boolean;
@@ -152,6 +156,8 @@ export function AccountMenu({
   const isAuthenticated = status === "authenticated";
   const fallback = avatarFallback ?? (getNameInitials(name) || DEFAULT_AVATAR_FALLBACK);
   const avatarProps = { name, image, fallback, status, showStatusBadge, classNames };
+  const sidebarPanel = useOptionalSidebarPanel();
+  const showsSidebarIdentity = triggerVariant === "sidebar" && !sidebarPanel?.collapsed;
 
   const triggerButton = (
     <button
@@ -162,11 +168,12 @@ export function AccountMenu({
       className={cn(
         "inline-flex items-center rounded-full outline-none [-webkit-tap-highlight-color:transparent] transition-[box-shadow,opacity,transform] hover:opacity-90 active:scale-[0.96] focus-visible:shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--ring)] data-[state=open]:shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--ring)]",
         triggerVariant === "sidebar" && "w-full min-w-0 gap-2.5 rounded-lg p-1.5 text-left",
+        triggerVariant === "sidebar" && !showsSidebarIdentity && "justify-center gap-0",
         classNames?.trigger,
       )}
     >
       <AccountAvatar {...avatarProps} className={classNames?.triggerAvatar} />
-      {triggerVariant === "sidebar" ? (
+      {showsSidebarIdentity ? (
         <>
           <span className={cn("grid min-w-0 flex-1", classNames?.triggerText)}>
             <span className={cn("truncate text-sm font-semibold", classNames?.triggerName)}>{name}</span>

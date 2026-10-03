@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AccountMenu, BeezUIProvider, DropdownMenuItem } from "beez-ui";
+import { AccountMenu, BeezUIProvider, DropdownMenuItem, Sidebar, SidebarProvider, SidebarTrigger } from "beez-ui";
 
 const ACCOUNT = { name: "Ana López", email: "ana@example.com" };
 
@@ -120,5 +120,25 @@ describe("AccountMenu", () => {
     await user.click(await screen.findByRole("menuitem", { name: "Ajustes" }));
 
     expect(onOpenSettings).toHaveBeenCalledTimes(1);
+  });
+
+  it("shrinks the sidebar trigger to the avatar in the icon rail of a collapsed sidebar", async () => {
+    const user = userEvent.setup();
+    render(
+      <SidebarProvider>
+        <Sidebar>
+          <AccountMenu {...ACCOUNT} status="authenticated" triggerVariant="sidebar" onSignOut={vi.fn()} />
+        </Sidebar>
+        <SidebarTrigger />
+      </SidebarProvider>,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Menú de cuenta" });
+    expect(trigger).toHaveTextContent("ana@example.com");
+    await user.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+    expect(trigger).not.toHaveTextContent("ana@example.com");
+    expect(trigger).toHaveTextContent("AL");
+    await user.click(trigger);
+    expect(await screen.findByRole("menuitem", { name: "Cerrar sesión" })).toBeInTheDocument();
   });
 });

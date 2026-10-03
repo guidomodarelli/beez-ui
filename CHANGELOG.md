@@ -4,6 +4,17 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- `SidebarBrandButton` arma la fila de marca del sidebar (ícono, nombre y un indicador opcional): se alinea con los íconos del menú, deja solo el ícono en el riel colapsado y puede abrir un selector como `DropdownMenuTrigger asChild`.
+- `SidebarLabel` muestra texto propio solo con el sidebar expandido, por ejemplo un estado vacío; acepta `asChild` para conservar la etiqueta del hijo.
+- `useSidebarPanel()` devuelve si el panel está colapsado en el riel de íconos, para adaptar contenido propio sin depender de atributos internos.
+- `SidebarProvider` acepta `cookieName` y `cookieMaxAge` para guardar el estado en la cookie que ya lee la app en el servidor.
+
+### Changed
+
+- `AccountMenu` con `triggerVariant="sidebar"` muestra solo el avatar centrado cuando el sidebar está colapsado en el riel de íconos.
+
 ## [0.10.0] - 2026-10-03
 
 - 6769ea7 agrega funcionalidad de persistencia y animación al sidebar

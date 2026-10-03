@@ -1,6 +1,13 @@
 /** Demonstrates Sidebar with editable content and real interactions. */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+  AccountMenu,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  SidebarBrandButton,
+  SidebarLabel,
   SidebarProvider,
   Sidebar,
   SidebarHeader,
@@ -20,7 +27,7 @@ import {
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
-import { Activity, FolderKanban, Home, Settings } from "lucide-react";
+import { Activity, ChevronsUpDown, FolderKanban, Home, Settings } from "lucide-react";
 /** Top-level sections with their icons and optional counters. */
 const SECTIONS = [
   { label: "Resumen", icon: <Home /> },
@@ -98,10 +105,16 @@ const meta = {
                 collapsible={args.collapsible}
               >
                 <SidebarHeader>
-                  <div className="StorySidebarBrand">
-                    <Home aria-hidden="true" />
-                    <span className="StorySidebarLabel">{args.title}</span>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <SidebarBrandButton icon={<Home />} trailing={<ChevronsUpDown />}>
+                        {args.title}
+                      </SidebarBrandButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem>Otro espacio</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </SidebarHeader>
                 <SidebarContent>
                   <SidebarGroup>
@@ -144,7 +157,16 @@ const meta = {
                   </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
-                  <span className="StorySidebarLabel">Cuenta de ejemplo</span>
+                  <SidebarLabel className="StorySidebarHint">
+                    Las secciones se guardan en este navegador.
+                  </SidebarLabel>
+                  <AccountMenu
+                    name="Ana López"
+                    email="ana@example.com"
+                    status="authenticated"
+                    triggerVariant="sidebar"
+                    onSignOut={() => undefined}
+                  />
                 </SidebarFooter>
                 <SidebarRail />
               </Sidebar>

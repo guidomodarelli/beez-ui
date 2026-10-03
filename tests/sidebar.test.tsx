@@ -4,10 +4,16 @@ import { afterEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   Sidebar,
+  SidebarBrandButton,
   SidebarContent,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -16,6 +22,7 @@ import {
   SidebarMenuSubItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebarPanel,
   BeezUIProvider,
   SIDEBAR_COOKIE_COLLAPSED_VALUE,
   SIDEBAR_COOKIE_NAME,
@@ -163,5 +170,81 @@ describe("SidebarProvider persistence", () => {
     await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
     expect(changes).toEqual([false]);
     expect(screen.getByRole("complementary", { name: "Sidebar" })).toHaveAttribute("data-state", "expanded");
+  });
+});
+
+/** Reports the panel state the way product content reads it. */
+function PanelState() {
+  return <output aria-label="Panel">{useSidebarPanel().collapsed ? "riel" : "panel"}</output>;
+}
+
+/** Header with a workspace switcher, product-only text and a panel state probe. */
+function WorkspaceSidebar({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <Sidebar>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarBrandButton icon={<span>AC</span>} trailing={<svg data-testid="brand-chevron" />}>
+              Acme
+            </SidebarBrandButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Otro espacio</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <SidebarLabel asChild>
+          <p>Todavía no hay espacios</p>
+        </SidebarLabel>
+        <PanelState />
+      </Sidebar>
+      <SidebarTrigger />
+    </SidebarProvider>
+  );
+}
+
+describe("Sidebar consumer parts", () => {
+  it("should open a workspace switcher from the brand button", async () => {
+    render(<WorkspaceSidebar />);
+    await userEvent.click(screen.getByRole("button", { name: "Acme" }));
+    expect(await screen.findByRole("menuitem", { name: "Otro espacio" })).toBeInTheDocument();
+  });
+
+  it("should keep only the brand tile, named after its label, in the icon rail", async () => {
+    render(<WorkspaceSidebar />);
+    expect(screen.getByTestId("brand-chevron")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+    const brand = screen.getByRole("button", { name: "Acme" });
+    expect(brand).toHaveAttribute("title", "Acme");
+    expect(brand).not.toHaveTextContent("Acme");
+    expect(screen.queryByTestId("brand-chevron")).not.toBeInTheDocument();
+  });
+
+  it("should remove product-only text from the icon rail and keep the child element", async () => {
+    render(<WorkspaceSidebar />);
+    expect(screen.getByText("Todavía no hay espacios").tagName).toBe("P");
+    await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+    expect(screen.queryByText("Todavía no hay espacios")).not.toBeInTheDocument();
+  });
+
+  it("should expose the collapsed state of the panel to product content", async () => {
+    render(<WorkspaceSidebar defaultOpen={false} />);
+    expect(screen.getByLabelText("Panel")).toHaveTextContent("riel");
+    await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+    expect(screen.getByLabelText("Panel")).toHaveTextContent("panel");
+  });
+});
+
+describe("SidebarProvider custom cookie", () => {
+  it("should write the desktop state to the cookie the application reads on the server", async () => {
+    render(
+      <SidebarProvider cookieName="app.sidebar.open" cookieMaxAge={60}>
+        <SidebarTrigger />
+      </SidebarProvider>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+    expect(document.cookie).toContain(`app.sidebar.open=${SIDEBAR_COOKIE_COLLAPSED_VALUE}`);
+    expect(document.cookie).not.toContain(`${SIDEBAR_COOKIE_NAME}=`);
+    document.cookie = "app.sidebar.open=; max-age=0; path=/";
   });
 });

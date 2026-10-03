@@ -9,6 +9,7 @@
  */
 import * as React from "react";
 import { ChevronRight, PanelLeftIcon } from "lucide-react";
+import { Slot } from "radix-ui";
 import {
   AnimatePresence,
   motion,
@@ -25,6 +26,7 @@ import {
   saveSidebarPreference,
   useSidebarPersistence,
 } from "../hooks/use-sidebar-persistence.js";
+import { SIDEBAR_COOKIE_MAX_AGE, SIDEBAR_COOKIE_NAME } from "../constants/sidebar.js";
 import { cn } from "../lib/utils.js";
 import { MotionSlot } from "../motion/motion-slot.js";
 import { SharedLayoutBg } from "../motion/shared-layout-bg.js";
@@ -36,6 +38,7 @@ import {
   SPRING_LAYOUT,
 } from "../motion/tokens.js";
 import { Link } from "./link.js";
+import { SidebarPanelContext, type SidebarPanelState } from "./sidebar-panel-context.js";
 
 type SidebarState = "expanded" | "collapsed";
 type SidebarSide = "left" | "right";
@@ -154,15 +157,6 @@ type SidebarContextValue = {
 const SidebarContext =
   React.createContext<SidebarContextValue | null>(null);
 
-type SidebarPanelContextValue = {
-  collapsed: boolean;
-  collapsible: SidebarCollapsible;
-  side: SidebarSide;
-};
-
-const SidebarPanelContext =
-  React.createContext<SidebarPanelContextValue | null>(null);
-
 /**
  * Reads the sidebar state shared by `SidebarProvider`.
  * @returns Open state for desktop and mobile, viewport and motion flags, and state setters.
@@ -175,10 +169,16 @@ function useSidebar() {
   return context;
 }
 
-function useSidebarPanel() {
+/**
+ * Reads the state of the enclosing `Sidebar` panel, so product content can adapt to the icon rail
+ * without depending on its DOM attributes.
+ * @returns Whether the panel is collapsed to its icon rail (always false in the mobile sheet), its
+ * collapse mode and its side.
+ */
+function useSidebarPanel(): SidebarPanelState {
   const context = React.use(SidebarPanelContext);
   if (!context) {
-    throw new Error("Sidebar parts must be used within an Sidebar.");
+    throw new Error("useSidebarPanel must be used within a Sidebar.");
   }
   return context;
 }
@@ -201,12 +201,16 @@ export type SidebarProviderProps = React.ComponentProps<"div"> & {
   onOpenMobileChange?: (open: boolean) => void;
   /** Opts into local persistence without changing the shared SSR cookie contract. */
   storageKey?: string;
+  /** Cookie that keeps the desktop state for server entrypoints; defaults to `sidebar_state`. */
+  cookieName?: string;
+  /** Lifetime of that cookie in seconds; defaults to seven days. */
+  cookieMaxAge?: number;
   style?: SidebarProviderStyle;
 };
 
 /**
  * Owns the open state of the sidebar, the ⌘B / Ctrl+B shortcut and the layout wrapper.
- * @param props - Controlled or default state for both viewports, persistence key and wrapper attributes.
+ * @param props - Controlled or default state for both viewports, persistence options and wrapper attributes.
  * @returns The wrapper that lays out the sidebar next to its inset.
  */
 function SidebarProvider({
@@ -218,6 +222,8 @@ function SidebarProvider({
   defaultOpenMobile = false,
   onOpenMobileChange,
   storageKey,
+  cookieName = SIDEBAR_COOKIE_NAME,
+  cookieMaxAge = SIDEBAR_COOKIE_MAX_AGE,
   className,
   style,
   ...props
@@ -239,9 +245,9 @@ function SidebarProvider({
       if (openProp === undefined) setInternalOpen(nextOpen);
       onOpenChange?.(nextOpen);
       saveSidebarPreference(storageKey, nextOpen);
-      saveSidebarCookie(nextOpen);
+      saveSidebarCookie(nextOpen, cookieName, cookieMaxAge);
     },
-    [onOpenChange, openProp, storageKey],
+    [cookieMaxAge, cookieName, onOpenChange, openProp, storageKey],
   );
 
   const setOpenMobile = React.useCallback(
@@ -741,6 +747,87 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+export type SidebarLabelProps = React.ComponentProps<"span"> & {
+  /** Renders the child element instead of a `span`, for example a paragraph. */
+  asChild?: boolean;
+};
+
+/**
+ * Product text that only makes sense in the expanded sidebar, such as a workspace name or an empty
+ * state: it leaves the layout while the panel is the icon rail and always shows in the mobile sheet.
+ * @param props - Span attributes, or `asChild` to keep the child element.
+ * @returns The content, or nothing in the icon rail.
+ */
+function SidebarLabel({ asChild = false, ...props }: SidebarLabelProps) {
+  const { collapsed } = useSidebarPanel();
+  if (collapsed) return null;
+  const Component = asChild ? Slot.Root : "span";
+  return <Component data-slot="sidebar-label" {...props} />;
+}
+
+export type SidebarBrandButtonProps = React.ComponentProps<"button"> & {
+  /** Square tile such as a logo or initials; it stays visible in the icon rail. */
+  icon: React.ReactNode;
+  /** Trailing affordance such as a chevron, hidden in the icon rail. */
+  trailing?: React.ReactNode;
+};
+
+/**
+ * Header row that identifies the workspace, often the trigger of a workspace switcher. It forwards
+ * its props and ref to the `button`, so it works as `DropdownMenuTrigger asChild`, and keeps its tile
+ * on the menu icon column while the label and trailing content leave in the icon rail.
+ * @param props - Tile, label, trailing content and native button attributes.
+ * @returns The brand button.
+ */
+function SidebarBrandButton({
+  icon,
+  trailing,
+  children,
+  className,
+  type = "button",
+  ...props
+}: SidebarBrandButtonProps) {
+  const { collapsed } = useSidebarPanel();
+  const textLabel = typeof children === "string" ? children : undefined;
+
+  return (
+    <button
+      aria-label={collapsed ? textLabel : undefined}
+      title={collapsed ? textLabel : undefined}
+      {...props}
+      type={type}
+      data-slot="sidebar-brand-button"
+      className={cn(
+        "flex min-h-10 w-full min-w-0 items-center gap-3 rounded-xl px-2 py-1.5 text-left text-sm font-semibold text-sidebar-foreground outline-none transition-colors",
+        "hover:bg-sidebar-accent/70 focus-visible:bg-sidebar-accent/70 focus-visible:ring-2 focus-visible:ring-sidebar-ring data-[state=open]:bg-sidebar-accent/70",
+        "disabled:cursor-not-allowed disabled:opacity-40",
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        data-slot="sidebar-brand-icon"
+        className="grid size-7 shrink-0 place-items-center overflow-hidden rounded-lg [&>img]:size-full [&>img]:object-cover"
+      >
+        {icon}
+      </span>
+      {collapsed ? null : (
+        <>
+          <span className="min-w-0 flex-1 truncate">{children}</span>
+          {trailing ? (
+            <span
+              aria-hidden="true"
+              className="grid size-4 shrink-0 place-items-center text-sidebar-foreground/70 [&_svg]:size-3.5"
+            >
+              {trailing}
+            </span>
+          ) : null}
+        </>
+      )}
+    </button>
+  );
+}
+
 function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -1117,6 +1204,7 @@ function SidebarMenuButton({
 
 export {
   Sidebar,
+  SidebarBrandButton,
   SidebarClose,
   SidebarContent,
   SidebarFooter,
@@ -1125,6 +1213,7 @@ export {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
+  SidebarLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -1135,4 +1224,5 @@ export {
   SidebarRail,
   SidebarTrigger,
   useSidebar,
+  useSidebarPanel,
 };

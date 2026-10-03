@@ -50,10 +50,14 @@ export function saveSidebarPreference(storageKey: string | undefined, open: bool
 }
 
 /** Writes the cookie that server entrypoints read to render the sidebar in its last state. */
-export function saveSidebarCookie(open: boolean): void {
+export function saveSidebarCookie(
+  open: boolean,
+  cookieName: string = SIDEBAR_COOKIE_NAME,
+  maxAgeSeconds: number = SIDEBAR_COOKIE_MAX_AGE,
+): void {
   const value = open ? SIDEBAR_COOKIE_OPEN_VALUE : SIDEBAR_COOKIE_COLLAPSED_VALUE;
   try {
-    document.cookie = `${SIDEBAR_COOKIE_NAME}=${value}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
+    document.cookie = `${cookieName}=${value}; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
   } catch {
     // Navigation remains usable when browser policy blocks preference cookies.
   }

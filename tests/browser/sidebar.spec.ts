@@ -24,6 +24,22 @@ test.describe("desktop", () => {
     await expect(page.getByRole("button", { name: "Ajustes" })).toHaveAttribute("title", "Ajustes");
   });
 
+  test("should line up the brand tile and the account avatar with the menu icons in the icon rail", async ({ page }) => {
+    await page.goto("/sidebar.html");
+    await page.getByRole("button", { name: "Alternar navegación" }).click();
+    const sidebar = page.getByRole("complementary", { name: "Navegación principal" });
+    await expect.poll(async () => Math.round((await sidebar.boundingBox())?.width ?? 0)).toBe(COLLAPSED_WIDTH_PX);
+    const centerX = async (selector: string) => {
+      const box = await page.locator(selector).first().boundingBox();
+      return box ? Math.round(box.x + box.width / 2) : Number.NaN;
+    };
+    const menuIconCenter = await centerX('[data-slot="sidebar-menu-button"] > span[aria-hidden="true"]');
+    expect(Math.abs((await centerX('[data-slot="sidebar-brand-icon"]')) - menuIconCenter)).toBeLessThanOrEqual(1);
+    expect(Math.abs((await centerX('[data-slot="account-menu-trigger"] [data-slot="avatar"]')) - menuIconCenter)).toBeLessThanOrEqual(1);
+    await expect(page.getByText("Elegí una sección para empezar.")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Menú de cuenta" })).not.toContainText("ana@example.com");
+  });
+
   test("should toggle the sidebar from its edge rail", async ({ page }) => {
     await page.goto("/sidebar.html");
     const sidebar = page.getByRole("complementary", { name: "Navegación principal" });
@@ -63,7 +79,7 @@ test.describe("mobile", () => {
     const sheet = page.getByRole("dialog", { name: "Navegación principal" });
     await expect(sheet).toBeVisible();
     await expect.poll(async () => Math.round((await sheet.boundingBox())?.width ?? 0)).toBe(MOBILE_SHEET_WIDTH_PX);
-    await expect(page.getByRole("button", { name: "Inicio" })).toBeFocused();
+    await expect(page.getByRole("button", { name: "Beez" })).toBeFocused();
     await expect(page.locator("body")).toHaveCSS("overflow", "hidden");
     await page.keyboard.press("Escape");
     await expect(sheet).toBeHidden();
