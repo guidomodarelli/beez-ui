@@ -255,10 +255,17 @@ El compilador `tsc` es TypeScript 7. El paquete `typescript` apunta a la [API de
 
 ### Desde GitHub Actions
 
-En GitHub, abrir **Actions → Release → Run workflow**, seleccionar `main` y ejecutar.
+El workflow **Release** se ejecuta automáticamente con cada push o merge a `main`,
+incluidos los cambios de `package.json`. También se puede iniciar en GitHub desde
+**Actions → Release → Run workflow**, seleccionando `main`.
 El workflow usa `pnpm create-version --accept-suggested`: beez-rp calcula la versión
 y genera el CHANGELOG desde los commits, prepara y valida el tarball, crea y sube
 el commit y el tag y publica en GitHub Packages.
+
+El disparador también incluye los pushes que cambian `package.json`, pero
+beez-rp 0.6.1 no retoma una versión editada a mano en un commit común: necesita
+su commit de versión y tag de release. Para el flujo automático, dejar que
+beez-rp aumente la versión según los commits.
 
 No necesita secrets manuales: pasa `GITHUB_TOKEN` como `NPM_TOKEN`, con
 `contents: write` para subir el release y `packages: write` para publicar.
@@ -272,7 +279,8 @@ Si el paquete ya existe, este repositorio debe tener acceso de escritura en
 `main` impide pushes del token del workflow, debe ajustarse para permitir el
 flujo de release antes de ejecutarlo. No ejecutar un release local mientras
 esté corriendo el de Actions. Los pushes hechos con `GITHUB_TOKEN` no disparan
-el workflow de CI; la preparación del release ejecuta las validaciones completas.
+otros workflows, incluido **Release**, por lo que el commit de versión no crea un
+bucle de publicaciones. La preparación del release ejecuta las validaciones completas.
 Para retomar una publicación fallida después del push, volver a ejecutar **Release**.
 
 ### Desde una terminal local
@@ -321,7 +329,7 @@ pnpm release:prepare
 
 El paquete excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`; incluye JavaScript, declaraciones, CSS, fuentes tipográficas y licencias. Conserva releases anteriores.
 
-`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows. La publicación se inicia por separado desde el workflow **Release**.
+`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows. La publicación se ejecuta desde el workflow **Release** con cada push a `main` o mediante su ejecución manual.
 
 Tras publicar, los consumidores pueden instalar `pnpm add @guidomodarelli/beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. Las aplicaciones existentes, incluida LaTribu, deben migrar al nombre con scope y configurar autenticación para consumir las versiones nuevas desde GitHub Packages; su lockfile fija la resolución e integridad.
 
