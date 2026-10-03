@@ -14,24 +14,18 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
 });
 
-test("should glide the sidebar active item and hand the highlight back", async ({ page }) => {
-  const motion = await recordMotion(page);
+test("should glide the sidebar active pill and hand the highlight back", async ({ page }) => {
   await page.goto("/motion-catalog.html");
+  const indicator = page.locator('[data-slot="sidebar-menu-active-indicator"]');
   const reports = page.getByRole("button", { name: "Reportes" });
-  const activeBackground = await page
-    .getByRole("button", { name: "Inicio" })
-    .evaluate((button) => getComputedStyle(button).backgroundColor);
+  const activeBackground = await indicator.evaluate((element) => getComputedStyle(element).backgroundColor);
   await reports.click();
   await expect(page.getByLabel("Sección activa")).toHaveText("Reportes");
-  await expect.poll(motion.glides).toContain("sidebar-menu");
-  await expect(page.locator("[data-glide-indicator]")).toHaveCount(0);
-  await expect(reports).not.toHaveAttribute("data-glide-target");
-  await expect(reports).not.toHaveAttribute("data-glide-freeze");
-  await expect(reports).toHaveCSS("background-color", activeBackground);
-  await expect(page.getByRole("button", { name: "Inicio" })).not.toHaveCSS(
-    "background-color",
-    activeBackground,
-  );
+  await expect(indicator).toHaveCount(1);
+  await expect(reports.locator('[data-slot="sidebar-menu-active-indicator"]')).toHaveCount(1);
+  await expect(reports).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Inicio" })).not.toHaveAttribute("aria-current");
+  await expect(indicator).toHaveCSS("background-color", activeBackground);
   await expectSettled(reports);
 });
 
@@ -304,17 +298,16 @@ test("should finish closing a surface whose parent keeps re-rendering", async ({
   await expect(trigger).toBeFocused();
 });
 
-test("should glide the first sidebar change after hydration remounts its buttons", async ({
-  page,
-}) => {
-  const motion = await recordMotion(page);
+test("should move the sidebar active pill on the first change after hydration", async ({ page }) => {
+  const hydrationErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") hydrationErrors.push(message.text());
+  });
   await page.goto("/motion-hydration.html");
   const reports = page.getByRole("button", { name: "Reportes" });
-  // Tooltip wrappers are added after hydration, which remounts every menu button.
-  await expect(reports).toHaveAttribute("data-state", "closed");
   await reports.click();
   await expect(page.getByLabel("Sección activa")).toHaveText("Reportes");
-  await expect.poll(motion.glides).toContain("sidebar-menu");
-  await expect(page.locator("[data-glide-indicator]")).toHaveCount(0);
-  await expect(reports).not.toHaveAttribute("data-glide-target");
+  await expect(reports.locator('[data-slot="sidebar-menu-active-indicator"]')).toHaveCount(1);
+  await expect(page.locator('[data-slot="sidebar-menu-active-indicator"]')).toHaveCount(1);
+  expect(hydrationErrors).toEqual([]);
 });

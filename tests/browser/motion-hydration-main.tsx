@@ -10,18 +10,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  TooltipProvider,
 } from "beez-ui";
 import "./styles.css";
 
 const SECTIONS = ["Inicio", "Reportes", "Ajustes"] as const;
 
-/** Sidebar buttons with tooltips are remounted inside tooltip triggers once hydrated. */
+/** Server-rendered sidebar whose active indicator must keep working once hydrated. */
 function HydratedSidebar() {
   const [section, setSection] = useState<(typeof SECTIONS)[number]>("Inicio");
   return (
     <BeezUIProvider>
-      <TooltipProvider>
         <SidebarProvider className="min-h-0">
           <Sidebar collapsible="none" className="h-auto rounded-lg border">
             <SidebarContent>
@@ -30,8 +28,7 @@ function HydratedSidebar() {
                   <SidebarMenuItem key={name}>
                     <SidebarMenuButton
                       isActive={section === name}
-                      tooltip={name}
-                      onClick={() => setSection(name)}
+                      onSelect={() => setSection(name)}
                     >
                       {name}
                     </SidebarMenuButton>
@@ -42,7 +39,6 @@ function HydratedSidebar() {
           </Sidebar>
           <output aria-label="Sección activa">{section}</output>
         </SidebarProvider>
-      </TooltipProvider>
     </BeezUIProvider>
   );
 }

@@ -37,10 +37,6 @@ import {
   SheetDescription,
   SheetTitle,
   SheetTrigger,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
   Skeleton,
   TypingAnimation,
 } from "beez-ui";
@@ -186,15 +182,6 @@ function PolishExamples() {
               </DropdownMenuSub>
             </DropdownMenuContent>
           </DropdownMenu>
-        </section>
-        <section>
-          <SidebarProvider className="min-h-0">
-            <SidebarMenu aria-label="Accesos">
-              <SidebarMenuItem>
-                <SidebarMenuButton variant="outline">Accesos rápidos</SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarProvider>
         </section>
         <section className="carousel-frame">
           <Carousel orientation="vertical" aria-label="Novedades" className="vertical-carousel">

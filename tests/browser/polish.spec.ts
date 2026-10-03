@@ -274,14 +274,6 @@ test("should draw unstyled borders with the theme border token instead of the te
   expect(borderColor).not.toBe(textColor);
 });
 
-test("should paint the outline sidebar button border from the oklch theme token", async ({ page }) => {
-  await page.goto("/polish.html");
-  const button = page.getByRole("button", { name: "Accesos rápidos" });
-  const shadow = await button.evaluate((element) => getComputedStyle(element).boxShadow);
-  expect(shadow).not.toBe("none");
-  expect(shadow).toContain("1px");
-});
-
 test("should move a vertical carousel with the up and down arrow keys", async ({ page }) => {
   await page.goto("/polish.html");
   const carousel = page.getByRole("region", { name: "Novedades" });

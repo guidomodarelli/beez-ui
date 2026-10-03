@@ -2,7 +2,12 @@
 
 /** Keeps optional browser persistence separate from the sidebar rendering contract. */
 import { useCallback, useSyncExternalStore } from "react";
-import { SIDEBAR_COOKIE_COLLAPSED_VALUE, SIDEBAR_COOKIE_OPEN_VALUE } from "../constants/sidebar.js";
+import {
+  SIDEBAR_COOKIE_COLLAPSED_VALUE,
+  SIDEBAR_COOKIE_MAX_AGE,
+  SIDEBAR_COOKIE_NAME,
+  SIDEBAR_COOKIE_OPEN_VALUE,
+} from "../constants/sidebar.js";
 
 /** Reads a preference without making unavailable browser storage a render failure. */
 function readSidebarPreference(storageKey?: string): boolean | null {
@@ -41,5 +46,15 @@ export function saveSidebarPreference(storageKey: string | undefined, open: bool
     window.localStorage.setItem(storageKey, open ? SIDEBAR_COOKIE_OPEN_VALUE : SIDEBAR_COOKIE_COLLAPSED_VALUE);
   } catch {
     // The current in-memory state remains authoritative if storage is blocked.
+  }
+}
+
+/** Writes the cookie that server entrypoints read to render the sidebar in its last state. */
+export function saveSidebarCookie(open: boolean): void {
+  const value = open ? SIDEBAR_COOKIE_OPEN_VALUE : SIDEBAR_COOKIE_COLLAPSED_VALUE;
+  try {
+    document.cookie = `${SIDEBAR_COOKIE_NAME}=${value}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
+  } catch {
+    // Navigation remains usable when browser policy blocks preference cookies.
   }
 }

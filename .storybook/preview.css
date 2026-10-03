@@ -61,7 +61,7 @@
   height: 1rem;
   flex-shrink: 0;
 }
-:where([data-collapsible="icon"]) .StorySidebarLabel {
+:where([data-collapsible="icon"][data-state="collapsed"]) .StorySidebarLabel {
   display: none;
 }
 .StorySheetBody {

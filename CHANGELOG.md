@@ -4,9 +4,20 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- `SidebarClose` cierra el sidebar en el viewport actual.
+
 ### Changed
 
 - Las versiones se publican con beez-rp 0.6.0 (`pnpm create-version`); el paquete publicado y la forma de instalarlo no cambian.
+- **Breaking:** `Sidebar` se reemplaza por el [animated sidebar de beui](https://beui.dev/components/motion/animated-sidebar): el ancho cambia con un spring entre el panel y el riel de íconos, las etiquetas se desvanecen al colapsar, una píldora sigue al ítem activo y al hovereado, los submenús se despliegan escalonados y en pantallas chicas se abre como hoja con foco atrapado y scroll bloqueado. Los componentes conservan sus nombres (`SidebarProvider`, `Sidebar`, `SidebarMenuButton`, `useSidebar`, …) y la cookie `sidebar_state` y `storageKey` siguen funcionando igual.
+- **Breaking:** `SidebarMenuButton` y `SidebarMenuSubButton` reciben `icon`, `href`, `isActive`, `disabled`, `target`, `rel`, `onSelect` y `className` en lugar de props de `<button>`/`<a>` con `asChild`; `SidebarMenuButton` suma `badge`, `ariaExpanded` (botón de grupo con chevron) y `closeOnSelect`. Los ítems con `href` navegan con el adaptador de router de `BeezUIProvider`. `SidebarMenuSub` requiere `open`.
+- **Breaking:** `collapsible` vale `"icon"` por defecto (antes `"offcanvas"`), el riel colapsado mide 4.25rem y `Sidebar` acepta `ariaLabel` y `panelClassName`. `SidebarProvider` suma `openMobile`, `defaultOpenMobile` y `onOpenMobileChange`. Los nombres accesibles por defecto pasan a "Toggle sidebar" y "Close sidebar".
+
+### Removed
+
+- **Breaking:** se retiran `SidebarInput`, `SidebarSeparator`, `SidebarGroupAction`, `SidebarMenuAction`, `SidebarMenuBadge` (usar `badge` de `SidebarMenuButton`) y `SidebarMenuSkeleton`, y las props `asChild`, `tooltip` (en el riel colapsado la etiqueta de texto queda como nombre accesible y `title`), `variant` y `size` de `SidebarMenuButton`.
 
 ### Fixed
 

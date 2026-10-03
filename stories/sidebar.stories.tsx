@@ -10,13 +10,24 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarFooter,
   SidebarInset,
+  SidebarRail,
   SidebarTrigger,
 } from "beez-ui";
 import { useArgs } from "storybook/preview-api";
 import { LiveArgs } from "./live-args.js";
-import { Home } from "lucide-react";
+import { Activity, FolderKanban, Home, Settings } from "lucide-react";
+/** Top-level sections with their icons and optional counters. */
+const SECTIONS = [
+  { label: "Resumen", icon: <Home /> },
+  { label: "Actividad", icon: <Activity />, badge: "3" },
+  { label: "Ajustes", icon: <Settings /> },
+] as const;
+const PROJECTS = ["Beez", "Agenda"] as const;
 /** Editable inputs specific to this example. */
 type Args = {
   open: boolean;
@@ -25,6 +36,7 @@ type Args = {
   collapsible: "offcanvas" | "icon" | "none";
   title: string;
   active: string;
+  projectsOpen: boolean;
 };
 const meta = {
   title: "Components/Sidebar",
@@ -35,6 +47,7 @@ const meta = {
     collapsible: "icon",
     title: "Mi espacio",
     active: "Resumen",
+    projectsOpen: true,
   },
   argTypes: {
     open: {
@@ -57,20 +70,23 @@ const meta = {
     },
     active: {
       control: "select",
-      options: ["Resumen", "Actividad", "Ajustes"],
+      options: ["Resumen", "Actividad", "Ajustes", ...PROJECTS],
+    },
+    projectsOpen: {
+      control: "boolean",
     },
   },
   parameters: {
     layout: "fullscreen",
     controls: {
-      include: ["open", "side", "variant", "collapsible", "title", "active"],
+      include: ["open", "side", "variant", "collapsible", "title", "active", "projectsOpen"],
     },
   },
   render: function Render(args) {
     const [, updateArgs] = useArgs<Args>();
     return (
-      <LiveArgs args={args} names={["open", "active"]} updateArgs={updateArgs}>
-        {({ open, active }, { open: setOpen, active: setActive }) => {
+      <LiveArgs args={args} names={["open", "active", "projectsOpen"]} updateArgs={updateArgs}>
+        {({ open, active, projectsOpen }, { open: setOpen, active: setActive, projectsOpen: setProjectsOpen }) => {
           return (
             <SidebarProvider
               open={open}
@@ -91,24 +107,46 @@ const meta = {
                   <SidebarGroup>
                     <SidebarGroupLabel>Secciones</SidebarGroupLabel>
                     <SidebarMenu>
-                      {["Resumen", "Actividad", "Ajustes"].map((label) => (
-                        <SidebarMenuItem key={label}>
+                      {SECTIONS.map((section) => (
+                        <SidebarMenuItem key={section.label}>
                           <SidebarMenuButton
-                            isActive={active === label}
-                            tooltip={label}
-                            onClick={() => setActive(label)}
+                            icon={section.icon}
+                            badge={"badge" in section ? section.badge : undefined}
+                            isActive={active === section.label}
+                            onSelect={() => setActive(section.label)}
                           >
-                            <Home />
-                            <span>{label}</span>
+                            {section.label}
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          icon={<FolderKanban />}
+                          ariaExpanded={projectsOpen}
+                          onSelect={() => setProjectsOpen(!projectsOpen)}
+                        >
+                          Proyectos
+                        </SidebarMenuButton>
+                        <SidebarMenuSub open={projectsOpen}>
+                          {PROJECTS.map((project) => (
+                            <SidebarMenuSubItem key={project}>
+                              <SidebarMenuSubButton
+                                isActive={active === project}
+                                onSelect={() => setActive(project)}
+                              >
+                                {project}
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </SidebarMenuItem>
                     </SidebarMenu>
                   </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
                   <span className="StorySidebarLabel">Cuenta de ejemplo</span>
                 </SidebarFooter>
+                <SidebarRail />
               </Sidebar>
               <SidebarInset>
                 <div className="StorySidebarContent">

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "@playwright/test";
-import { Avatar, AvatarFallback, Button, SidebarProvider, SidebarTrigger } from "beez-ui";
+import { Avatar, AvatarFallback, Button, PaginationEllipsis, SidebarProvider, SidebarTrigger } from "beez-ui";
 import { ownedPath } from "../../scripts/owned-path.js";
 
 /** Static fixture resources belong exclusively to this test worker. */
@@ -25,6 +25,7 @@ test.beforeAll(async () => {
   const content = renderToStaticMarkup(createElement("main", null,
     createElement(Button, null, "Guardar"),
     createElement(Avatar, null, createElement(AvatarFallback, null, "GH")),
+    createElement(PaginationEllipsis),
     createElement(SidebarProvider, null, createElement(SidebarTrigger)),
   ));
   server = createServer((request, response) => {
@@ -64,6 +65,7 @@ test("should style the installed package without consumer compilation", async ({
   await expect(page.locator(".sr-only")).toHaveCSS("position", "absolute");
   await expect(page.locator(".sr-only")).toHaveCSS("width", "1px");
   await expect(page.locator('[data-slot="avatar"]')).toHaveCSS("width", "32px");
+  await expect(page.getByRole("button", { name: "Toggle sidebar" })).toHaveCSS("width", "40px");
   expect(await page.evaluate(async () => {
     const loaded = await document.fonts.load('16px "Beez Geist"');
     return loaded.length > 0 && loaded.every((font) => font.status === "loaded");

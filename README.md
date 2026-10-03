@@ -80,7 +80,7 @@ siguen los tokens de [beui motion](https://beui.dev/components/motion):
 - `Dialog` y `AlertDialog` suben con spring; `Sheet` entra desde su borde con spring
   y sale con la curva de cajón (0.24 s), sin demorar la siguiente interacción.
 - `GlideSlot` desliza el indicador activo entre ítems como un `layoutId` compartido:
-  la pestaña activa de `Tabs` (fondo o subrayado), el ítem activo de `SidebarMenu`, la
+  la pestaña activa de `Tabs` (fondo o subrayado), la
   página actual de `PaginationContent`, y al navegar con teclado el ítem resaltado de
   `DropdownMenu` y `Select` y la sugerencia activa de `FilterQueryBar`. Con el puntero,
   esos resaltados lo siguen al instante: el propio puntero ya marca la posición.
@@ -91,6 +91,10 @@ siguen los tokens de [beui motion](https://beui.dev/components/motion):
   (grupos y columnas) giran en lugar de cambiar de ícono; CSS define el ángulo final.
 - Las opciones del `Select` entran escalonadas con blur (las primeras 10; el resto
   solo se desvanece) y los checks de ítems de `Select` y `DropdownMenu` aparecen con pop.
+- `Sidebar` sigue a [beui animated sidebar](https://beui.dev/components/motion/animated-sidebar):
+  el ancho cambia con un spring entre el panel y el riel de íconos, las etiquetas se
+  desvanecen al colapsar, una píldora compartida sigue al ítem activo y al hovereado, los
+  submenús se despliegan escalonados y en pantallas chicas se abre como hoja con foco atrapado.
 - El ícono de `AnimatedThemeToggler` cambia con blur y escala; el botón de cierre de
   `Dialog` aparece con un pop demorado.
 - El contenido de `Tabs` entra con un desplazamiento de 4 px y `Alert` entra con blur.
@@ -158,7 +162,7 @@ Next y TanStack Router son peers opcionales aislados en sus entrypoints. El prov
 
 - Tema: `AnimatedThemeToggler` y `ThemedToaster` consumen el contexto compartido. Sus props explícitas de tema siguen disponibles para usos controlados.
 - Navegación: `PaginationNext`, `PaginationPrevious` y `PaginationLink` usan anclas nativas. El prop opcional `component` admite el adaptador del router que elija la app. Sin proveedor usa el elemento nativo; con el proveedor de Next usa su navegación cliente.
-- Sidebar: `defaultOpen` y el modo controlado conservan la semántica de LaTribu. `storageKey` activa opcionalmente persistencia local segura tras hidratar, sin cambiar la cookie pública `sidebar_state` ni sus siete días de duración.
+- Sidebar: en `SidebarProvider`, `defaultOpen` y el modo controlado conservan la semántica de LaTribu. Los ítems con `href` navegan con el adaptador de router del proveedor. `storageKey` activa opcionalmente persistencia local segura tras hidratar, sin cambiar la cookie pública `sidebar_state` ni sus siete días de duración.
 - Formularios y tablas: el consumidor provee sus datos, validaciones y callbacks. No se importan servicios, modelos de negocio ni endpoints de agenda-mensual.
 
 ## Componentes incorporados desde agenda-mensual

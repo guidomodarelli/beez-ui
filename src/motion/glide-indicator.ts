@@ -45,14 +45,6 @@ export const GLIDE_PRESETS = {
       container.getAttribute("data-variant") === "line" ? "after" : "background",
     spring: SPRING_TABS,
   },
-  sidebar: {
-    itemSelector: '[data-slot="sidebar-menu-button"]',
-    containerSelector: '[data-slot="sidebar-menu"]',
-    attributes: ["data-active"],
-    isActive: (item) => item.getAttribute("data-active") === "true",
-    surface: () => "background",
-    spring: SPRING_LAYOUT,
-  },
   pagination: {
     itemSelector: '[data-slot="pagination-link"]',
     containerSelector: '[data-slot="pagination-content"]',
@@ -303,7 +295,7 @@ export function attachGlideIndicator(
   }
 
   const observer = new MutationObserver(() => {
-    // Items can be remounted (a sidebar button wrapped in a tooltip after hydration); the
+    // Items can be remounted (a button wrapped in a tooltip trigger after hydration); the
     // highlight then belongs to the item that replaced the detached one.
     if (lastActive && !lastActive.isConnected) {
       lastActive = items().find(preset.isActive) ?? null;

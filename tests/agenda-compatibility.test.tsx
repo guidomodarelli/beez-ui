@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button, SidebarProvider, SidebarTrigger, useSidebar, SIDEBAR_COOKIE_NAME } from "beez-ui";
+import { SidebarProvider, SidebarTrigger, Button, useSidebar, SIDEBAR_COOKIE_NAME } from "beez-ui";
 
 /** Displays the actual provider state used by consumers. */
 function SidebarState() {
@@ -22,7 +22,7 @@ describe("Agenda compatibility", () => {
     localStorage.setItem("test.sidebar", "false");
     render(<SidebarProvider storageKey="test.sidebar"><SidebarState /><SidebarTrigger /></SidebarProvider>);
     await waitFor(() => expect(screen.getByLabelText("Estado")).toHaveTextContent("collapsed"));
-    await userEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
+    await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
     expect(localStorage.getItem("test.sidebar")).toBe("true");
     expect(document.cookie).toContain(`${SIDEBAR_COOKIE_NAME}=true`);
   });

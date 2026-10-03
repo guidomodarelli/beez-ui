@@ -125,14 +125,14 @@ function MotionCatalog() {
       <main>
         <h1>Catálogo de movimiento</h1>
         <SidebarProvider className="min-h-0">
-          <Sidebar collapsible="none" className="h-auto rounded-lg border">
+          <Sidebar collapsible="none" ariaLabel="Navegación del panel" className="h-auto rounded-lg border">
             <SidebarContent>
               <SidebarMenu aria-label="Secciones del panel">
                 {SECTIONS.map((name) => (
                   <SidebarMenuItem key={name}>
                     <SidebarMenuButton
                       isActive={section === name}
-                      onClick={() => setSection(name)}
+                      onSelect={() => setSection(name)}
                     >
                       {name}
                     </SidebarMenuButton>
