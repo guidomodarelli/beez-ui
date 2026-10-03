@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beez-ui-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: pnpm/setup@v2.1.0
+        with:
+          cache: true
+          require-lockfile: true
+      - name: Install browser dependencies
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Configure release author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Create and publish release
+        run: pnpm create-version --accept-suggested
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,6 +4,10 @@ Todos los cambios relevantes de beez-ui se documentan en este archivo con el for
 
 ## [Unreleased]
 
+### Added
+
+- Publicación desde GitHub Actions con versión y CHANGELOG calculados desde los commits, usando el token automático del repositorio.
+
 ### Changed
 
 - El paquete pasa a publicarse en GitHub Packages como `@guidomodarelli/beez-ui`; los consumidores deben actualizar sus dependencias e imports y configurar acceso al registry de GitHub.

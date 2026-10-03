@@ -253,6 +253,30 @@ El compilador `tsc` es TypeScript 7. El paquete `typescript` apunta a la [API de
 
 ## Crear y publicar una versión
 
+### Desde GitHub Actions
+
+En GitHub, abrir **Actions → Release → Run workflow**, seleccionar `main` y ejecutar.
+El workflow usa `pnpm create-version --accept-suggested`: beez-rp calcula la versión
+y genera el CHANGELOG desde los commits, prepara y valida el tarball, crea y sube
+el commit y el tag y publica en GitHub Packages.
+
+No necesita secrets manuales: pasa `GITHUB_TOKEN` como `NPM_TOKEN`, con
+`contents: write` para subir el release y `packages: write` para publicar.
+El token se entrega solo al paso de release. El workflow conserva el historial
+completo de Git, instala Chromium y WebKit para las validaciones y serializa
+los releases sin cancelar uno que ya esté en curso. Solo permite ejecutarlos
+sobre `main`.
+
+Si el paquete ya existe, este repositorio debe tener acceso de escritura en
+**Package settings → Manage Actions access**. Si una regla de protección de
+`main` impide pushes del token del workflow, debe ajustarse para permitir el
+flujo de release antes de ejecutarlo. No ejecutar un release local mientras
+esté corriendo el de Actions. Los pushes hechos con `GITHUB_TOKEN` no disparan
+el workflow de CI; la preparación del release ejecuta las validaciones completas.
+Para retomar una publicación fallida después del push, volver a ejecutar **Release**.
+
+### Desde una terminal local
+
 Desde este repositorio, configurar `NPM_TOKEN` con un token personal de GitHub **clásico** con `write:packages` en el entorno o en `.env`, tomando `.env.example` como referencia. Si el valor existente es un token de npm, reemplazarlo localmente por el de GitHub. No pegarlo en el chat ni agregar credenciales al `.npmrc` del proyecto: beez-rp rechaza esas credenciales. El campo `repository` del manifest vincula el paquete con este repositorio.
 
 ### Un solo comando: `pnpm create-version` (alias `pnpm cv`)
@@ -261,18 +285,19 @@ Desde este repositorio, configurar `NPM_TOKEN` con un token personal de GitHub *
 pnpm create-version                         # diagnóstico, plan y release interactivo
 pnpm create-version --bump minor            # patch | minor | major sin preguntar
 pnpm create-version --set-version 0.7.0     # versión exacta
+pnpm create-version --accept-suggested     # toma la versión sugerida por los commits
 pnpm create-version --dry-run               # solo muestra el diagnóstico y el plan
 pnpm cv                                     # alias de pnpm create-version
 ```
 
-El comando es el motor compartido de los proyectos Beez, `beez-rp create-version` (devDependency `beez-rp`). Su funcionamiento general (diagnóstico, bloqueos, reanudación, Codex, versiones permitidas) está documentado en el README de [beez-rp](https://github.com/guidomodarelli/beez-rp#create-version). Lo propio de beez-ui vive en `beez-rp.config.js`: la audiencia del CHANGELOG, la descripción de cada tipo de versión, el hook `prepare` de `scripts/release-hooks.js` y la publicación en GitHub Packages del tarball preparado (`publish: "npm"` + `artifact`).
+El comando es el motor compartido de los proyectos Beez, `beez-rp create-version` (devDependency `beez-rp`). Su funcionamiento general (diagnóstico, bloqueos, reanudación, versiones permitidas) está documentado en el README de [beez-rp](https://github.com/guidomodarelli/beez-rp#create-version). Lo propio de beez-ui vive en `beez-rp.config.js`: la audiencia del CHANGELOG, la descripción de cada tipo de versión, el hook `prepare` de `scripts/release-hooks.js` y la publicación en GitHub Packages del tarball preparado (`publish: "npm"` + `artifact`).
 
 Los releases salen sólo desde `main`, limpio y al día con origin (sólo `CHANGELOG.md` puede quedar sin commitear). En otra rama explica qué falta: pushear, abrir o mergear el PR. El último release es el último commit de `origin/main` que cambió el `version` de `package.json`, así que reconoce tanto los commits `X.Y.Z` como los anteriores `chore(release): prepara la versión X.Y.Z`.
 
 ### Flujo validado de un release nuevo
 
 1. Actualiza `main` con fast-forward si está atrás.
-2. Si `## [Unreleased]` está vacío, Codex lo completa desde los commits sin publicar; si no puede, el release se corta.
+2. Genera `## [Unreleased]` desde los commits entre versiones, con una entrada por commit que conserva su hash y título original.
 3. Pide la versión (sugiere `patch`, `minor` o `major` según los commits), renombra `## [Unreleased]` a `## [X.Y.Z] - AAAA-MM-DD` dejando un `[Unreleased]` vacío arriba y crea el commit `X.Y.Z` con `package.json` y `CHANGELOG.md` y el tag anotado `vX.Y.Z`, antes de las validaciones largas.
 4. `prepare` (`scripts/release-hooks.js`): reusa el tarball ya preparado para esa versión si es posterior al último cambio de código (el commit de versión no cuenta); si no, ejecuta `pnpm release:prepare` sobre el commit de versión: instalación congelada, tests sin React Compiler, build optimizado, lint, typechecks, tests unitarios y pruebas de navegador, y genera el tarball verificado con `npm pack --ignore-scripts` (npm y no pnpm, para que sea reproducible) en `releases/<version>-<sha256>/guidomodarelli-beez-ui-<version>.tgz`.
 5. Sube `main` y el tag `vX.Y.Z` a origin con un único `git push --atomic`.
@@ -296,7 +321,7 @@ pnpm release:prepare
 
 El paquete excluye fuentes privadas, tests, scripts, `.env` y `.npmrc`; incluye JavaScript, declaraciones, CSS, fuentes tipográficas y licencias. Conserva releases anteriores.
 
-`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows; no publica automáticamente.
+`prepack` ejecuta el build para los empaquetados manuales. `dist` y `releases` son generados e ignorados por Git. La CI verifica los checks y los tres providers en ambos motores de navegador en Linux y Windows. La publicación se inicia por separado desde el workflow **Release**.
 
 Tras publicar, los consumidores pueden instalar `pnpm add @guidomodarelli/beez-ui`. También pueden instalar directamente el `.tgz` validado antes de una publicación. Las aplicaciones existentes, incluida LaTribu, deben migrar al nombre con scope y configurar autenticación para consumir las versiones nuevas desde GitHub Packages; su lockfile fija la resolución e integridad.
 
